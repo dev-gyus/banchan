@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+<div class="container-sm bg-light p-0 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12 fs-1 text-center">회원가입 완료!</div>
+        <div class="col-md-12 fs-2">
+            가입시 입력하신 이메일로 가입 확인 메일을 보냈어요!<br>
+            이메일 확인이 완료되면 반찬 주문이 가능해요.
+        </div>
+        <div class="col-md-12 fs-3">
+            또, 이메일 확인시 첫 구매 쿠폰도 드리니 꼭 확인 해 주세요!
+        </div>
+        <div class="col-md-6 d-grid">
+            <a th:href="@{/}" class="btn btn-outline-primary">메인화면 가기</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

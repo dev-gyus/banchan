@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+<div class="container-sm bg-light p-0 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-sm-12">
+            <div class="text-center" style="font-size: 40px">로그인</div>
+            <hr>
+        </div>
+        <div class="col-sm-6 bg-light">
+            <form th:action="@{/login}" method="post" th:object="${loginDto}" class="row g-3 justify-content-center needs-validation" novalidate>
+                <div class="form-group">
+                    <label for="email" class="form-label">이메일</label>
+                    <input id="email" type="email" name="email" class="form-control" th:fields="*{email}" required/>
+                    <small class="invalid-feedback">올바른 이메일을 입력해 주세요</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">비밀번호</label>
+                    <input id="password" type="password" name="password" class="form-control" th:fields="*{password}" minlength="4" maxlength="20" required/>
+                    <small class="form-text">특수문자를 제외한 영문,숫자 4~20자리를 입력해주세요.</small>
+                    <small class="invalid-feedback">올바른 비밀번호를 입력해 주세요</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                </div>
+                <div class="form-group fs-4">
+                    <input id="rememberLogin" type="checkbox" name="rememberLogin" class="form-checkbox" th:fields="*{rememberLogin}"/>
+                    <label for="rememberLogin" class="form-label">로그인 기억하기</label>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-outline-success fs-3">로그인</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>
