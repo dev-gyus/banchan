@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.validation.Valid;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,8 +42,24 @@ public class AccountController {
     public String mypage(@CurrentUser Account account, Model model){
         Account findAccount = accountRepository.findByEmail(account.getEmail());
         MypageDto map = modelMapper.map(findAccount, MypageDto.class);
+        modelMapper.map(findAccount.getAddress(), map);
         model.addAttribute(map);
         return "mypage/main";
+    }
+    @PostMapping("/mypage/modify")
+    public String mypage_modify(@CurrentUser Account account, @Valid @ModelAttribute MypageDto mypageDto,
+                                BindingResult result, Model model, RedirectAttributes redirectAttributes){
+        if(mypageDto.getEmail() != null){
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+        if(result.hasErrors()){
+            mypageDto.setEmail(account.getEmail());
+            return "/mypage/main";
+        }
+
+        accountService.modifyAccount(account, mypageDto);
+
+        return "redirect:/mypage";
     }
 
 }

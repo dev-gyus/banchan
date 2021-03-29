@@ -10,8 +10,8 @@
             <div class="text-center" style="font-size: 40px">마이페이지</div>
             <hr>
         </div>
-        <div class="col-sm-6 bg-light">
-            <form th:action="@{'/mypage/' + ${mypageDto.id} + '/modify'}" method="post" th:object="${mypageDto}" class="row g-3 justify-content-center needs-validation" novalidate>
+        <div class="col-sm-10 bg-light">
+            <form th:action="@{'/mypage/modify'}" method="post" th:object="${mypageDto}" class="row g-1 justify-content-center needs-validation" novalidate>
                 <div class="form-group">
                     <label for="email" class="form-label">이메일</label>
                     <div id="email" th:text="${mypageDto.email}"></div>
@@ -19,26 +19,20 @@
                 <div class="form-group">
                     <label for="nickname" class="form-label">닉네임</label>
                     <input id="nickname" type="text" name="nickname" class="form-control" th:value="*{nickname}" th:fields="*{nickname}" minlength="2", maxlength="10"/>
-                    <small class="invalid-feedback">올바른 이메일을 입력해 주세요</small>
+                    <small class="form-text">특문을 제외한 한글,영문소,대문자,숫자 2~10자리 이내로 입력해주세요.</small>
+                    <small class="invalid-feedback">올바른 닉네임을 입력해주세요</small>
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></small>
                 </div>
-                <div class="form-group">
-                    <label for="password" class="form-label">비밀번호</label>
-                    <input id="password" type="password" name="password" class="form-control" minlength="4" maxlength="20" required/>
-                    <small class="form-text">특수문자를 제외한 영문,숫자 4~20자리를 입력해주세요.</small>
-                    <small class="invalid-feedback">올바른 비밀번호를 입력해 주세요</small>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
-                </div>
 
-                <div class="form-group col-sm-7">
+                <div class="form-group">
                     <label for="phone" class="form-label">휴대폰번호:</label>
-                    <input id="phone" type="text" name="phone" class="form-control" th:value="*{phone}" th:field="*{phone}" required>
-                    <small class="form-text">- 제외한 휴대폰 번호를 입력해주세요.</small><br>
+                    <input id="phone" type="text" name="phone" class="form-control" th:value="*{phone}" th:field="*{phone}" minlength="10", maxlength="11" required>
+                    <small class="form-text">-를 제외한 휴대폰 번호를 입력해주세요.</small><br>
                     <small id="phone-error" class="invalid-feedback">올바른 휴대폰 번호를 입력해주세요.</small><br>
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></small>
                 </div>
 
-                <div class="form-group col-sm-7">
+                <div class="form-group">
                     <label for="name" class="form-label">이름:</label>
                     <input id="name" type="text" name="name" class="form-control" th:value="*{name}" th:field="*{name}" minlength="2" maxlength="10" required>
                     <small class="form-text">한글로 최소 2글자 ~ 10글자 사이로 입력해주세요.</small><br>
@@ -50,7 +44,7 @@
                     <div class="row">
                         <label for="searchButton" class="form-label">우편번호:</label>
                         <div class="col-sm-6">
-                            <input id="sample4_postcode" type="text" name="zipcode" class="form-control" th:value="${mypageDto.address.zipcode}" th:field="*{zipcode}" required>
+                            <input id="sample4_postcode" type="text" name="zipcode" class="form-control" th:field="*{zipcode}" required>
                             <small class="invalid-feedback">필수항목입니다.</small><br>
                             <small class="form-text text-danger" th:if="${#fields.hasErrors('zipcode')}" th:errors="*{zipcode}"></small>
                         </div>
@@ -65,13 +59,13 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <label for="searchButton" class="form-label">도로명주소:</label>
-                            <input id="sample4_roadAddress" type="text" name="road" class="form-control" th:value="${mypageDto.address.road}" th:field="*{road}" required>
+                            <input id="sample4_roadAddress" type="text" name="road" class="form-control" th:field="*{road}" required>
                             <small class="invalid-feedback">필수 항목 입니다.</small><br>
                             <small class="form-text text-danger" th:if="${#fields.hasErrors('road')}" th:errors="*{road}"></small>
                         </div>
                         <div class="col-sm-6">
                             <label for="searchButton" class="form-label">지번주소:</label>
-                            <input id="sample4_jibunAddress" type="text" name="jibun" class="form-control" th:value="${mypageDto.address.jibun}" th:field="*{jibun}" required>
+                            <input id="sample4_jibunAddress" type="text" name="jibun" class="form-control" th:field="*{jibun}" required>
                             <small class="invalid-feedback">필수 항목 입니다.</small><br>
                             <small class="form-text text-danger" th:if="${#fields.hasErrors('jibun')}" th:errors="*{jibun}"></small>
                         </div>
@@ -79,19 +73,19 @@
                 </div>
                 <div class="form-group">
                     <label for="searchButton" class="form-label">상세주소:</label>
-                    <input id="sample4_detailAddress" type="text" name="detail" class="form-control" th:value="${mypageDto.address.detail}" th:field="*{detail}" required>
+                    <input id="sample4_detailAddress" type="text" name="detail" class="form-control" th:field="*{detail}" required>
                     <small class="invalid-feedback">필수 항목 입니다.</small><br>
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('detail')}" th:errors="*{detail}"></small>
                 </div>
                 <div class="form-group col-sm-4">
                     <label for="searchButton" class="form-label">참고항목:</label>
-                    <input id="sample4_extraAddress" type="text" name="extra" class="form-control" th:value="${mypageDto.address.extra}" th:field="*{extra}" required>
+                    <input id="sample4_extraAddress" type="text" name="extra" class="form-control" th:field="*{extra}">
                     <small class="invalid-feedback">필수 항목 입니다.</small><br>
                     <small class="form-text text-danger" th:if="${#fields.hasErrors('extra')}" th:errors="*{extra}"></small>
                 </div>
 
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-outline-success fs-3">로그인</button>
+                    <button type="submit" class="btn btn-outline-success fs-3">프로필 수정</button>
                 </div>
             </form>
         </div>
@@ -99,5 +93,6 @@
 </div>
 
 <script th:replace="fragments :: form-validate"></script>
+<div th:replace="fragments :: addressJavaScript"></div>
 </body>
 </html>
