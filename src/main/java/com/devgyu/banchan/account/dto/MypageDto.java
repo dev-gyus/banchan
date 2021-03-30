@@ -4,6 +4,7 @@ import com.devgyu.banchan.account.Address;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -34,6 +35,10 @@ public class MypageDto {
     private String jibun;
     @NotBlank
     private String detail;
+
+    private String thumbnail;
+
+    private MultipartFile thumbnailFile;
 
     private String extra;
 

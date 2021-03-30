@@ -18,6 +18,10 @@ spring:
     cache: false
     prefix: file:src/main/resources/templates/
 
+app:
+  host: http://localhost:8080
+  uploadFolderPrefix: /Users/devgyu/banchan
+
 logging:
   level:
     org:

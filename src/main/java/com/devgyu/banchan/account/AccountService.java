@@ -1,5 +1,6 @@
 package com.devgyu.banchan.account;
 
+import com.devgyu.banchan.AppProperties;
 import com.devgyu.banchan.account.dto.MypageDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -11,11 +12,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +30,7 @@ import java.util.Optional;
 public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
+    private final AppProperties appProperties;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -41,5 +49,23 @@ public class AccountService implements UserDetailsService {
         findAccount.setNickname(mypageDto.getNickname());
         findAccount.setName(mypageDto.getName());
         findAccount.setPhone(mypageDto.getPhone());
+        findAccount.setThumbnail(mypageDto.getThumbnail());
     }
+
+    /*
+    public void saveImageFile(Account targetAccount, MultipartFile thumbnailFile, String path) throws IOException {
+        String uploadFolderPrefix = appProperties.getUploadFolderPrefix();
+        File folder = new File(uploadFolderPrefix + "/" + path + "/");
+        if(!folder.exists()){
+            folder.mkdirs();
+        }
+        String extensionName = StringUtils.getFilenameExtension(thumbnailFile.getOriginalFilename());
+        String fileName = UUID.randomUUID() + "_" + LocalDateTime.now() + "." + extensionName;
+        File fileProperty = new File(folder, fileName);
+        thumbnailFile.transferTo(fileProperty);
+
+        targetAccount.setThumbnail(fileName);
+        targetAccount.setOriginThumbnailName(thumbnailFile.getOriginalFilename());
+    }
+     */
 }

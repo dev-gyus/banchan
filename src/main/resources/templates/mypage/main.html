@@ -4,14 +4,38 @@
 
 <body>
 <div th:replace="fragments :: commonNav">공통네비</div>
+
 <div class="container-sm bg-light p-0 pb-5">
+    <nav class="nav nav-pills nav-justified">
+        <a class="nav-link active border" aria-current="page" href="#">마이페이지</a>
+        <a class="nav-link border" href="#">비밀번호변경</a>
+        <a class="nav-link border" href="#">주문조회</a>
+        <a class="nav-link border" href="#">리뷰조회</a>
+    </nav>
     <div class="row justify-content-center">
         <div class="col-sm-12">
             <div class="text-center" style="font-size: 40px">마이페이지</div>
             <hr>
         </div>
+        <div class="col-sm-10 mb-1">
+            <label for="profile-image-file" class="form-label">프로필</label>
+            <div class="mb-3">
+                <div th:replace="fragments :: accountThumbnail(${mypageDto}, 125)"></div>
+            </div>
+
+            <div id="new-profile-image" class="mb-1"></div>
+            <input id="profile-image-file" type="file" class="form-control mb-1" name="thumbnailFile"/>
+            <div id="cropped-new-profile-image" class="text-center mb-1"></div>
+            <div class="d-grid">
+                <button id="confirm-button" type="button" class="btn btn-outline-success mb-1">확인</button>
+                <button id="cut-button" type="button" class="btn btn-outline-primary mb-1">자르기</button>
+                <button id="reset-button" type="button" class="btn btn-outline-danger">취소</button>
+            </div>
+        </div>
         <div class="col-sm-10 bg-light">
-            <form th:action="@{'/mypage/modify'}" method="post" th:object="${mypageDto}" class="row g-1 justify-content-center needs-validation" novalidate>
+            <form th:action="@{/mypage/modify}" method="post"
+                  th:object="${mypageDto}" class="row g-2 justify-content-center needs-validation" novalidate>
+                <input type="hidden" id="profileImage" name="thumbnail"/>
                 <div class="form-group">
                     <label for="email" class="form-label">이메일</label>
                     <div id="email" th:text="${mypageDto.email}"></div>
@@ -91,7 +115,7 @@
         </div>
     </div>
 </div>
-
+<script th:replace="fragments :: cropperjs"></script>
 <script th:replace="fragments :: form-validate"></script>
 <div th:replace="fragments :: addressJavaScript"></div>
 </body>
