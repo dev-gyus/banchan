@@ -35,4 +35,6 @@ public class Account {
     @Embedded
     private Address address;
 
+    private String emailToken;
+
 }

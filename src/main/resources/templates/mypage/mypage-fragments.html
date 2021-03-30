@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div th:fragment="mypageNav (nowPage)">
+    <nav class="nav nav-pills nav-justified">
+        <a class="nav-link border" aria-current="page" th:href="@{/mypage}" th:classappend="${nowPage == '마이페이지'} ? 'active'">마이페이지</a>
+        <a class="nav-link border" th:href="@{/mypage/modify-password}" th:classappend="${nowPage == '비밀번호변경'} ? 'active'">비밀번호변경</a>
+        <a class="nav-link border" href="#" th:classappend="${nowPage == '주문조회'} ? 'active'">주문조회</a>
+        <a class="nav-link border" href="#" th:classappend="${nowPage == '리뷰조회'} ? 'active'">리뷰조회</a>
+    </nav>
+</div>
+</html>

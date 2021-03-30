@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+<div class="container-sm bg-light p-0 pb-5">
+    <div class="row g-3 justify-content-center">
+        <div class="col-sm-12">
+            <div class="text-center" style="font-size: 40px">아이디 찾기</div>
+            <hr>
+        </div>
+        <div class="col-sm-12 text-center">
+            고객님의 아이디는 <br>
+            <span th:text="${convertedEmail}"></span> 입니다. <br>
+            자세한 아이디 확인을 원하실경우, 고객센터로 문의 해 주시기 바랍니다.
+        </div>
+        <div class="col-sm-4 d-grid">
+            <a th:href="@{/login}" class="btn btn-outline-primary">로그인</a>
+        </div>
+        <div class="col-sm-4 d-grid">
+            <a th:href="@{/forgot/password}" class="btn btn-outline-success">비밀번호찾기</a>
+        </div>
+        <div class="col-sm-4 d-grid">
+            <a th:href="@{/}" class="btn btn-outline-secondary">메인화면</a>
+        </div>
+    </div>
+</div>
+
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

@@ -23,5 +23,9 @@ public class BanchanApplication {
                 .setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper;
     }
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
 
 }

@@ -23,18 +23,19 @@ import javax.sql.DataSource;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AccountService accountService;
     private final DataSource dataSource;
+    private final PasswordEncoder passwordEncoder;
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .userDetailsService(accountService)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .mvcMatchers("/", "/login/**", "/login", "/register/**").permitAll()
+                .mvcMatchers("/", "/login/**", "/login", "/register/**", "/forgot/**").permitAll()
                 .anyRequest().authenticated();
 
         http
@@ -75,10 +76,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/node_modules/**", "/images/**");
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
     @Bean
     public PersistentTokenRepository jdbcTokenRepository(){
         JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();

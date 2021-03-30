@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,6 +30,7 @@ public class RegisterService {
         account.setPassword(passwordEncoder.encode(account.getPassword()));
         account.setAddress(address);
         account.setRole(Roles.ROLE_USER);
+        account.setEmailToken(UUID.randomUUID().toString());
         Account save = registerRepository.save(account);
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();

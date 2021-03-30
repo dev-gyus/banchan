@@ -6,12 +6,8 @@
 <div th:replace="fragments :: commonNav">공통네비</div>
 
 <div class="container-sm bg-light p-0 pb-5">
-    <nav class="nav nav-pills nav-justified">
-        <a class="nav-link active border" aria-current="page" href="#">마이페이지</a>
-        <a class="nav-link border" href="#">비밀번호변경</a>
-        <a class="nav-link border" href="#">주문조회</a>
-        <a class="nav-link border" href="#">리뷰조회</a>
-    </nav>
+    <div th:replace="mypage/mypage-fragments :: mypageNav('마이페이지')"></div>
+
     <div class="row justify-content-center">
         <div class="col-sm-12">
             <div class="text-center" style="font-size: 40px">마이페이지</div>

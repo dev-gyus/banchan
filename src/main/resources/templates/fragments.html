@@ -51,24 +51,22 @@
                         </ul>
                     </li>
                 </ul>
-                <div th:if="${#authorization.expr('isAnonymous()') && !#authorization.expr('isAuthenticated()')}">
-                    <svg th:data-jdenticon-value="${#strings.randomAlphanumeric(8)}" width="60" height="60">
+                <div class="me-2 position-relative" th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}">
+                    <svg class="rounded-circle" th:if="${navAccount.thumbnail == null}" th:data-jdenticon-value="${navAccount.nickname}" th:width="60" th:height="60">
                         Fallback text or image for browsers not supporting inline svg.
                     </svg>
-                </div>
-                <div class="me-2 position-relative" th:if="${!#authorization.expr('isAnonymous()') && #authorization.expr('isAuthenticated()')}">
-                    <div th:replace="fragments :: accountThumbnail(${navAccount}, 60)"></div>
+                    <img class="rounded-circle" th:if="${navAccount.thumbnail != null}" th:src="${navAccount.thumbnail}" th:width="60">
                     <a th:href="@{/mypage}" class="stretched-link"></a>
                 </div>
-                <div class="me-2 position-relative" th:if="${!#authorization.expr('isAnonymous()') && #authorization.expr('isAuthenticated()')}">
+                <div class="me-2 position-relative" th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}">
                     <div th:text="${navAccount.nickname} + '님 어서오세요!'"></div>
                     <a th:href="@{/mypage}" class="stretched-link"></a>
                 </div>
-                <div th:if="${#authorization.expr('isAnonymous()') && !#authorization.expr('isAuthenticated()')}">
+                <div th:if="${navAccount == null}">
                     <a class="btn btn-outline-success me-1" th:href="@{/register}">회원가입</a>
                     <a class="btn btn-outline-primary" th:href="@{/login}">로그인</a>
                 </div>
-                <div th:if="${!#authorization.expr('isAnonymous()') != null && #authorization.expr('isAuthenticated()')}">
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}">
                     <form th:action="@{/logout}" method="post">
                         <button type="submit" class="btn btn-outline-danger">로그아웃</button>
                     </form>
@@ -217,6 +215,7 @@
             newImage.id = "cropped-new-profile-image";
             newImage.src = dataUrl;
             newImage.width = 125;
+            newImage.setAttribute("class", "rounded-circle");
             $resultImage.html(newImage);
             $resultImage.show();
             $confirmBtn.show();
@@ -233,10 +232,10 @@
 </script>
 
 <div th:fragment="accountThumbnail (accountObject, size)">
-    <svg th:id="current-profile-image" th:if="${accountObject.thumbnail == null}" th:data-jdenticon-value="${accountObject.nickname}" th:width="${size}" th:height="${size}">
+    <svg class="rounded-circle" th:id="current-profile-image" th:if="${accountObject.thumbnail == null}" th:data-jdenticon-value="${accountObject.nickname}" th:width="${size}" th:height="${size}">
         Fallback text or image for browsers not supporting inline svg.
     </svg>
-    <img th:if="${accountObject.thumbnail != null}" th:id="current-profile-image" th:src="${accountObject.thumbnail}" th:width="${size}">
+    <img class="rounded-circle"th:if="${accountObject.thumbnail != null}" th:id="current-profile-image" th:src="${accountObject.thumbnail}" th:width="${size}">
 </div>
 
 </html>
