@@ -1,6 +1,7 @@
 package com.devgyu.banchan.config;
 
 import com.devgyu.banchan.account.AccountService;
+import com.devgyu.banchan.account.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,13 +22,13 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final AccountService accountService;
+    private final LoginService loginService;
     private final DataSource dataSource;
     private final PasswordEncoder passwordEncoder;
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
-                .userDetailsService(accountService)
+                .userDetailsService(loginService)
                 .passwordEncoder(passwordEncoder);
     }
 
@@ -35,7 +36,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .mvcMatchers("/", "/login/**", "/login", "/register/**", "/forgot/**").permitAll()
+                .mvcMatchers("/", "/login/**", "/login", "/register/**",
+                        "/forgot/**", "/storelist/**", "/storelist").permitAll()
+                .mvcMatchers("/mypage/**").hasRole("USER")
+                .mvcMatchers("/prepare/**").permitAll()
                 .anyRequest().authenticated();
 
         http
@@ -62,7 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .rememberMe()
                 .tokenValiditySeconds(60 * 60 * 24 * 14)
-                .userDetailsService(accountService)
+                .userDetailsService(loginService)
                 .rememberMeParameter("rememberLogin")
                 .rememberMeCookieName("rememberLogin")
                 .tokenRepository(jdbcTokenRepository());

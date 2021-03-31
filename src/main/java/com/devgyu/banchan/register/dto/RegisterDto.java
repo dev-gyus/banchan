@@ -1,4 +1,4 @@
-package com.devgyu.banchan.register;
+package com.devgyu.banchan.register.dto;
 
 import lombok.Data;
 

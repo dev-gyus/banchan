@@ -1,6 +1,10 @@
 package com.devgyu.banchan.account;
 
+import com.devgyu.banchan.account.dto.ForgotDto;
+import com.devgyu.banchan.account.dto.LoginDto;
+import com.devgyu.banchan.account.dto.ModifyPasswordDto;
 import com.devgyu.banchan.account.dto.MypageDto;
+import com.devgyu.banchan.mystore.StoreOwner;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,15 +16,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
 public class AccountController {
+    private final LoginService loginService;
     private final AccountService accountService;
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+
+    // TODO Account 엔티티로 받는거 전부 Customer 엔티티로 받도록 변경할것
 
     @GetMapping("/login")
     public String login(@ModelAttribute LoginDto loginDto){
@@ -28,7 +34,7 @@ public class AccountController {
     }
     @PostMapping("/login")
     public String login_do(@ModelAttribute LoginDto loginDto, BindingResult result, Model model){
-        accountService.loadUserByUsername(loginDto.getEmail());
+        loginService.loadUserByUsername(loginDto.getEmail());
         return "login";
     }
     @PostMapping("/logout")
@@ -100,26 +106,27 @@ public class AccountController {
     }
 
     @GetMapping("/mypage")
-    public String mypage(@CurrentUser Account account, Model model){
-        Account findAccount = accountRepository.findByEmail(account.getEmail());
-        MypageDto map = modelMapper.map(findAccount, MypageDto.class);
-        modelMapper.map(findAccount.getAddress(), map);
+    public String mypage(@CurrentUser Account customer, Model model) throws IllegalAccessException {
+        if(customer instanceof StoreOwner){
+            throw new IllegalAccessException("잘못된 요청입니다.");
+        }
+        Account findCustomer = accountRepository.findByEmail(customer.getEmail());
+        MypageDto map = modelMapper.map(findCustomer, MypageDto.class);
+        modelMapper.map(findCustomer.getAddress(), map);
         model.addAttribute(map);
         return "mypage/main";
     }
     @PostMapping("/mypage/modify")
-    public String mypage_modify(@CurrentUser Account account, @Valid @ModelAttribute MypageDto mypageDto,
+    public String mypage_modify(@CurrentUser Account customer, @Valid @ModelAttribute MypageDto mypageDto,
                                 BindingResult result, Model model, RedirectAttributes redirectAttributes) throws IllegalAccessException {
         if(mypageDto.getEmail() != null){
             throw new IllegalAccessException("잘못된 접근 입니다.");
         }
         if(result.hasErrors()){
-            mypageDto.setEmail(account.getEmail());
+            mypageDto.setEmail(customer.getEmail());
             return "/mypage/main";
         }
-
-        accountService.modifyAccount(account, mypageDto);
-
+        accountService.modifyCustomer(customer, mypageDto);
         return "redirect:/mypage";
     }
 
@@ -128,17 +135,17 @@ public class AccountController {
         return "mypage/change-password";
     }
     @PostMapping("/mypage/modify-password")
-    public String modifyPassword(@CurrentUser Account account,@ModelAttribute ModifyPasswordDto modifyPasswordDto,
+    public String modifyPassword(@CurrentUser Account customer, @ModelAttribute ModifyPasswordDto modifyPasswordDto,
                                  BindingResult result){
-        if(modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), account.getPassword())){
+        if(modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), customer.getPassword())){
             result.rejectValue("password", null, "인증에 실패 하였습니다.");
             return "mypage/change-password";
         }
         return "mypage/change-password-main";
     }
     @PostMapping("/mypage/modify-password-main")
-    public String modifyPassword_main(@CurrentUser Account account,@ModelAttribute ModifyPasswordDto modifyPasswordDto,
-                                 BindingResult result) throws IllegalAccessException {
+    public String modifyPassword_main(@CurrentUser Account customer, @ModelAttribute ModifyPasswordDto modifyPasswordDto,
+                                      BindingResult result) throws IllegalAccessException {
         if(modifyPasswordDto.getPasswordRepeat().equals("")){
             result.rejectValue("passwordRepeat",null,"비밀번호 확인은 필수입니다.");
             return "mypage/change-password-main";
@@ -149,7 +156,7 @@ public class AccountController {
             result.rejectValue("passwordRepeat",null,"비밀번호가 일치하지 않습니다.");
             return "mypage/change-password-main";
         }
-        accountService.modifyPassword(account.getEmail(), modifyPasswordDto);
+        accountService.modifyPassword(customer.getEmail(), modifyPasswordDto);
         return "redirect:/mypage";
     }
 

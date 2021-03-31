@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+<div class="container-sm bg-light p-1 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-sm-12 fs-1">회원가입 <hr> </div>
+        <div class="col-sm-12 fs-3">
+            <div class="alert alert-info text-center">
+                <h2>참고하세요!</h2>
+                <div class="text-center fs-4">
+                    점포 등록 후 관리자 승인이 완료되면 가게 등록이 가능해집니다<br>
+                    관리자 승인은 신청일 기준 최대 영업일 3일까지 소요됩니다<br>
+                    또한, 당사 운영규칙에 위반되는 내용, 영업을 진행시 예고없이 계정이 정지될 수 있습니다.<br>
+                    회원 가입시 상기 내용에 동의하시는 것으로 간주됩니다.
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <form th:action="@{/register/owner}" method="post" class="row needs-validation" th:object="${ownerRegisterDto}" novalidate>
+                <div class="form-group col-sm-7">
+                    <label for="email" class="form-label">이메일:</label>
+                    <input id="email" type="email" name="email" class="form-control" th:field="*{email}" required>
+                    <small class="invalid-feedback">올바른 이메일을 입력해주세요.</small><br>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+                </div>
+                <div class="form-group col-sm-7">
+                    <label for="password" class="form-label">비밀번호:</label>
+                    <input id="password" type="password" name="password" class="form-control" th:field="*{password}" minlength="4" maxlength="20" required>
+                    <small class="form-text">특수문자 제외 최소 1글자 ~ 20글자 사이로 입력해주세요.</small><br>
+                    <small class="invalid-feedback">올바른 패스워드를 입력해주세요.</small><br>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                </div>
+                <div class="form-group col-sm-7">
+                    <label for="name" class="form-label">가게명:</label>
+                    <input id="name" type="text" name="name" class="form-control" th:field="*{name}" minlength="2" maxlength="10" required>
+                    <small class="form-text">한글로 최소 2글자 ~ 10글자 사이로 입력해주세요.</small><br>
+                    <small class="invalid-feedback">이름을 올바르게 입력해주세요.</small><br>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
+                </div>
+                <div class="form-group col-sm-7">
+                <label for="phone" class="form-label">사장님 휴대전화번호:</label>
+                <input id="phone" type="text" name="phone" class="form-control" th:field="*{phone}" minlength="10" maxlength="11" required>
+                <small class="form-text">-를 제외한 휴대폰 번호를 입력해주세요.</small><br>
+                <small id="phone-error" class="invalid-feedback">올바른 휴대폰 번호를 입력해주세요.</small><br>
+                <small class="form-text text-danger" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></small>
+            </div>
+                <script>
+                    let phone = document.getElementById('phone');
+                    document.addEventListener('DOMContentLoaded', function (){
+                        phone.addEventListener('change',function(){
+                            let regExp = /^\d{10,11}$/;
+                            if(!regExp.exec(phone.value)){
+                                $('#phone-error').show();
+                            }else if(regExp.exec(phone.value)){
+                                $('#phone-error').hide();
+                            }
+                        })
+                    });
+                </script>
+                <div class="form-group col-sm-7">
+                    <label for="tel" class="form-label">가게 전화번호:</label>
+                    <input id="tel" type="text" name="phone" class="form-control" th:field="*{tel}" minlength="9" maxlength="11" required>
+                    <small class="form-text">-를 제외한 가게 전화번호를 입력해주세요.</small><br>
+                    <small id="tel-error" class="invalid-feedback">올바른 가게 전화번호를 입력해주세요.</small><br>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('tel')}" th:errors="*{tel}"></small>
+                </div>
+                <script>
+                    let tel = document.getElementById('tel');
+                    document.addEventListener('DOMContentLoaded', function (){
+                        tel.addEventListener('change',function(){
+                            let regExp = /^\d{9,11}$/;
+                            if(!regExp.exec(tel.value)){
+                                $('#tel-error').show();
+                            }else if(regExp.exec(tel.value)){
+                                $('#tel-error').hide();
+                            }
+                        })
+                    });
+                </script>
+                <div class="col-sm-5"></div>
+                <div class="form-group col-sm-4">
+                    <div class="row">
+                        <label for="searchButton" class="form-label">가게 우편번호:</label>
+                        <div class="col-sm-6">
+                            <input id="sample4_postcode" type="text" name="zipcode" class="form-control" th:field="*{zipcode}" required>
+                            <small class="invalid-feedback">필수항목입니다.</small><br>
+                            <small class="form-text text-danger" th:if="${#fields.hasErrors('zipcode')}" th:errors="*{zipcode}"></small>
+                        </div>
+                        <div class="col-sm-6">
+                            <input id="searchButton" type="button"
+                                   class="btn btn-outline-primary" onclick="sample4_execDaumPostcode()" value="우편번호 찾기" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8"></div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="searchButton" class="form-label">가게 도로명주소:</label>
+                            <input id="sample4_roadAddress" type="text" name="road" class="form-control" th:field="*{road}" required>
+                            <small class="invalid-feedback">필수 항목 입니다.</small><br>
+                            <small class="form-text text-danger" th:if="${#fields.hasErrors('road')}" th:errors="*{road}"></small>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="searchButton" class="form-label">가게 지번주소:</label>
+                            <input id="sample4_jibunAddress" type="text" name="jibun" class="form-control" th:field="*{jibun}" required>
+                            <small class="invalid-feedback">필수 항목 입니다.</small><br>
+                            <small class="form-text text-danger" th:if="${#fields.hasErrors('jibun')}" th:errors="*{jibun}"></small>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="searchButton" class="form-label">가게 상세주소:</label>
+                    <input id="sample4_detailAddress" type="text" name="detail" class="form-control" th:field="*{detail}" required>
+                    <small class="invalid-feedback">필수 항목 입니다.</small><br>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('detail')}" th:errors="*{detail}"></small>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label for="searchButton" class="form-label">참고항목:</label>
+                    <input id="sample4_extraAddress" type="text" name="extra" class="form-control" th:field="*{extra}">
+                    <small class="invalid-feedback">필수 항목 입니다.</small><br>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('extra')}" th:errors="*{extra}"></small>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-outline-success fs-3">회원가입</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script th:replace="fragments :: addressJavaScript"></script>
+<script th:replace="fragments :: form-validate"></script>
+
+</body>
+</html>
