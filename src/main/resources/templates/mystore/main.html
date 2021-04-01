@@ -1,22 +1,43 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragments :: commonHead"></head>
+<head>
+    <style>
+        .tagify--outside{
+            border: 0;
+        }
+
+        .tagify--outside .tagify__input{
+            order: -1;
+            flex: 100%;
+            border: 1px solid var(--tags-border-color);
+            margin-bottom: 1em;
+            transition: .1s;
+        }
+
+        .tagify--outside .tagify__input:hover{ border-color:var(--tags-hover-border-color); }
+        .tagify--outside.tagify--focus .tagify__input{
+            transition:0s;
+            border-color: var(--tags-focus-border-color);
+        }
+    </style>
+</head>
 
 <body>
 <div th:replace="fragments :: commonNav">공통네비</div>
 
 <div class="container-sm bg-light p-0 pb-5">
-    <div th:replace="mypage/mypage-fragments :: mypageNav('마이페이지')"></div>
+    <div th:replace="mystore/mystore-fragments :: mystoreNav ('내가게정보')"></div>
 
-    <div class="row justify-content-center">
+    <div class="row g-3 justify-content-center">
         <div class="col-sm-12">
-            <div class="text-center" style="font-size: 40px">마이페이지</div>
+            <div class="text-center" style="font-size: 40px">내 가게정보</div>
             <hr>
         </div>
         <div class="col-sm-10 mb-1">
             <label for="profile-image-file" class="form-label">프로필</label>
             <div class="mb-3">
-                <div th:replace="fragments :: accountThumbnail(${mypageDto}, 125)"></div>
+                <div th:replace="fragments :: accountThumbnail(${mystoreDto}, 125, false)"></div>
             </div>
 
             <div id="new-profile-image" class="mb-1"></div>
@@ -29,48 +50,74 @@
             </div>
         </div>
         <div class="col-sm-10 bg-light">
-            <form th:action="@{/mypage/modify}" method="post"
-                  th:object="${mypageDto}" class="row g-2 justify-content-center needs-validation" novalidate>
+            <form th:action="@{/mystore/modify}" method="post" onsubmit="return inputTags()"
+                  th:object="${mystoreDto}" class="row g-2 justify-content-center needs-validation" novalidate>
                 <input type="hidden" id="profileImage" name="thumbnail"/>
+
+                <div class="form-group">
+                    <label for="tags" class="form-label">태그 카테고리</label><br>
+                    <small class="form-text">
+                        판매하실 상품 종류에 해당하는 태그 카테고리를 선택해 주세요.<br>
+                        선택하신 태그에 해당하는 카테고리에 사장님 가게가 보여져요!
+                    </small>
+                    <input id="tags" name="tagInput" class="form-control tagify--outside"
+                           th:value="${#strings.listJoin(mystoreDto.categories, ',')}"/>
+                    <small id="tag-error" class="invalid-feedback">아래 선택창에 있는 태그를 선택 해 주세요!</small>
+                    <div id="tagDiv"></div>
+                </div>
+
+                <script th:replace="mystore/mystore-fragments :: tagJS"></script>
+
                 <div class="form-group">
                     <label for="email" class="form-label">이메일</label>
-                    <div id="email" th:text="${mypageDto.email}"></div>
-                </div>
-                <div class="form-group">
-                    <label for="nickname" class="form-label">닉네임</label>
-                    <input id="nickname" type="text" name="nickname" class="form-control" th:value="*{nickname}" th:fields="*{nickname}" minlength="2", maxlength="10"/>
-                    <small class="form-text">특문을 제외한 한글,영문소,대문자,숫자 2~10자리 이내로 입력해주세요.</small>
-                    <small class="invalid-feedback">올바른 닉네임을 입력해주세요</small>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></small>
+                    <div id="email" th:text="${mystoreDto.email}"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="phone" class="form-label">휴대폰번호:</label>
-                    <input id="phone" type="text" name="phone" class="form-control" th:value="*{phone}" th:field="*{phone}" minlength="10", maxlength="11" required>
-                    <small class="form-text">-를 제외한 휴대폰 번호를 입력해주세요.</small><br>
-                    <small id="phone-error" class="invalid-feedback">올바른 휴대폰 번호를 입력해주세요.</small><br>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></small>
+                    <label for="name" class="form-label">가게이름:</label>
+                    <input id="name" type="text" name="name" class="form-control" th:value="*{name}" th:field="*{name}"
+                           minlength="2" maxlength="10" required>
+                    <small class="form-text">한글로 최소 2글자 ~ 10글자 사이로 입력해주세요.<br></small>
+                    <small class="invalid-feedback">가게이름을 올바르게 입력해주세요.<br></small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('name')}"
+                           th:errors="*{name}"></small>
                 </div>
 
                 <div class="form-group">
-                    <label for="name" class="form-label">이름:</label>
-                    <input id="name" type="text" name="name" class="form-control" th:value="*{name}" th:field="*{name}" minlength="2" maxlength="10" required>
-                    <small class="form-text">한글로 최소 2글자 ~ 10글자 사이로 입력해주세요.</small><br>
-                    <small class="invalid-feedback">이름을 올바르게 입력해주세요.</small><br>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
+                    <label for="tel" class="form-label">가게 전화번호:</label>
+                    <input id="tel" type="text" name="tel" class="form-control" th:value="*{tel}" th:field="*{tel}"
+                           minlength="9" , maxlength="11" required>
+                    <small class="form-text">-를 제외한 가게 전화번호를 입력해주세요.<br></small>
+                    <small id="tel-error" class="invalid-feedback">올바른 휴대폰 번호를 입력해주세요.<br></small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('tel')}" th:errors="*{tel}"></small>
                 </div>
+                <script th:replace="fragments :: tel-validate"></script>
+
+                <div class="form-group">
+                    <label for="phone" class="form-label">사장님 휴대폰번호:</label>
+                    <input id="phone" type="text" name="phone" class="form-control" th:value="*{phone}"
+                           th:field="*{phone}" minlength="10" , maxlength="11" required>
+                    <small class="form-text">-를 제외한 휴대폰 번호를 입력해주세요.<br></small>
+                    <small id="phone-error" class="invalid-feedback">올바른 휴대폰 번호를 입력해주세요.<br></small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('phone')}"
+                           th:errors="*{phone}"></small>
+                </div>
+                <script th:replace="fragments :: phone-validate"></script>
 
                 <div class="form-group col-sm-4">
                     <div class="row">
                         <label for="searchButton" class="form-label">우편번호:</label>
                         <div class="col-sm-6">
-                            <input id="sample4_postcode" type="text" name="zipcode" class="form-control" th:field="*{zipcode}" required>
-                            <small class="invalid-feedback">필수항목입니다.</small><br>
-                            <small class="form-text text-danger" th:if="${#fields.hasErrors('zipcode')}" th:errors="*{zipcode}"></small>
+                            <input id="sample4_postcode" type="text" name="zipcode" class="form-control"
+                                   th:field="*{zipcode}" required>
+                            <small class="invalid-feedback">필수항목입니다.<br></small>
+                            <small class="form-text text-danger" th:if="${#fields.hasErrors('zipcode')}"
+                                   th:errors="*{zipcode}"></small>
                         </div>
                         <div class="col-sm-6">
                             <input id="searchButton" type="button"
-                                   class="btn btn-outline-primary" onclick="sample4_execDaumPostcode()" value="우편번호 찾기" required>
+                                   class="btn btn-outline-primary" onclick="sample4_execDaumPostcode()" value="우편번호 찾기"
+                                   required>
                         </div>
                     </div>
                 </div>
@@ -79,29 +126,39 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <label for="searchButton" class="form-label">도로명주소:</label>
-                            <input id="sample4_roadAddress" type="text" name="road" class="form-control" th:field="*{road}" required>
-                            <small class="invalid-feedback">필수 항목 입니다.</small><br>
-                            <small class="form-text text-danger" th:if="${#fields.hasErrors('road')}" th:errors="*{road}"></small>
+                            <input id="sample4_roadAddress" type="text" name="road" class="form-control"
+                                   th:field="*{road}" required>
+                            <small class="invalid-feedback">필수 항목 입니다.<br></small>
+                            <small class="form-text text-danger" th:if="${#fields.hasErrors('road')}"
+                                   th:errors="*{road}"></small>
                         </div>
                         <div class="col-sm-6">
                             <label for="searchButton" class="form-label">지번주소:</label>
-                            <input id="sample4_jibunAddress" type="text" name="jibun" class="form-control" th:field="*{jibun}" required>
-                            <small class="invalid-feedback">필수 항목 입니다.</small><br>
-                            <small class="form-text text-danger" th:if="${#fields.hasErrors('jibun')}" th:errors="*{jibun}"></small>
+                            <input id="sample4_jibunAddress" type="text" name="jibun" class="form-control"
+                                   th:field="*{jibun}" required>
+                            <small class="invalid-feedback">필수 항목 입니다.<br></small>
+                            <small class="form-text text-danger" th:if="${#fields.hasErrors('jibun')}"
+                                   th:errors="*{jibun}"></small>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="searchButton" class="form-label">상세주소:</label>
-                    <input id="sample4_detailAddress" type="text" name="detail" class="form-control" th:field="*{detail}" required>
-                    <small class="invalid-feedback">필수 항목 입니다.</small><br>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('detail')}" th:errors="*{detail}"></small>
+                    <input id="sample4_detailAddress" type="text" name="detail" class="form-control"
+                           th:field="*{detail}" required>
+                    <small class="invalid-feedback">필수 항목 입니다.<br></small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('detail')}"
+                           th:errors="*{detail}"></small>
                 </div>
-                <div class="form-group col-sm-4">
+                <div class="form-group">
                     <label for="searchButton" class="form-label">참고항목:</label>
-                    <input id="sample4_extraAddress" type="text" name="extra" class="form-control" th:field="*{extra}">
-                    <small class="invalid-feedback">필수 항목 입니다.</small><br>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('extra')}" th:errors="*{extra}"></small>
+                    <div class="col-sm-4">
+                        <input id="sample4_extraAddress" type="text" name="extra" class="form-control"
+                               th:field="*{extra}">
+                    </div>
+                    <small class="invalid-feedback">필수 항목 입니다.<br></small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('extra')}"
+                           th:errors="*{extra}"></small>
                 </div>
 
                 <div class="d-grid">
@@ -111,8 +168,26 @@
         </div>
     </div>
 </div>
-<script th:replace="fragments :: cropperjs"></script>
+<script th:replace="fragments :: cropperjs(false)"></script>
 <script th:replace="fragments :: form-validate"></script>
 <div th:replace="fragments :: addressJavaScript"></div>
+<script>
+    function inputTags(){
+        let tags = document.getElementsByTagName('tag');
+        let tagDiv = document.getElementById('tagDiv');
+        while(tagDiv.hasChildNodes()){
+            tagDiv.removeChild(tagDiv.lastChild);
+        }
+        for (let i=0; i<tags.length; i++) {
+            let value = tags[i].getAttribute('value');
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'categories[' + i + ']';
+            input.value = value;
+            tagDiv.appendChild(input);
+        }
+        return true;
+    }
+</script>
 </body>
 </html>

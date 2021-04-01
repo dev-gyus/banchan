@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light p-0 pb-5">
+    <div th:replace="mystore/mystore-fragments :: mystoreNav ('상품목록관리')"></div>
+
+    <div class="row g-3 justify-content-center fs-2">
+        <div class="col-sm-12">
+            <div class="text-center" style="font-size: 40px">상품목록관리</div>
+            <hr>
+        </div>
+        <div class="col-sm-10">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12">
+                    <div th:replace="fragments :: accountThumbnail(${mystoreDto}, 125, false)"></div>
+                    <span th:if="${mystoreDto.storeIntroduce != null}" th:text="${mystoreDto.storeIntroduce}"></span>
+                    <small class="form-text" th:if="${mystoreDto.storeIntroduce == null}">가게 소개를 작성해주세요!</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-10" th:each="map : ${itemMap}">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12" style="background-color: #e9ecef">
+                    <span>상품 카테고리: </span><span th:text="${map.key} "></span>
+                    <a th:href="@{'/items/add?category=' + ${map.key}}" class="link-primary">
+                        <i class="far fa-plus-square"></i>
+                    </a>
+                    <hr class="mt-0">
+                </div>
+                <div class="col-sm-12" th:each="item : ${map.value}">
+                    <div class="row justify-content-center">
+                        <div th:id="${item.name}" class="col-sm-12">
+                            <div class="col-sm-2 text-center" th:text="${item.thumbnail}"></div>
+                            <div class="col-sm-3 text-center" th:text="${item.name}"></div>
+                            <div class="col-sm-5 text-center" th:text="${item.itemIntroduce}"></div>
+                            <div class="col-sm-2 text-center" th:text="${item.price}"></div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

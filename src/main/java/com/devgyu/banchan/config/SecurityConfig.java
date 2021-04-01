@@ -39,7 +39,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/", "/login/**", "/login", "/register/**",
                         "/forgot/**", "/storelist/**", "/storelist").permitAll()
                 .mvcMatchers("/mypage/**").hasRole("USER")
-                .mvcMatchers("/prepare/**").permitAll()
+                .mvcMatchers("/mystore/**", "/items/**", "/items").hasRole("OWNER")
+                .mvcMatchers("/prepare/**").hasRole("ADMIN")
                 .anyRequest().authenticated();
 
         http
@@ -77,7 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         web
                 .ignoring()
-                .mvcMatchers("/node_modules/**", "/images/**");
+                .mvcMatchers("/node_modules/**", "/images/**", "/api/**");
     }
 
     @Bean

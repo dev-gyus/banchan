@@ -12,6 +12,7 @@
           integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
     <link rel="stylesheet" href="/node_modules/cropperjs/dist/cropper.min.css">
     <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/node_modules/@yaireo/tagify/dist/tagify.css">
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
@@ -20,6 +21,7 @@
     <script src="/node_modules/cropperjs/dist/cropper.min.js"></script>
     <script src="/node_modules/jquery-cropper/dist/jquery-cropper.min.js"></script>
     <script src="/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
     <style>
         body {
             font-family: 'Jua', sans-serif;
@@ -105,6 +107,32 @@
 </div>
 </div>
 
+<script th:fragment="phone-validate">
+    let phone = document.getElementById('phone');
+    document.addEventListener('DOMContentLoaded', function (){
+        phone.addEventListener('change',function(){
+            let regExp = /^\d{10,11}$/;
+            if(!regExp.exec(phone.value)){
+                $('#phone-error').show();
+            }
+        })
+    });
+</script>
+
+<script th:fragment="tel-validate">
+    let tel = document.getElementById('tel');
+    document.addEventListener('DOMContentLoaded', function (){
+        tel.addEventListener('change',function(){
+            let regExp = /^\d{9,11}$/;
+            if(!regExp.exec(tel.value)){
+                $('#tel-error').show();
+            }else if(regExp.exec(tel.value)){
+                $('#tel-error').hide();
+            }
+        })
+    });
+</script>
+
 <script th:fragment="form-validate">
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     (function () {
@@ -173,7 +201,7 @@
     </script>
 </div>
 
-<script th:fragment="cropperjs" type="application/javascript">
+<script th:fragment="cropperjs(isRounded)" type="application/javascript">
     $(function () {
         cropper = '';
         let $confirmBtn = $("#confirm-button");
@@ -183,6 +211,11 @@
         let $currentProfileImage = $("#current-profile-image");
         let $resultImage = $("#cropped-new-profile-image");
         let $profileImage = $("#profileImage");
+        let rounded = 'rounded-circle';
+        let isRounded = '[[${isRounded}]]';
+        if(isRounded == 'false'){
+            rounded = 'rounded-3';
+        }
 
         $newProfileImage.hide();
         $cutBtn.hide();
@@ -244,7 +277,7 @@
             newImage.id = "cropped-new-profile-image";
             newImage.src = dataUrl;
             newImage.width = 125;
-            newImage.setAttribute("class", "rounded-circle");
+            newImage.setAttribute("class", rounded);
             $resultImage.html(newImage);
             $resultImage.show();
             $confirmBtn.show();
@@ -260,13 +293,13 @@
     });
 </script>
 
-<div th:fragment="accountThumbnail (accountObject, size)">
-    <svg class="rounded-circle" th:id="current-profile-image" th:if="${accountObject.thumbnail == null}"
+<span th:fragment="accountThumbnail (accountObject, size, isRounded)">
+    <svg th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:id="current-profile-image" th:if="${accountObject.thumbnail == null}"
          th:data-jdenticon-value="${accountObject.name}" th:width="${size}" th:height="${size}">
         Fallback text or image for browsers not supporting inline svg.
     </svg>
-    <img class="rounded-circle" th:if="${accountObject.thumbnail != null}" th:id="current-profile-image"
+    <img th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:if="${accountObject.thumbnail != null}" th:id="current-profile-image"
          th:src="${accountObject.thumbnail}" th:width="${size}">
-</div>
+</span>
 
 </html>

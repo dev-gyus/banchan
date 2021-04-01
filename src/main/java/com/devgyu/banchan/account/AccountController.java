@@ -4,7 +4,7 @@ import com.devgyu.banchan.account.dto.ForgotDto;
 import com.devgyu.banchan.account.dto.LoginDto;
 import com.devgyu.banchan.account.dto.ModifyPasswordDto;
 import com.devgyu.banchan.account.dto.MypageDto;
-import com.devgyu.banchan.mystore.StoreOwner;
+import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;

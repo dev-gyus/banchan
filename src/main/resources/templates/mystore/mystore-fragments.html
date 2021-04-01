@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div th:fragment="mystoreNav (nowPage)">
+    <nav class="nav nav-pills nav-justified">
+        <a class="nav-link border" aria-current="page" th:href="@{/mystore}" th:classappend="${nowPage == '내가게정보'} ? 'active'">내 가게정보</a>
+        <a class="nav-link border" th:href="@{/mystore/modify-password}" th:classappend="${nowPage == '비밀번호변경'} ? 'active'">비밀번호변경</a>
+        <a class="nav-link border" th:href="@{/items}" th:classappend="${nowPage == '상품목록관리'} ? 'active'">상품목록관리</a>
+        <a class="nav-link border" href="#" th:classappend="${nowPage == '리뷰조회'} ? 'active'">리뷰조회</a>
+    </nav>
+</div>
+
+<script th:fragment="tagJS">
+    let categories = '';
+    let tagInput = document.querySelector('input[name=tagInput]');
+    let tagify;
+    document.addEventListener('DOMContentLoaded', function() {
+        getCategories();
+        tagInput.addEventListener('change', function () {
+            tagValidation();
+        });
+    });
+
+    function getCategories(){
+        $.ajax({
+            url: '/api/categories',
+            type: 'get',
+            dataType: 'json',
+            success: function(result){
+                categories = result.categories;
+                tagify = new Tagify(tagInput, {
+                    whitelist: categories,
+                    dropdown: {
+                        position: "input",
+                        enabled : 0 // always opens dropdown when input gets focus
+                    }
+                });
+            },
+            error: function(){
+                alert('태그 목록을 가져오던 중 에러가 발생했습니다. 에러가 반복되면 관리자에게 문의 해 주시기 바랍니다.');
+            }
+        });
+    }
+
+    function tagValidation(){
+        let isValidateOkay = false;
+        let tags = document.getElementsByTagName('tag');
+        let tagParent = document.getElementsByTagName('tags');
+        let removeTarget;
+        for (let tag of tags) {
+            let value = tag.getAttribute('value');
+            for(let category of categories){
+                if(value == category){
+                    isValidateOkay = true;
+                    break;
+                }else{
+                    isValidateOkay = false;
+                    removeTarget = tag;
+                }
+            }
+            if(!isValidateOkay){
+                break;
+            }
+        }
+        if(!isValidateOkay){
+            $('#tag-error').show();
+            tagParent[0].removeChild(removeTarget);
+        }else{
+            $('#tag-error').hide();
+        }
+    }
+</script>
+</html>

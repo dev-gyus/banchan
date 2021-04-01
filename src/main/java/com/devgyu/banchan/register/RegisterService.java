@@ -3,7 +3,7 @@ package com.devgyu.banchan.register;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.customer.Customer;
-import com.devgyu.banchan.mystore.StoreOwner;
+import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.email.MailService;
 import com.devgyu.banchan.register.dto.OwnerRegisterDto;
 import com.devgyu.banchan.register.dto.RegisterDto;

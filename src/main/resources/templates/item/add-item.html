@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light p-0 pb-5">
+    <div th:replace="mystore/mystore-fragments :: mystoreNav ('상품목록관리')"></div>
+
+    <div class="row g-3 justify-content-center fs-2">
+        <div class="col-sm-12">
+            <div class="text-center" style="font-size: 40px">상품추가</div>
+            <hr>
+        </div>
+        <div class="col-sm-10">
+            <span th:text="${'현재 카테고리: ' + category}"></span>
+            <span><button type="button" class="btn btn-outline-success fs-5"
+                          onclick="history.back()">이전화면</button></span>
+        </div>
+        <div class="col-sm-10 mb-2">
+            <form th:action="@{'/items/add?category=' + ${category}}" th:object="${addItemDto}" method="post"
+                  class="row g-3 needs-validation" novalidate>
+                <input type="hidden" name="category" th:value="${category}"/>
+                <div class="form-group">
+                    <label for="profile-image-file" class="form-label">상품사진</label>
+                    <div id="new-profile-image" class="text-center mb-2"></div>
+                    <input id="profile-image-file" type="file" class="form-control mb-1" name="thumbnailFile"/>
+                    <small class="form-text fs-4">이미지는 150x150 크기로 수정되어 표시됩니다. 업로드 전 확인해주세요!</small>
+                    <div id="cropped-new-profile-image" class="text-center mb-1"></div>
+                </div>
+                <script>
+                    let $newProfileImage = $('#new-profile-image');
+                    $("#profile-image-file").change(function (e) {
+                        if (e.target.files.length === 1) {
+                            const reader = new FileReader();
+                            reader.onload = e => {
+                                if (e.target.result) {
+                                    if (!e.target.result.startsWith("data:image")) {
+                                        alert("이미지 파일을 선택하세요.");
+                                        return;
+                                    }
+                                    let img = document.createElement("img");
+                                    img.id = 'new-profile';
+                                    img.src = e.target.result;
+                                    img.setAttribute('width', '150');
+                                    img.setAttribute('height', '150');
+                                    $newProfileImage.html(img);
+                                    $newProfileImage.show();
+                                }
+                            };
+                            reader.readAsDataURL(e.target.files[0]);
+                        }
+                    });
+                </script>
+                <div class="form-group col-sm-7">
+                    <label for="name" class="form-label">상품명</label>
+                    <input id="name" type="text" class="form-control" name="name" th:field="*{name}" minlength="2"
+                           maxlength="10" required/>
+                    <small class="form-text fs-4">상품명을 10글자 이내로 입력해주세요.</small>
+                    <small class="invalid-feedback fs-4">상품명은 한글, 영문대,소문자, 숫자로 2~10글자 내외로 입력해주세요.</small>
+                    <small class="form-text text-danger fs-4" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">상품명을
+                        입력해주세요.</small>
+                </div>
+                <div class="form-group col-sm-7">
+                    <label for="price" class="form-label">상품가격</label>
+                    <input id="price" type="number" class="form-control" name="price" th:field="*{price}" min="1"
+                           required/>
+                    <small class="form-text fs-4">상품 가격을 1원 이상 입력해주세요.</small>
+                    <small class="invalid-feedback fs-4">상품 가격은 숫자로 1이상 입력해주세요.</small>
+                    <small class="form-text text-danger fs-4" th:if="${#fields.hasErrors('price')}"
+                           th:errors="*{price}">상품 가격은 숫자로 1이상 입력해주세요.</small>
+                </div>
+                <div class="form-group">
+                    <label for="itemIntroduce" class="form-label">상품설명</label>
+                    <input id="itemIntroduce" type="text" class="form-control" name="itemIntroduce"
+                           th:field="*{itemIntroduce}" minlength="1" maxlength="50" required/>
+                    <small class="form-text fs-4">50글자 이내로 멋지게 우리가게 상품을 홍보하세요!</small>
+                    <small class="invalid-feedback fs-4">글자는 최소 1글자 이상, 최대 50글자를 넘을 수 없습니다.</small>
+                    <small class="form-text text-danger fs-4"
+                           th:if="${#fields.hasErrors('itemIntroduce')}"
+                           th:errors="*{itemIntroduce}">상품 가격은 숫자로 1이상 입력해주세요.</small>
+                </div>
+                <div th:if="${!addItemDto.itemOptionList.isEmpty()}" class="form-group">
+                    <label class="form-label">상품옵션</label>
+                    <hr>
+                </div>
+                <div id="optionDiv" class="form-group">
+                    <div th:id="${'optionDiv' + itemOption.id}" th:each="itemOption : ${addItemDto.itemOptionList}"
+                         th:if="${!addItemDto.itemOptionList.isEmpty()}" class="form-group">
+                        <input type="text" class="form-control" th:name="${'itemOption['+ itemOptionStat.index + '].name'}" th:field="*{itemOption.name}" minlength="2"
+                               maxlength="10" readonly/>
+                        <small class="form-text fs-4">상품 옵션명을 입력해주세요.</small>
+                        <small class="invalid-feedback fs-4">글자는 최소 1글자 이상, 최대 50글자를 넘을 수 없습니다.</small>
+                        <small class="form-text text-danger fs-4"
+                               th:if="${#fields.hasErrors('itemOption')}"
+                               th:errors="*{itemOption}">상품 가격은 숫자로 1이상 입력해주세요.</small>
+                        <button type="button" class="btn btn-outline-danger">옵션 삭제</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="addItemOption" class="form-label">상품옵션추가</label>
+                    <a id="addItemOption" href='#' class="link-primary" onclick="return addOptionTags()">
+                        <i class="far fa-plus-square"></i>
+                    </a>
+                </div>
+                <script>
+                    let optionCount = 0;
+                    function addOptionTags() {
+                        let optionDiv = document.getElementById('optionDiv');
+                        let formgroup = document.createElement('div');
+                        formgroup.setAttribute('class', 'form-group col-md-6');
+                        let nameLabel = document.createElement('label');
+                        nameLabel.for = 'option[' + optionCount + ']';
+                        nameLabel.setAttribute('class', 'form-label');
+                        formgroup.appendChild(nameLabel);
+
+                        let itemOption = document.createElement('input');
+                        itemOption.id = 'option[' + optionCount + ']';
+                        itemOption.type = 'text';
+                        itemOption.name = 'itemOption[' + optionCount + '].name';
+                        itemOption.setAttribute('class', 'form-control');
+                        formgroup.appendChild(itemOption);
+
+                        let explainSmall = document.createElement('small');
+                        explainSmall.setAttribute('class', 'form-text');
+                        explainSmall.innerHTML = '한글 2~10글자 내의 상품 옵션명을 입력 해 주세요<br>';
+                        formgroup.appendChild(explainSmall);
+
+                        let invalidSmall = document.createElement('small');
+                        invalidSmall.setAttribute('class', 'invalid-feedback');
+                        invalidSmall.innerHTML = '상품<br>';
+                        formgroup.appendChild(invalidSmall);
+                        return false;
+                    }
+                </script>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-outline-primary fs-4">상품등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 package com.devgyu.banchan.modules.storecategory;
 
 import com.devgyu.banchan.modules.category.Category;
-import com.devgyu.banchan.modules.store.Store;
+import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import lombok.*;
 
 import javax.persistence.*;
@@ -17,14 +17,16 @@ public class StoreCategory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
-    private Store store;
+    private StoreOwner storeOwner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    public StoreCategory(Store store, Category category) {
-        this.store = store;
+    public StoreCategory(StoreOwner storeOwner, Category category) {
+        this.storeOwner = storeOwner;
         this.category = category;
+        storeOwner.getStoreCategories().add(this);
+        category.getStoreCategoryList().add(this);
     }
 }
