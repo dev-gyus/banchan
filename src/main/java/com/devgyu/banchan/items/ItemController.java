@@ -12,11 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,5 +56,18 @@ public class ItemController {
     public String add_item(@RequestParam String category, @ModelAttribute AddItemDto addItemDto, Model model){
         model.addAttribute("category", category);
         return "item/add-item";
+    }
+    @PostMapping("/add")
+    public String add_item_do(@CurrentUser StoreOwner storeOwner, @RequestParam String category, @Valid @ModelAttribute AddItemDto addItemDto,
+                              BindingResult result, Model model) throws IOException {
+        if(result.hasErrors()){
+            model.addAttribute("category",category);
+            return "item/add-item";
+        }
+        List<ItemOption> itemOptionList = addItemDto.getItemOptionList();
+        itemOptionList.removeIf(iol -> iol.getName() == null);
+        addItemDto.setItemOptionList(itemOptionList);
+        itemService.addItem(storeOwner, category, addItemDto);
+        return "redirect:/items";
     }
 }

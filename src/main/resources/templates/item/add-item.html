@@ -19,9 +19,9 @@
                           onclick="history.back()">이전화면</button></span>
         </div>
         <div class="col-sm-10 mb-2">
-            <form th:action="@{'/items/add?category=' + ${category}}" th:object="${addItemDto}" method="post"
+            <form th:action="@{'/items/add?category=' + ${category} + '&_csrf=' + ${_csrf.getToken()}}"
+                  th:object="${addItemDto}" method="post" enctype="multipart/form-data"
                   class="row g-3 needs-validation" novalidate>
-                <input type="hidden" name="category" th:value="${category}"/>
                 <div class="form-group">
                     <label for="profile-image-file" class="form-label">상품사진</label>
                     <div id="new-profile-image" class="text-center mb-2"></div>
@@ -81,57 +81,117 @@
                            th:if="${#fields.hasErrors('itemIntroduce')}"
                            th:errors="*{itemIntroduce}">상품 가격은 숫자로 1이상 입력해주세요.</small>
                 </div>
-                <div th:if="${!addItemDto.itemOptionList.isEmpty()}" class="form-group">
+                <div class="form-group">
                     <label class="form-label">상품옵션</label>
                     <hr>
                 </div>
-                <div id="optionDiv" class="form-group">
-                    <div th:id="${'optionDiv' + itemOption.id}" th:each="itemOption : ${addItemDto.itemOptionList}"
-                         th:if="${!addItemDto.itemOptionList.isEmpty()}" class="form-group">
-                        <input type="text" class="form-control" th:name="${'itemOption['+ itemOptionStat.index + '].name'}" th:field="*{itemOption.name}" minlength="2"
-                               maxlength="10" readonly/>
-                        <small class="form-text fs-4">상품 옵션명을 입력해주세요.</small>
-                        <small class="invalid-feedback fs-4">글자는 최소 1글자 이상, 최대 50글자를 넘을 수 없습니다.</small>
-                        <small class="form-text text-danger fs-4"
-                               th:if="${#fields.hasErrors('itemOption')}"
-                               th:errors="*{itemOption}">상품 가격은 숫자로 1이상 입력해주세요.</small>
-                        <button type="button" class="btn btn-outline-danger">옵션 삭제</button>
+                <div class="form-group col-sm-12">
+                    <div id="optionDiv" class="row g-3 justify-content-center">
+                        <div th:id="${'optionDiv' + itemOption.id}" th:each="itemOption : ${addItemDto.itemOptionList}"
+                             th:if="${!addItemDto.itemOptionList.isEmpty()}" class="form-group">
+                            <input type="text" class="form-control" th:name="${'itemOption['+ itemOptionStat.index + '].name'}" th:field="*{itemOption.name}" minlength="2"
+                                   maxlength="10" readonly/>
+                            <small class="form-text fs-4">상품 옵션명을 입력해주세요.</small>
+                            <small class="invalid-feedback fs-4">글자는 최소 1글자 이상, 최대 50글자를 넘을 수 없습니다.</small>
+                            <small class="form-text text-danger fs-4"
+                                   th:if="${#fields.hasErrors('itemOption')}"
+                                   th:errors="*{itemOption}">상품 가격은 숫자로 1이상 입력해주세요.</small>
+                            <button type="button" class="btn btn-outline-danger">옵션 삭제</button>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="addItemOption" class="form-label">상품옵션추가</label>
-                    <a id="addItemOption" href='#' class="link-primary" onclick="return addOptionTags()">
-                        <i class="far fa-plus-square"></i>
-                    </a>
+                    <span id="addItemOption" class="link-primary position-relative"><a href="#" class="stretched-link" onclick="return false"></a>
+                        <i class="far fa-plus-square"></i></span>
                 </div>
                 <script>
-                    let optionCount = 0;
+                    document.addEventListener('DOMContentLoaded', function () {
+                        $('#addItemOption').on('click', function () {  // the i element will not exist once the icon is rendered
+                            addOptionTags();
+                        });
+                    });
+
+                    let optionDiv = document.getElementById('optionDiv');
+                    let optionCount = optionDiv.childElementCount;
                     function addOptionTags() {
-                        let optionDiv = document.getElementById('optionDiv');
-                        let formgroup = document.createElement('div');
-                        formgroup.setAttribute('class', 'form-group col-md-6');
+                        console.log(optionCount);
+                        let parentDiv = document.createElement('div');
+                        let rowDiv = document.createElement('div')
+                        let nameFormGroup = document.createElement('div');
+                        let priceFormGroup = document.createElement('div');
+                        let deleteBtnFormGroup = document.createElement('div');
+                        parentDiv.setAttribute('class', 'col-sm-12');
+                        rowDiv.setAttribute('class', 'row g-3 justify-content-center');
+                        nameFormGroup.setAttribute('class', 'col-md-5 fs-4');
+                        priceFormGroup.setAttribute('class', 'col-md-5 fs-4');
+                        deleteBtnFormGroup.setAttribute('class', 'col-md-2 fs-4');
+
                         let nameLabel = document.createElement('label');
-                        nameLabel.for = 'option[' + optionCount + ']';
+                        nameLabel.setAttribute('for','optionName[' + optionCount + ']');
                         nameLabel.setAttribute('class', 'form-label');
-                        formgroup.appendChild(nameLabel);
+                        nameLabel.innerHTML = '옵션명';
+                        nameFormGroup.appendChild(nameLabel);
 
                         let itemOption = document.createElement('input');
-                        itemOption.id = 'option[' + optionCount + ']';
+                        itemOption.id = 'optionName[' + optionCount + ']';
                         itemOption.type = 'text';
-                        itemOption.name = 'itemOption[' + optionCount + '].name';
+                        itemOption.name = 'itemOptionList[' + optionCount + '].name';
                         itemOption.setAttribute('class', 'form-control');
-                        formgroup.appendChild(itemOption);
+                        itemOption.setAttribute('minlength', '2');
+                        itemOption.setAttribute('maxlength', '10');
+                        itemOption.setAttribute('required', 'true');
+                        nameFormGroup.appendChild(itemOption);
 
                         let explainSmall = document.createElement('small');
                         explainSmall.setAttribute('class', 'form-text');
                         explainSmall.innerHTML = '한글 2~10글자 내의 상품 옵션명을 입력 해 주세요<br>';
-                        formgroup.appendChild(explainSmall);
+                        nameFormGroup.appendChild(explainSmall);
 
                         let invalidSmall = document.createElement('small');
                         invalidSmall.setAttribute('class', 'invalid-feedback');
-                        invalidSmall.innerHTML = '상품<br>';
-                        formgroup.appendChild(invalidSmall);
-                        return false;
+                        invalidSmall.innerHTML = '올바른 상품 옵션명을 입력 해 주세요<br>';
+                        nameFormGroup.appendChild(invalidSmall);
+                        rowDiv.appendChild(nameFormGroup);
+
+                        let priceLabel = document.createElement('label');
+                        priceLabel.setAttribute('for','optionPrice[' + optionCount + ']');
+                        priceLabel.setAttribute('class', 'form-label');
+                        priceLabel.innerHTML = '옵션가격'
+                        priceFormGroup.appendChild(priceLabel);
+
+                        let priceOption = document.createElement('input');
+                        priceOption.id = 'optionPrice[' + optionCount + ']';
+                        priceOption.type = 'number';
+                        priceOption.name = 'itemOptionList[' + optionCount + '].price';
+                        priceOption.setAttribute('class', 'form-control');
+                        priceOption.setAttribute('min', '1');
+                        priceOption.setAttribute('required', 'true');
+                        priceFormGroup.appendChild(priceOption);
+
+                        let priceExplainSmall = document.createElement('small');
+                        priceExplainSmall.setAttribute('class', 'form-text');
+                        priceExplainSmall.innerHTML = '최소 1이상 옵션 가격을 입력해주세요<br>';
+                        priceFormGroup.appendChild(priceExplainSmall);
+
+                        let priceInvalidSmall = document.createElement('small');
+                        priceInvalidSmall.setAttribute('class', 'invalid-feedback');
+                        priceInvalidSmall.innerHTML = '올바른 옵션 가격을 입력 해 주세요<br>';
+                        priceFormGroup.appendChild(priceInvalidSmall);
+                        rowDiv.appendChild(priceFormGroup);
+
+                        let deleteButton = document.createElement('button');
+                        deleteButton.type = 'button';
+                        deleteButton.innerHTML = '옵션 삭제';
+                        deleteButton.setAttribute('class', 'btn btn-outline-danger fs-5');
+                        deleteButton.onclick = function(){
+                            optionDiv.removeChild(parentDiv);
+                        }
+                        deleteBtnFormGroup.appendChild(deleteButton);
+                        rowDiv.appendChild(deleteBtnFormGroup);
+                        parentDiv.appendChild(rowDiv);
+                        optionDiv.appendChild(parentDiv);
+                        optionCount++;
                     }
                 </script>
                 <div class="d-grid">

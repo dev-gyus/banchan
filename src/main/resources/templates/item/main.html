@@ -31,19 +31,30 @@
                     </a>
                     <hr class="mt-0">
                 </div>
-                <div class="col-sm-12" th:each="item : ${map.value}">
-                    <div class="row justify-content-center">
-                        <div th:id="${item.name}" class="col-sm-12">
-                            <div class="col-sm-2 text-center" th:text="${item.thumbnail}"></div>
-                            <div class="col-sm-3 text-center" th:text="${item.name}"></div>
-                            <div class="col-sm-5 text-center" th:text="${item.itemIntroduce}"></div>
-                            <div class="col-sm-2 text-center" th:text="${item.price}"></div>
+                <div th:id="${item.name}" class="col-sm-12" th:each="item : ${map.value}">
+                    <div class="row g-3 justify-content-center">
+                        <div class="col-sm-2 text-center">
+                            <img th:src="'/upload/item/' + ${item.thumbnail}" width="100px" height="100px" class="rounded-3">
                         </div>
+                        <div class="col-sm-2 align-self-center text-center fs-5" th:text="${item.name}"></div>
+                        <div class="col-sm-4 align-self-center text-center fs-5" th:text="${item.itemIntroduce}"></div>
+                        <div class="col-sm-2 align-self-center text-center fs-5" th:text="${item.price} + '₩'"></div>
+                        <div class="col-sm-2 align-self-center text-center fs-5">
+                            <button type="button"
+                                    class="btn btn-outline-success"
+                                    th:onclick="'location.href=/items/modify?item=' + ${item.id}">수정</button>
+                            <form th:action="@{'/items/delete?item=' + ${item.id}}" method="post">
+                                <button type="button" class="btn btn-outline-danger" onclick="deleteConfirm(this)">삭제</button>
+                            </form>
+                        </div>
+                        <script>
+                            function deleteConfirm(object){
+                                let form = object.parentNode;
+                            }
+                        </script>
+                        <hr class="mt-1">
                     </div>
                 </div>
-                <script>
-
-                </script>
             </div>
         </div>
     </div>

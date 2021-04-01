@@ -22,6 +22,8 @@ public class WebConfig implements WebMvcConfigurer {
         String uploadFolderPrefix = appProperties.getUploadFolderPrefix();
         registry.addResourceHandler("/upload/thumbnail/**")
                 .addResourceLocations("file://" + uploadFolderPrefix + "/thumbnail/");
+        registry.addResourceHandler("/upload/item/**")
+                .addResourceLocations("file://" + uploadFolderPrefix + "/item/");
     }
 
     @Override

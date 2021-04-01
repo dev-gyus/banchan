@@ -9,4 +9,6 @@ import java.util.List;
 @Transactional(readOnly = true)
 public interface CategoryRepository extends JpaRepository<Category, Long>, CategoryQueryRepository {
     List<Category> findAllByNameIn(List<String> names);
+
+    Category findByName(String category);
 }
