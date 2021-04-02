@@ -60,6 +60,7 @@ public class ItemController {
     @PostMapping("/add")
     public String add_item_do(@CurrentUser StoreOwner storeOwner, @RequestParam String category, @Valid @ModelAttribute AddItemDto addItemDto,
                               BindingResult result, Model model) throws IOException {
+        // TODO DTO에 ItemOption 엔티티 그대로 쓰지말고 DTO쓰도록 변경
         if(result.hasErrors()){
             model.addAttribute("category",category);
             return "item/add-item";
@@ -68,6 +69,33 @@ public class ItemController {
         itemOptionList.removeIf(iol -> iol.getName() == null);
         addItemDto.setItemOptionList(itemOptionList);
         itemService.addItem(storeOwner, category, addItemDto);
+        return "redirect:/items";
+    }
+
+    @GetMapping("/{itemId}/modify")
+    public String modify_item(@PathVariable Long itemId, @ModelAttribute AddItemDto addItemDto, Model model){
+        Item item = itemRepository.findItemOptionFetchById(itemId);
+        addItemDto.setParameter(item.getId(), item.getName(), item.getThumbnail(), item.getPrice(),
+                item.getItemIntroduce());
+        List<ItemOptionDto> collect = item.getItemOptionList().stream().map(io -> new ItemOptionDto(io.getId(), io.getName(), io.getPrice()))
+                .collect(Collectors.toList());
+        model.addAttribute("itemOptionDtoList", collect);
+        return "item/modify-item";
+    }
+
+    @PostMapping("/{itemId}/modify")
+    public String modify_item_do(@PathVariable Long itemId, @Valid @ModelAttribute AddItemDto addItemDto,
+                                 BindingResult result, Model model) throws IOException {
+        if(result.hasErrors()){
+            Item item = itemRepository.findItemOptionFetchById(itemId);
+            List<ItemOptionDto> collect = item.getItemOptionList().stream().map(io -> new ItemOptionDto(io.getId(), io.getName(), io.getPrice()))
+                    .collect(Collectors.toList());
+            addItemDto.setParameter(item.getId(), item.getName(), item.getThumbnail(), item.getPrice(),
+                    item.getItemIntroduce());
+            model.addAttribute("itemOptionDtoList", collect);
+            return "item/modify-item";
+        }
+        itemService.modifyItem(addItemDto, itemId);
         return "redirect:/items";
     }
 }

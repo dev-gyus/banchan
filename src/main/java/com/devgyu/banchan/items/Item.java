@@ -26,11 +26,11 @@ public class Item {
     private String itemIntroduce;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "items")
+    @JoinColumn(name = "storeOwner_id")
     private StoreOwner storeOwner;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item")
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -45,5 +45,14 @@ public class Item {
         this.storeOwner = storeOwner;
         this.category = category;
         this.itemOptionList = itemOptionList;
+    }
+
+    public void addItemOption(ItemOption itemOption) {
+        this.itemOptionList.add(itemOption);
+        itemOption.setItem(this);
+    }
+
+    public void removeItemOptions(List<ItemOption> itemItemOptionList) {
+        this.itemOptionList.removeAll(itemOptionList);
     }
 }

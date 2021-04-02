@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/mystore")
-public class StoreController {
+public class StoreOwnerController {
     private final StoreOwnerRepository ownerRepository;
     private final StoreOwnerService ownerService;
     private final ModelMapper modelMapper;

@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div class="col-sm-12" th:fragment="mystoreNav">
+    <nav class="nav nav-pills nav-fill fs-5">
+        <a class="nav-link border" th:each="categoryName : ${categoryList}"
+           th:classappend="${category == categoryName.urlName} ? active"
+           th:href="@{'/storelist/' + ${categoryName.urlName}}" th:text="${categoryName.name}">김치</a>
+    </nav>
+</div>
+</html>
