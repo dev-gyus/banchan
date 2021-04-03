@@ -2,6 +2,8 @@ package com.devgyu.banchan.items;
 
 import com.devgyu.banchan.modules.category.Category;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
+import com.devgyu.banchan.orders.Orders;
+import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -25,6 +27,7 @@ public class Item {
     private boolean soldOut = false;
     private String itemIntroduce;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "storeOwner_id")
     private StoreOwner storeOwner;
@@ -36,6 +39,10 @@ public class Item {
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ItemOption> itemOptionList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<OrdersItem> ordersItemList = new ArrayList<>();
 
     public Item(String name, int price, String itemIntroduce,
                 StoreOwner storeOwner, Category category, List<ItemOption> itemOptionList) {

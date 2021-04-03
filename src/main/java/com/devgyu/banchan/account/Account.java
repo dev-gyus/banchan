@@ -1,11 +1,15 @@
 package com.devgyu.banchan.account;
 
+import com.devgyu.banchan.orders.Orders;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter @Setter
@@ -38,6 +42,10 @@ public abstract class Account {
 
     @Lob @Basic(fetch = FetchType.EAGER)
     private String thumbnail;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Orders> ordersList = new ArrayList<>();
 
     public Account(String email, String nickname, String password, String name, String phone, Roles role, Address address, String emailToken) {
         this.email = email;

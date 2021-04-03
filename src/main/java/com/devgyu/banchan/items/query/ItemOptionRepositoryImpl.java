@@ -20,12 +20,23 @@ public class ItemOptionRepositoryImpl implements ItemOptionQueryRepository{
         this.queryFactory = new JPAQueryFactory(em);
     }
 
+    @Override
     public List<ItemOption> findAllByItemIdAndNamesIn(Long itemId, List<String> itemOptionNameList){
         return queryFactory
                 .selectFrom(itemOption)
                 .distinct()
                 .join(itemOption.item, item).fetchJoin()
                 .where(item.id.eq(itemId).and(itemOption.name.in(itemOptionNameList)))
+                .fetch();
+    }
+
+    @Override
+    public List<ItemOption> findAllByItemIdAndIdIn(Long itemId, List<Long> itemOptionIdList){
+        return queryFactory
+                .selectFrom(itemOption)
+                .distinct()
+                .join(itemOption.item, item).fetchJoin()
+                .where(item.id.eq(itemId).and(itemOption.id.in(itemOptionIdList)))
                 .fetch();
     }
 

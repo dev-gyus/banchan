@@ -56,27 +56,40 @@
                         </ul>
                     </li>
                 </ul>
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
+
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
                     <div th:replace="fragments :: profileImage ('/mypage')"></div>
                 </div>
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
                     <div th:replace="fragments :: profileNickname ('/mypage')"></div>
                 </div>
 
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="내 가게정보" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
                     <div th:replace="fragments :: profileImage ('/mystore')"></div>
                 </div>
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="내 가게정보" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
                     <div th:replace="fragments :: profileNickname ('/mystore')"></div>
                 </div>
 
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
                     <div th:replace="fragments :: profileImage ('/rider-page')"></div>
                 </div>
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
                     <div th:replace="fragments :: profileNickname ('/rider-page')"></div>
                 </div>
 
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}" data-bs-toggle="tooltip" data-bs-placement="right" title="주문확인">
+                    <span class="position-relative me-2" >
+                        <a th:href="@{/orders}" class="stretched-link"></a>
+                        <i class="fas fa-clipboard-list fa-2x"></i>
+                    </span>
+                </div>
+                <script>
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
+                </script>
                 <div th:if="${navAccount == null}">
                     <a class="btn btn-outline-success me-1" th:href="@{/register}">회원가입</a>
                     <a class="btn btn-outline-primary" th:href="@{/login}">로그인</a>

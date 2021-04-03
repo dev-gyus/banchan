@@ -3,6 +3,8 @@ package com.devgyu.banchan.store;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.items.Item;
 import com.devgyu.banchan.items.ItemRepository;
+import com.devgyu.banchan.items.SelectOptionDto;
+import com.devgyu.banchan.items.SelectOptionListDto;
 import com.devgyu.banchan.modules.category.Category;
 import com.devgyu.banchan.modules.category.CategoryRepository;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
@@ -12,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,11 +43,27 @@ public class StoreController {
 
         Map<String, List<Item>> itemMap = new HashMap<>();
         for (String categoryName : categoryNames) {
-            List<Item> findItemList = itemRepository.findAllByCategoryName(categoryName);
+            List<Item> findItemList = itemRepository.findAllByCategoryAndStore(categoryName, storeId);
             itemMap.put(categoryName, findItemList);
         }
         model.addAttribute("itemMap", itemMap);
         model.addAttribute(map);
         return "store/main";
     }
+
+    @GetMapping("/{itemId}/selectoption")
+    public String item_selectoption(@PathVariable Long itemId, @ModelAttribute SelectOptionDto selectOptionDto, Model model){
+        Item findItem = itemRepository.findItemOptionFetchById(itemId);
+        if(findItem == null) throw new IllegalArgumentException("잘못된 요청입니다.");
+
+        List<SelectOptionListDto> convertedOptionList = findItem.getItemOptionList()
+                .stream().map(io -> new SelectOptionListDto(io.getId(), io.getName(), io.getPrice())).collect(Collectors.toList());
+
+        selectOptionDto.settingParameters(findItem.getId(), findItem.getName(), findItem.getThumbnail(),
+                findItem.getPrice(), findItem.getItemIntroduce(), convertedOptionList);
+
+        model.addAttribute(selectOptionDto);
+        return "store/select-option";
+    }
+
 }

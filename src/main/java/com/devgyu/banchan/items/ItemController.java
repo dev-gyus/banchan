@@ -44,7 +44,7 @@ public class ItemController {
 
         Map<String, List<Item>> itemMap = new HashMap<>();
         for (String categoryName : categoryNames) {
-            List<Item> findItemList = itemRepository.findAllByCategoryName(categoryName);
+            List<Item> findItemList = itemRepository.findAllByCategoryAndStore(categoryName, storeOwner.getId());
             itemMap.put(categoryName, findItemList);
         }
         model.addAttribute("itemMap", itemMap);
@@ -61,6 +61,9 @@ public class ItemController {
     public String add_item_do(@CurrentUser StoreOwner storeOwner, @RequestParam String category, @Valid @ModelAttribute AddItemDto addItemDto,
                               BindingResult result, Model model) throws IOException {
         // TODO DTO에 ItemOption 엔티티 그대로 쓰지말고 DTO쓰도록 변경
+        if(addItemDto.getThumbnailFile().getSize() == 0){
+            result.rejectValue("thumbnailFile", null, "상품 사진을 첨부해주세요");
+        }
         if(result.hasErrors()){
             model.addAttribute("category",category);
             return "item/add-item";

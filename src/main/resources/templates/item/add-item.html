@@ -27,6 +27,8 @@
                     <div id="new-profile-image" class="text-center mb-2"></div>
                     <input id="profile-image-file" type="file" class="form-control mb-1" name="thumbnailFile"/>
                     <small class="form-text fs-4">이미지는 150x150 크기로 수정되어 표시됩니다. 업로드 전 확인해주세요!</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('thumbnailFile')}" th:errors="*{thumbnailFile}">
+                        상품 사진을 업로드 해 주세요</small>
                     <div id="cropped-new-profile-image" class="text-center mb-1"></div>
                 </div>
                 <script>

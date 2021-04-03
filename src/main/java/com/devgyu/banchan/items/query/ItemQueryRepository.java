@@ -5,7 +5,7 @@ import com.devgyu.banchan.items.Item;
 import java.util.List;
 
 public interface ItemQueryRepository {
-    List<Item> findAllByCategoryName(String categoryName);
+    List<Item> findAllByCategoryAndStore(String categoryName, Long storeId);
     Item findItemOptionFetchById(Long itemId);
 
     Item findItemOptionCategoryFetchById(Long itemId);

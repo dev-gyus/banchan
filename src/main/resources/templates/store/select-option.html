@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light pb-5">
+
+    <div class="row g-3 justify-content-center fs-2">
+        <div class="col-sm-12">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12 text-start">
+                    <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면
+                    </button>
+                </div>
+                <div class="col-sm-12 text-center fs-1">
+                    <img class="rounded-3" th:src="'/upload/item/' + ${selectOptionDto.thumbnail}" width="125">
+                    <span th:text="${selectOptionDto.itemName}"></span>
+                    <div class="col-sm-12 text-center fs-1">
+                        <span class="form-text" th:text="${selectOptionDto.itemIntroduce}"></span>
+                        <hr>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div>옵션 선택</div>
+            <hr>
+            <form th:action="@{'/orders/' + ${selectOptionDto.itemId} + '/add'}" method="post"
+                 th:object="${selectOptionDto}" class="row g-3 justify-content-center">
+                <div class="form-group col-sm-12" th:each="option : ${selectOptionDto.selectOptionListDtoList}">
+                    <input th:id="'option[' + ${optionStat.index} + ']'"
+                           type="checkbox" class="form-check-input"
+                           th:name="'optionId[' + ${optionStat.index} + ']'" th:value="${option.optionId}">
+                    <label th:for="'option[' + ${optionStat.index} + ']'" class="form-check-label"
+                           th:text="${option.optionName + '   ' + '+' + option.optionPrice + '₩'}"></label>
+                </div>
+                <div class="form-group text-center">
+                    <button type="button" class="btn btn-outline-primary fs-4">장바구니 추가</button>
+
+                    <button type="submit" class="btn btn-outline-success fs-4">주문하기</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

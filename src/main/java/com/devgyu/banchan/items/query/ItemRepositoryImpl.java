@@ -4,6 +4,8 @@ import com.devgyu.banchan.items.Item;
 import com.devgyu.banchan.items.QItem;
 import com.devgyu.banchan.items.QItemOption;
 import com.devgyu.banchan.modules.category.QCategory;
+import com.devgyu.banchan.modules.storecategory.QStoreCategory;
+import com.devgyu.banchan.modules.storeowner.QStoreOwner;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import javax.persistence.EntityManager;
@@ -12,6 +14,8 @@ import java.util.List;
 import static com.devgyu.banchan.items.QItem.item;
 import static com.devgyu.banchan.items.QItemOption.itemOption;
 import static com.devgyu.banchan.modules.category.QCategory.category;
+import static com.devgyu.banchan.modules.storecategory.QStoreCategory.storeCategory;
+import static com.devgyu.banchan.modules.storeowner.QStoreOwner.storeOwner;
 
 public class ItemRepositoryImpl implements ItemQueryRepository{
     private final EntityManager em;
@@ -23,11 +27,12 @@ public class ItemRepositoryImpl implements ItemQueryRepository{
     }
 
     @Override
-    public List<Item> findAllByCategoryName(String categoryName){
+    public List<Item> findAllByCategoryAndStore(String categoryName, Long storeId){
         return queryFactory
                 .selectFrom(item)
                 .join(item.category, category).fetchJoin()
-                .where(category.name.eq(categoryName))
+                .join(item.storeOwner, storeOwner)
+                .where(category.name.eq(categoryName).and(storeOwner.id.eq(storeId)))
                 .fetch();
     }
 
