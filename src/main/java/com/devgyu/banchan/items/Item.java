@@ -42,7 +42,7 @@ public class Item {
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<OrdersItem> ordersItemList = new ArrayList<>();
+    private List<OrdersItem> ordersItemList;
 
     public Item(String name, int price, String itemIntroduce,
                 StoreOwner storeOwner, Category category, List<ItemOption> itemOptionList) {
@@ -52,6 +52,9 @@ public class Item {
         this.storeOwner = storeOwner;
         this.category = category;
         this.itemOptionList = itemOptionList;
+        for (ItemOption itemOption : itemOptionList) {
+            itemOption.setItem(this);
+        }
     }
 
     public void addItemOption(ItemOption itemOption) {

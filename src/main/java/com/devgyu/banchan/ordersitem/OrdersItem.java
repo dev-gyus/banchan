@@ -44,6 +44,7 @@ public class OrdersItem {
 
     public OrdersItem(Orders orders, Item item) {
         this.orders = orders;
+        orders.getOrdersItemList().add(this);
         this.item = item;
         this.price += item.getPrice();
     }

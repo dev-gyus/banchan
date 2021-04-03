@@ -95,8 +95,10 @@ public class ItemService {
             ItemOptionDto itemOptionDto = itemOptionDtoList.get(a);
             if(findItemOptionList.size() > a) {
                 ItemOption itemOption = findItemOptionList.get(a);
-                if(itemOption.getName().equals(itemOptionDto.getName())) {
+                if(itemOption.getName().equals(itemOptionDto.getName()) && itemOption.getPrice() == itemOptionDto.getPrice()) {
                     bindingList.add(itemOption);
+                }else{
+                    bindingList.add(new ItemOption(itemOptionDto.getName(), itemOptionDto.getPrice(), findItem));
                 }
             }else{
                 ItemOption newItemOption = new ItemOption(itemOptionDto.getName(), itemOptionDto.getPrice(), findItem);
@@ -104,17 +106,15 @@ public class ItemService {
             }
         }
 
-        // itemItemOptionList 사이즈 = findOptionList
-        // 이 작업으로 itemOptionDto로 들어온 값 중 기존 DB에 item과 연관된 itemOption값이 itemItemOptionList에 남게됨.
-        // DB에 있는값들만 들어온건지, DB에 없는값이 새로 들어온건지 판단하기 위함.
-        itemItemOptionList.removeIf(itemItemOption -> !findItemOptionList.contains(itemItemOption));
+        // itemItemOptionList의 값 = bindingList에서 itemItemOptionList의 값과 비교해서 없는값 지움
+        // 이 작업으로 기존에 존재하던 값 중 새로 들어온 값에 없는 값은 삭제되고 아래 for에서 bindingList값과 동일하게 세팅됨
+        itemItemOptionList.removeIf(itemItemOption -> !bindingList.contains(itemItemOption));
 
-        if(bindingList.size() != itemItemOptionList.size()){ // DB에 없는 값이 들어온경우
             for (ItemOption bindingItemOption : bindingList) {
                 if(!itemItemOptionList.contains(bindingItemOption)){
                     itemItemOptionList.add(bindingItemOption);
                 }
             }
-        }
+
     }
 }
