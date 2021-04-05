@@ -1,8 +1,8 @@
 package com.devgyu.banchan;
 
-import com.devgyu.banchan.account.AccountRepository;
-import com.devgyu.banchan.account.AccountService;
-import com.devgyu.banchan.account.Address;
+import com.devgyu.banchan.account.*;
+import com.devgyu.banchan.cart.Cart;
+import com.devgyu.banchan.cart.CartRepository;
 import com.devgyu.banchan.modules.category.Category;
 import com.devgyu.banchan.modules.category.CategoryRepository;
 import com.devgyu.banchan.modules.storecategory.StoreCategory;
@@ -26,6 +26,7 @@ public class PrepareController {
     private final CategoryRepository categoryRepository;
     private final StoreOwnerRepository storeOwnerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CartRepository cartRepository;
 
     @GetMapping("/prepare/addcategory")
     @Transactional
@@ -55,4 +56,18 @@ public class PrepareController {
         storeOwnerRepository.saveAll(newOwnerList);
         return "redirect:/";
     }
+
+    @GetMapping("/prepare/addcart")
+    @Transactional
+    public String addCart(@CurrentUser Account account){
+        if(account != null) {
+            List<Cart> carts = cartRepository.existByAccountId(account.getId());
+            if (carts.isEmpty()) {
+                Cart cart = new Cart(account);
+                cartRepository.save(cart);
+            }
+        }
+        return "redirect:/";
+    }
+
 }

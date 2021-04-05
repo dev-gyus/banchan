@@ -3,6 +3,8 @@ package com.devgyu.banchan.register;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.customer.Customer;
+import com.devgyu.banchan.cart.Cart;
+import com.devgyu.banchan.cart.CartRepository;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.email.MailService;
 import com.devgyu.banchan.register.dto.OwnerRegisterDto;
@@ -30,7 +32,9 @@ public class RegisterService {
                 registerDto.getJibun(), registerDto.getDetail(), registerDto.getExtra());
         Customer customer = new Customer(registerDto.getEmail(), registerDto.getNickname(), passwordEncoder.encode(registerDto.getPassword()),
                 registerDto.getName(), registerDto.getPhone(), address, UUID.randomUUID().toString());
+        Cart cart = new Cart(customer);
         Account save = registerRepository.save(customer);
+
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setText(customer.getNickname() + "님의 회원가입을 진심으로 축하합니다.");
@@ -43,6 +47,7 @@ public class RegisterService {
                 ownerRegisterDto.getDetail(), ownerRegisterDto.getExtra());
         StoreOwner storeOwner = new StoreOwner(ownerRegisterDto.getEmail(), ownerRegisterDto.getName(), passwordEncoder.encode(ownerRegisterDto.getPassword()),
                 ownerRegisterDto.getName(), ownerRegisterDto.getPhone(), address, ownerRegisterDto.getTel());
+        Cart cart = new Cart(storeOwner);
         registerRepository.save(storeOwner);
         return storeOwner;
     }

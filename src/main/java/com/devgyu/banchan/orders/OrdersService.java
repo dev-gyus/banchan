@@ -22,7 +22,7 @@ public class OrdersService {
     private final OrdersRepository ordersRepository;
     private final OrdersItemRepository ordersItemRepository;
 
-    public void addOrder(Account account, Long itemId, SelectOptionDto selectOptionDto) {
+    public void addOrder(Account account, Long itemId, SelectOptionDto selectOptionDto) { // 상품페이지에서 바로 주문하는경우
         Account findAccount = accountRepository.findById(account.getId()).get();
         Orders newOrder;
         if (!selectOptionDto.getOptionId().isEmpty()) { // 옵션을 선택한경우
@@ -30,12 +30,12 @@ public class OrdersService {
                     selectOptionDto.getOptionId().stream().collect(Collectors.toList()));
             Item item = selectItemOptions.get(0).getItem();
             newOrder = new Orders(findAccount);
-            OrdersItem ordersItem = new OrdersItem(newOrder, item, selectItemOptions);
+            OrdersItem ordersItem = new OrdersItem(newOrder, item, selectItemOptions, 1);
         } else {                                                      // 옵션을 선택하지 않은경우
             Item item = itemRepository.findById(itemId).get();
             if (item == null) throw new IllegalArgumentException("잘못된 요청입니다.");
             newOrder = new Orders(findAccount);
-            OrdersItem ordersItem = new OrdersItem(newOrder, item);
+            OrdersItem ordersItem = new OrdersItem(newOrder, item, 1);
         }
         ordersRepository.save(newOrder);
     }

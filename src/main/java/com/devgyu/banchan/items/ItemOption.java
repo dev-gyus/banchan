@@ -1,8 +1,13 @@
 package com.devgyu.banchan.items;
 
+import com.devgyu.banchan.cart.CartItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
+import javax.jdo.annotations.Join;
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter @Setter
@@ -19,6 +24,10 @@ public class ItemOption {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private Item item;
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "itemOptionList")
+    @JsonIgnore
+    private List<CartItem> cartItemList = new ArrayList<>();
 
     // 상품 수정페이지에서 아이템 옵션 추가했을경우
     public ItemOption(String name, int price, Item item) {

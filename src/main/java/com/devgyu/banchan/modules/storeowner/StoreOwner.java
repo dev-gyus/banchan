@@ -3,6 +3,7 @@ package com.devgyu.banchan.modules.storeowner;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.Roles;
+import com.devgyu.banchan.cart.Cart;
 import com.devgyu.banchan.items.Item;
 import com.devgyu.banchan.modules.storecategory.StoreCategory;
 import com.fasterxml.jackson.annotation.JsonIgnore;

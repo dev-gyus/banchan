@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light pb-5">
+
+    <div class="row g-3 justify-content-center fs-2">
+        <div class="col-sm-12">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12 text-center fs-1">
+                    <div th:replace="fragments :: accountThumbnail(${account}, 125, false)"></div>
+                    <span th:text="${account.nickname} + '님의 장바구니'"></span>
+                    <div class="col-sm-12 text-end">
+                        <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm-12 fs-1" style="background-color: #e9ecef">
+                    장바구니 목록
+                </div>
+                <div class="col-sm-12 text-center fs-1" th:if="${cartItemList == null || cartItemList.isEmpty()}">
+                    <hr class="mt-1">
+                    현재 장바구니가 비었네요! <br> 정성스럽게 준비한 반찬으로 근사한 식탁을 꾸며보는건 어떨까요?<br>
+                    <a th:href="@{/storelist}" class="btn btn-outline-primary fs-3">장바구니채우러가기</a>
+                </div>
+                <div class="col-sm-12 text-center mt-1" th:each="cartItem : ${cartItemList}" th:if="${cartItemList != null && !cartItemList.isEmpty()}">
+                    <hr class="mt-1">
+                    <div class="row g-3 gx-4 justify-content-center">
+                        <div class="col-sm-12 fs-3">
+                            <span th:text="'상호명: ' + ${storeOwner.nickname}"></span>
+                        </div>
+                        <div class="col-sm-12 fs-4">
+                            <span><img th:src="@{'/upload/item/' + ${itemMap.get(cartItem.addDate).thumbnail}}" width="70"/> </span>
+                            <span th:text="${itemMap.get(cartItem.addDate).name} + ' '"></span>
+                            <span th:text="${itemMap.get(cartItem.addDate).price} + '₩'"></span>
+                        </div>
+                        <div class="col-sm-12 fs-5" th:if="${!itemOptionMap.get(cartItem.addDate).isEmpty()}">상품 옵션</div>
+                        <div class="col-sm-12 fs-5" th:each="itemOption : ${itemOptionMap.get(cartItem.addDate)}">
+                            <span th:text="${itemOption.name + ' +' + itemOption.price + '₩'}"></span>
+                        </div>
+                        <div class="col-sm-12 fs-5">
+                            <span th:text="${'구매수량: ' + cartItem.count}"></span>
+                        </div>
+                        <hr class="mt-1 mb-0">
+                        <div class="col-sm-12 fs-4 mt-1">
+                            <span>상품 가격: </span><span th:text="${cartItem.price + '₩'}"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 text-center">
+                    <hr>
+                    <span th:text="${'총 금액 = ' + cart.totalCartPrice + '₩'}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

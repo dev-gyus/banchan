@@ -78,12 +78,19 @@
                     <div th:replace="fragments :: profileNickname ('/rider-page')"></div>
                 </div>
 
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}" data-bs-toggle="tooltip" data-bs-placement="right" title="주문확인">
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="주문확인">
                     <span class="position-relative me-2" >
                         <a th:href="@{/orders}" class="stretched-link"></a>
                         <i class="fas fa-clipboard-list fa-2x"></i>
                     </span>
                 </div>
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="장바구니">
+                    <span class="position-relative me-2" >
+                        <a th:href="@{/cart}" class="stretched-link"></a>
+                        <i class="fas fa-shopping-cart fa-2x"></i>
+                    </span>
+                </div>
+
                 <script>
                     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
                     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {

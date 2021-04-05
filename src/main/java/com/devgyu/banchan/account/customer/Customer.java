@@ -3,6 +3,7 @@ package com.devgyu.banchan.account.customer;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.Roles;
+import com.devgyu.banchan.cart.Cart;
 import lombok.*;
 
 import javax.persistence.*;

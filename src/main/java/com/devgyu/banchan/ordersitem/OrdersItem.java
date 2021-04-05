@@ -32,20 +32,23 @@ public class OrdersItem {
     private List<ItemOption> itemOptionList = new ArrayList<>();
 
     private int price;
+    private int count;
 
-    public OrdersItem(Orders orders, Item item, List<ItemOption> itemOptionList) {
+    public OrdersItem(Orders orders, Item item, List<ItemOption> itemOptionList, int count) {
         this.orders = orders;
         orders.getOrdersItemList().add(this);
         this.item = item;
         this.itemOptionList = itemOptionList;
-        this.price += item.getPrice();
+        this.price += (item.getPrice() * count);
         itemOptionList.forEach(io -> this.price += io.getPrice());
+        this.count = count;
     }
 
-    public OrdersItem(Orders orders, Item item) {
+    public OrdersItem(Orders orders, Item item, int count) {
         this.orders = orders;
         orders.getOrdersItemList().add(this);
         this.item = item;
-        this.price += item.getPrice();
+        this.price += (item.getPrice() * count);
+        this.count = count;
     }
 }
