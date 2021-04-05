@@ -38,7 +38,8 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
     }
 
     @Override
-    public Page<Orders> findAccountItemFetchByIdAndStatus(Long accountId, Pageable pageable, OrderStatus firstCondition, @Nullable OrderStatus secondCondition){
+    public Page<Orders> findAccountItemFetchByIdAndStatus(Long accountId, Pageable pageable, OrderStatus firstCondition,
+                                                          @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition){
         QueryResults<Orders> result = queryFactory
                 .selectFrom(orders)
                 .distinct()
@@ -46,16 +47,19 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
                 .join(orders.ordersItemList, ordersItem).fetchJoin()
                 .join(ordersItem.item, item).fetchJoin()
                 .join(item.storeOwner, storeOwner).fetchJoin()
-                .where(account.id.eq(accountId).and(conditionSelect(firstCondition, secondCondition)))
+                .where(account.id.eq(accountId).and(conditionSelect(firstCondition, secondCondition, thirdCondition)))
                 .orderBy(orders.regDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();
         return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
-    private BooleanExpression conditionSelect(OrderStatus firstCondition, @Nullable OrderStatus secondCondition){
+    private BooleanExpression conditionSelect(OrderStatus firstCondition,
+                                              @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition){
         return secondCondition == null ? orders.orderStatus.eq(firstCondition) :
-                orders.orderStatus.eq(firstCondition).or(orders.orderStatus.eq(secondCondition));
+                thirdCondition == null ? orders.orderStatus.eq(firstCondition).or(orders.orderStatus.eq(secondCondition)) :
+                orders.orderStatus.eq(firstCondition).or(orders.orderStatus.eq(secondCondition))
+                .or(orders.orderStatus.eq(thirdCondition));
     }
 
 }

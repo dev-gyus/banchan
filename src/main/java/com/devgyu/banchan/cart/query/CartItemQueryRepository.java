@@ -9,5 +9,5 @@ import java.util.List;
 public interface CartItemQueryRepository {
     Page<CartItem> findAccountCartItemItemOptionFetchByAccountId(Long id, Pageable pageable);
 
-    List<CartItem> findAccountCartFetchByAccountId(Long accountId);
+    List<CartItem> findAccountCartCartItemFetchByAccountId(Long accountId);
 }

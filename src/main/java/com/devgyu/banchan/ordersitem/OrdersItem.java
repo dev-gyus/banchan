@@ -27,7 +27,7 @@ public class OrdersItem {
     @JoinColumn(name = "item_id")
     private Item item;
 
-    @OneToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ItemOption> itemOptionList = new ArrayList<>();
 
@@ -36,19 +36,19 @@ public class OrdersItem {
 
     public OrdersItem(Orders orders, Item item, List<ItemOption> itemOptionList, int count) {
         this.orders = orders;
-        orders.getOrdersItemList().add(this);
         this.item = item;
-        this.itemOptionList = itemOptionList;
-        this.price += (item.getPrice() * count);
+        this.itemOptionList.addAll(itemOptionList);
+        this.price = (item.getPrice() * count);
         itemOptionList.forEach(io -> this.price += io.getPrice());
         this.count = count;
+        orders.addItem(this);
     }
 
     public OrdersItem(Orders orders, Item item, int count) {
         this.orders = orders;
-        orders.getOrdersItemList().add(this);
         this.item = item;
-        this.price += (item.getPrice() * count);
+        this.price = (item.getPrice() * count);
         this.count = count;
+        orders.addItem(this);
     }
 }

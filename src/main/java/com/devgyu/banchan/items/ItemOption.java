@@ -1,6 +1,7 @@
 package com.devgyu.banchan.items;
 
 import com.devgyu.banchan.cart.CartItem;
+import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -28,6 +29,10 @@ public class ItemOption {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "itemOptionList")
     @JsonIgnore
     private List<CartItem> cartItemList = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "itemOptionList")
+    @JsonIgnore
+    private List<OrdersItem> ordersItemList = new ArrayList<>();
 
     // 상품 수정페이지에서 아이템 옵션 추가했을경우
     public ItemOption(String name, int price, Item item) {

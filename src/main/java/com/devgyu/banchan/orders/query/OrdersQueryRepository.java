@@ -9,5 +9,7 @@ import org.springframework.lang.Nullable;
 import java.util.List;
 
 public interface OrdersQueryRepository {
-    Page<Orders> findAccountItemFetchByIdAndStatus(Long accountId, Pageable pageable, OrderStatus firstCondition, @Nullable OrderStatus secondCondition);
+    Page<Orders> findAccountItemFetchByIdAndStatus(Long accountId, Pageable pageable,
+                                                   OrderStatus firstCondition, @Nullable OrderStatus secondCondition,
+                                                   @Nullable OrderStatus thirdCondition);
 }

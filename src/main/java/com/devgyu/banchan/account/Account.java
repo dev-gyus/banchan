@@ -62,4 +62,9 @@ public abstract class Account {
         this.address = address;
         this.emailToken = emailToken;
     }
+
+    public void addOrder(Orders orders){
+        this.ordersList.add(orders);
+        orders.setAccount(this);
+    }
 }

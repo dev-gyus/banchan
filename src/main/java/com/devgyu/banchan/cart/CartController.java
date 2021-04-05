@@ -76,4 +76,10 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{cartItemId}/delete")
+    public String cartItem_delete(@CurrentUser Account account, @PathVariable Long cartItemId){
+        cartService.deleteCartItem(account, cartItemId);
+        return "redirect:/cart";
+    }
+
 }

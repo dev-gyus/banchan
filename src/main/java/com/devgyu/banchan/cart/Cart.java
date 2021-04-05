@@ -42,4 +42,10 @@ public class Cart {
         this.cartItemList.add(cartItem);
         this.totalCartPrice += cartItem.getPrice();
     }
+
+    public void removeItem(CartItem cartItem){
+        this.totalCartPrice -= cartItem.getPrice();
+        this.cartItemList.remove(cartItem);
+        cartItem.setCart(null);
+    }
 }

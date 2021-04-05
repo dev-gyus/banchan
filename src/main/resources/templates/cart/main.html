@@ -26,18 +26,28 @@
                     현재 장바구니가 비었네요! <br> 정성스럽게 준비한 반찬으로 근사한 식탁을 꾸며보는건 어떨까요?<br>
                     <a th:href="@{/storelist}" class="btn btn-outline-primary fs-3">장바구니채우러가기</a>
                 </div>
-                <div class="col-sm-12 text-center mt-1" th:each="cartItem : ${cartItemList}" th:if="${cartItemList != null && !cartItemList.isEmpty()}">
+                <div class="col-sm-12 text-center mt-1" th:each="cartItem : ${cartItemList}"
+                     th:if="${cartItemList != null && !cartItemList.isEmpty()}">
                     <hr class="mt-1">
                     <div class="row g-3 gx-4 justify-content-center">
                         <div class="col-sm-12 fs-3">
                             <span th:text="'상호명: ' + ${storeOwner.nickname}"></span>
                         </div>
                         <div class="col-sm-12 fs-4">
-                            <span><img th:src="@{'/upload/item/' + ${itemMap.get(cartItem.addDate).thumbnail}}" width="70"/> </span>
+                            <form th:action="@{'/cart/' + ${cartItem.id} + '/delete'}" method="post">
+                            <span class="link-danger position-relative">
+                                    <a href="#" onclick="deleteCartItem(this)"
+                                       class="stretched-link"></a>
+                                    <i class="far fa-minus-square fa-lg"></i>
+                            </span>
+                            <span><img th:src="@{'/upload/item/' + ${itemMap.get(cartItem.addDate).thumbnail}}"
+                                       width="70"/> </span>
                             <span th:text="${itemMap.get(cartItem.addDate).name} + ' '"></span>
                             <span th:text="${itemMap.get(cartItem.addDate).price} + '₩'"></span>
+                            </form>
                         </div>
-                        <div class="col-sm-12 fs-5" th:if="${!itemOptionMap.get(cartItem.addDate).isEmpty()}">상품 옵션</div>
+                        <div class="col-sm-12 fs-5" th:if="${!itemOptionMap.get(cartItem.addDate).isEmpty()}">상품 옵션
+                        </div>
                         <div class="col-sm-12 fs-5" th:each="itemOption : ${itemOptionMap.get(cartItem.addDate)}">
                             <span th:text="${itemOption.name + ' +' + itemOption.price + '₩'}"></span>
                         </div>
@@ -52,13 +62,23 @@
                 </div>
                 <div class="col-sm-12 text-center">
                     <hr>
+                    <span th:text="${'총 상품 수 = ' + cartItemList.size()}"></span><br>
                     <span th:text="${'총 금액 = ' + cart.totalCartPrice + '₩'}"></span>
+                </div>
+                <div class="col-sm-6">
+                    <form th:action="@{/orders/cart-order}" method="post" class="d-grid">
+                        <button type="submit" class="btn btn-outline-success fs-4">주문하기</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    function deleteCartItem(e){
+        e.parentNode.parentNode.submit();
+    }
+</script>
 
-<script th:replace="fragments :: form-validate"></script>
 </body>
 </html>

@@ -26,7 +26,7 @@ public class CartService {
     private final ItemRepository itemRepository;
 
     public ResponseEntity<Object> addItem(Account account, CartAddDto cartAddDto) {
-        List<CartItem> findCartItemList = cartItemRepository.findAccountCartFetchByAccountId(account.getId());
+        List<CartItem> findCartItemList = cartItemRepository.findAccountCartCartItemFetchByAccountId(account.getId());
         Cart cart;
         if (!findCartItemList.isEmpty()) {
             cart = findCartItemList.get(0).getCart(); // CartItem -> Cart 다대일 관계 -> 어떤 카트상품에서 카트를 추출해도 같은 카트이다.
@@ -67,5 +67,14 @@ public class CartService {
                 CartItem newCartItem = new CartItem(cart, findItem, 1);
         }
         return ResponseEntity.ok().build();
+    }
+
+    public void deleteCartItem(Account account, Long cartItemId) {
+        List<CartItem> cartItemList = cartItemRepository.findAccountCartCartItemFetchByAccountId(account.getId());
+        CartItem targetCartItem = cartItemRepository.findById(cartItemId).get();
+        Cart cart = cartItemList.get(0).getCart(); // Cart -> CartItem = 일대다 관계 -> 즉, CartItem으로 어떤 Cart를 조회해도 같은 Cart가 나옴
+        if(cart.getCartItemList().contains(targetCartItem)){
+            cart.removeItem(targetCartItem);
+        }
     }
 }

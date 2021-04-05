@@ -59,11 +59,14 @@ public class CartItem {
     }
 
     public void addCountForCart(){
+        // 동일한 상품 추가시 기존 상품 가격을 빼주고 상품 추가한 가격을 카트에 다시 추가해줌
+        int nowCartPrice = cart.getTotalCartPrice();
+        int previousCartPrice = nowCartPrice - this.price;
         count++;
         price = (item.getPrice() * count);
         for (ItemOption itemOption : itemOptionList) {
             price += (itemOption.getPrice() * count);
         }
-        this.cart.addItem(this);
+        cart.setTotalCartPrice(previousCartPrice + this.price);
     }
 }

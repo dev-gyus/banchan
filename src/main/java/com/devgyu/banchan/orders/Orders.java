@@ -31,13 +31,18 @@ public class Orders {
     private List<OrdersItem> ordersItemList = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus = OrderStatus.READY;
+    private OrderStatus orderStatus = OrderStatus.WAITING;
 
     public Orders(Account findAccount) {
-        this.account = findAccount;
+        findAccount.addOrder(this);
     }
 
-    private void addItem(OrdersItem ordersItem){
+    private int totalPrice;
+
+    public void addItem(OrdersItem ordersItem){
         this.ordersItemList.add(ordersItem);
+        ordersItem.setOrders(this);
+        this.totalPrice += ordersItem.getPrice();
     }
+
 }
