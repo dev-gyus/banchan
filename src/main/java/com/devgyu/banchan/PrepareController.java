@@ -3,6 +3,8 @@ package com.devgyu.banchan;
 import com.devgyu.banchan.account.*;
 import com.devgyu.banchan.cart.Cart;
 import com.devgyu.banchan.cart.CartRepository;
+import com.devgyu.banchan.items.Item;
+import com.devgyu.banchan.items.ItemOption;
 import com.devgyu.banchan.modules.category.Category;
 import com.devgyu.banchan.modules.category.CategoryRepository;
 import com.devgyu.banchan.modules.storecategory.StoreCategory;
@@ -39,7 +41,7 @@ public class PrepareController {
         return "redirect:/";
     }
 
-    @GetMapping("/prepare/addStoreOwner")
+    @GetMapping("/prepare/addstoreowner")
     @Transactional
     public String addStoreOwner() {
         String rowPassword = "vmffkd495";
@@ -54,6 +56,24 @@ public class PrepareController {
             newOwnerList.add(newOwner);
         }
         storeOwnerRepository.saveAll(newOwnerList);
+        return "redirect:/";
+    }
+    @GetMapping("/prepare/addstoreitem")
+    @Transactional
+    public String addStoreItem() {
+        List<StoreOwner> storeOwners = storeOwnerRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
+        for (StoreOwner storeOwner : storeOwners) {
+            if(storeOwner.getId() != 26) {
+                for (Category category : categories) {
+                    List<ItemOption> itemOptions = new ArrayList<>();
+                    Item newItem = new Item("테스트1", 10000, "테스트상품입니다.", storeOwner, category, itemOptions);
+                    for(int a=0; a < 2; a++) {
+                        ItemOption newItemOption = new ItemOption("테스트1상품옵션" + a, 1000, newItem);
+                    }
+                }
+            }
+        }
         return "redirect:/";
     }
 

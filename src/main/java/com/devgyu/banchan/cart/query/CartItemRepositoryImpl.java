@@ -51,13 +51,14 @@ public class CartItemRepositoryImpl implements CartItemQueryRepository{
         return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
     @Override
-    public List<CartItem> findAccountCartCartItemFetchByAccountId(Long accountId){
+    public List<CartItem> findAccountCartCartItemStoreFetchByAccountId(Long accountId){
         return queryFactory
                 .selectFrom(cartItem)
                 .distinct()
                 .join(cartItem.cart, cart).fetchJoin()
                 .join(cart.account, account).fetchJoin()
                 .join(cartItem.item, item).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
                 .leftJoin(cartItem.itemOptionList, itemOption).fetchJoin()
                 .where(account.id.eq(accountId))
                 .fetch();

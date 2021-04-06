@@ -5,6 +5,7 @@ import com.devgyu.banchan.items.Item;
 import com.devgyu.banchan.items.ItemOption;
 import com.devgyu.banchan.items.ItemOptionRepository;
 import com.devgyu.banchan.items.ItemRepository;
+import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,20 +27,30 @@ public class CartService {
     private final ItemRepository itemRepository;
 
     public ResponseEntity<Object> addItem(Account account, CartAddDto cartAddDto) {
-        List<CartItem> findCartItemList = cartItemRepository.findAccountCartCartItemFetchByAccountId(account.getId());
+        List<CartItem> findCartItemList = cartItemRepository.findAccountCartCartItemStoreFetchByAccountId(account.getId());
+        Item newItem = itemRepository.findStoreFetchById(cartAddDto.getItemId());
+
         Cart cart;
         if (!findCartItemList.isEmpty()) {
             cart = findCartItemList.get(0).getCart(); // CartItem -> Cart 다대일 관계 -> 어떤 카트상품에서 카트를 추출해도 같은 카트이다.
+            StoreOwner findStoreOwner = findCartItemList.get(0).getItem().getStoreOwner();
+
+            // 기존 카트에 담긴 상품의 가게와 새로 추가한 상품의 가게가 일치하는지 확인. 일치하지않으면 기존 장바구니상품 모두 삭제
+            StoreOwner addItemStoreOwner = newItem.getStoreOwner();
+            if(!findStoreOwner.equals(addItemStoreOwner)){
+                findCartItemList.forEach(ci -> cart.removeItem(ci));
+            }
         } else {
             cart = cartRepository.findById(account.getCart().getId()).get(); // 로그인한 객체에서의 Account Cart의 Id는 불변, 유니크함
         }
         List<Item> itemList = findCartItemList.stream().map(ci -> ci.getItem()).collect(Collectors.toList());
         Map<LocalDateTime, List<ItemOption>> itemOptionMap = new HashMap<>();
         findCartItemList.forEach(ci -> itemOptionMap.put(ci.getAddDate(), ci.getItemOptionList()));
+        List<ItemOption> findItemOptionList =
+                itemOptionRepository.findAllByItemIdAndIdIn(cartAddDto.getItemId(), cartAddDto.getItemOptionIdList());
 
         // 상품의 옵션 선택했을경우
         if (!cartAddDto.getItemOptionIdList().isEmpty()) {
-            List<ItemOption> findItemOptionList = itemOptionRepository.findAllByItemIdAndIdIn(cartAddDto.getItemId(), cartAddDto.getItemOptionIdList());
             Item findItem = findItemOptionList.get(0).getItem(); // ItemOption -> Item = 다대일 관계 -> 어떤 아이템옵션을 가져와도 같은 아이템이다.
 
                 for (CartItem cartItem : findCartItemList) {
@@ -70,7 +81,7 @@ public class CartService {
     }
 
     public void deleteCartItem(Account account, Long cartItemId) {
-        List<CartItem> cartItemList = cartItemRepository.findAccountCartCartItemFetchByAccountId(account.getId());
+        List<CartItem> cartItemList = cartItemRepository.findAccountCartCartItemStoreFetchByAccountId(account.getId());
         CartItem targetCartItem = cartItemRepository.findById(cartItemId).get();
         Cart cart = cartItemList.get(0).getCart(); // Cart -> CartItem = 일대다 관계 -> 즉, CartItem으로 어떤 Cart를 조회해도 같은 Cart가 나옴
         if(cart.getCartItemList().contains(targetCartItem)){

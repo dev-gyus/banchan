@@ -8,4 +8,5 @@ public interface ItemOptionQueryRepository {
     List<ItemOption> findAllByItemIdAndNamesIn(Long itemId, List<String> itemOptionNameList);
 
     List<ItemOption> findAllByItemIdAndIdIn(Long itemId, List<Long> itemOptionIdList);
+
 }

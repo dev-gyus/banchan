@@ -2,6 +2,7 @@ package com.devgyu.banchan.orders;
 
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.AccountRepository;
+import com.devgyu.banchan.cart.Cart;
 import com.devgyu.banchan.cart.CartItem;
 import com.devgyu.banchan.cart.CartItemRepository;
 import com.devgyu.banchan.items.*;
@@ -44,7 +45,8 @@ public class OrdersService {
     }
 
     public void addCartOrder(Long accountId) {
-        List<CartItem> cartItemList = cartItemRepository.findAccountCartCartItemFetchByAccountId(accountId);
+        List<CartItem> cartItemList = cartItemRepository.findAccountCartCartItemStoreFetchByAccountId(accountId);
+        Cart findCart = cartItemList.get(0).getCart();
         if(cartItemList.isEmpty()){
             throw new IllegalArgumentException("잘못된 요청 입니다.");
         }
@@ -55,10 +57,37 @@ public class OrdersService {
             Item findItem = cartItem.getItem();
             if(cartItem.getItemOptionList().isEmpty()){ // 해당 장바구니 내의 상품의 상품옵션이 선택되어있는경우
                 OrdersItem ordersItem = new OrdersItem(orders, findItem, cartItem.getCount());
+                findCart.removeItem(cartItem);
             }else{                                      // 해당 장바구니 내의 상품의 상품옵션이 돼있지 않은경우
                 List<ItemOption> itemOptionList = cartItem.getItemOptionList();
                 OrdersItem ordersItem = new OrdersItem(orders, findItem, itemOptionList, cartItem.getCount());
+                findCart.removeItem(cartItem);
             }
         }
+    }
+    public void cancelOrder(Long orderId){
+        // 주문 취소는 Soft Delete방식 채용
+        Orders orders = ordersRepository.findById(orderId).get();
+        orders.setOrderStatus(OrderStatus.CANCELED);
+    }
+
+    public void acceptOrder(Long ordersId) {
+        List<Orders> findOrders = ordersRepository.findAccountFetchById(ordersId);
+        if(findOrders.isEmpty()){
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+        Orders orders = findOrders.get(0);
+        orders.setOrderStatus(OrderStatus.READY);
+        // TODO 주문한 고객에게 알림 보낼것
+    }
+
+    public void rejectOrder(Long ordersId) {
+        List<Orders> findOrders = ordersRepository.findAccountFetchById(ordersId);
+        if(findOrders.isEmpty()){
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+        Orders orders = findOrders.get(0);
+        orders.setOrderStatus(OrderStatus.REJECTED);
+        // TODO 주문한 고객에게 알림 보낼것
     }
 }

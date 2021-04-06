@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,13 +34,14 @@ public class OrdersItem {
 
     private int price;
     private int count;
+    private LocalDateTime addDate = LocalDateTime.now();
 
     public OrdersItem(Orders orders, Item item, List<ItemOption> itemOptionList, int count) {
         this.orders = orders;
         this.item = item;
         this.itemOptionList.addAll(itemOptionList);
         this.price = (item.getPrice() * count);
-        itemOptionList.forEach(io -> this.price += io.getPrice());
+        itemOptionList.forEach(io -> this.price += (io.getPrice() * count));
         this.count = count;
         orders.addItem(this);
     }

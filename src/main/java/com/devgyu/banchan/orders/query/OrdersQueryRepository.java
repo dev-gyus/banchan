@@ -12,4 +12,9 @@ public interface OrdersQueryRepository {
     Page<Orders> findAccountItemFetchByIdAndStatus(Long accountId, Pageable pageable,
                                                    OrderStatus firstCondition, @Nullable OrderStatus secondCondition,
                                                    @Nullable OrderStatus thirdCondition);
+
+    Page<Orders> findAccountItemFetchByStoreIdAndStatus(Long storeOwnerId, Pageable pageable, OrderStatus firstCondition,
+                                                        @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition);
+
+    List<Orders> findAccountFetchById(Long ordersId);
 }

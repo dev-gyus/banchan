@@ -55,4 +55,13 @@ public class ItemRepositoryImpl implements ItemQueryRepository{
                 .where(item.id.eq(itemId))
                 .fetchOne();
     }
+
+    @Override
+    public Item findStoreFetchById(Long itemId) {
+        return queryFactory
+                .selectFrom(item)
+                .join(item.storeOwner, storeOwner).fetchJoin()
+                .where(item.id.eq(itemId))
+                .fetchOne();
+    }
 }

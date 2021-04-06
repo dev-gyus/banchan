@@ -32,7 +32,7 @@
             <div>옵션 선택</div>
             <hr>
             <form id="optionForm" th:action="@{'/orders/' + ${selectOptionDto.itemId} + '/add'}" method="post"
-                 th:object="${selectOptionDto}" class="row g-3 justify-content-center">
+                  th:object="${selectOptionDto}" class="row g-3 justify-content-center">
                 <div class="form-group col-sm-12" th:each="option : ${selectOptionDto.selectOptionListDtoList}">
                     <input th:id="'option[' + ${optionStat.index} + ']'"
                            type="checkbox" class="form-check-input"
@@ -58,38 +58,56 @@
                     let optionCount = [[${selectOptionDto.selectOptionListDtoList.size()}]];
                     let header = $('meta[name="_csrf_header"]').attr('content');
                     let token = $('meta[name="_csrf"]').attr('content');
-                    function addCart(){
+
+                    function addCart() {
                         let optionId = [];
                         console.log(optionCount);
                         console.log(itemId);
-                        for(let a=0; a < optionCount; a++){
+                        for (let a = 0; a < optionCount; a++) {
                             let checkbox = document.querySelector("input[id='option[" + a + "]'");
-                            if(checkbox.checked){
+                            if (checkbox.checked) {
                                 optionId.push(checkbox.value);
                             }
                         }
                         console.log(optionId);
 
                         let data = {
-                            'itemId' : itemId,
-                            'itemOptionIdList' : optionId
+                            'itemId': itemId,
+                            'itemOptionIdList': optionId
                         };
                         console.log(data);
 
+                        sendAjax('/cart/api/confirm', data, false);
+                    }
+
+                    function sendAjax(url, data, alertOkay) {
                         $.ajax({
-                            url: '/cart/api/add',
+                            url: url,
                             type: 'post',
                             data: JSON.stringify(data),
                             contentType: 'application/json',
-                            beforeSend: function(xhr){
+                            beforeSend: function (xhr) {
                                 xhr.setRequestHeader(header, token);
                             },
-                            success: function(result, xhr){
-                                alert('장바구니에 추가가 완료되었습니다.');
+                            success: function (result, xhr) {
+                                if (alertOkay) {
+                                    alert('장바구니에 추가가 완료되었습니다.');
+                                } else {
+                                    if (!alertOkay && result) {
+                                        if (confirm('장바구니는 한 가게의 상품만 주문 가능합니다. 만약 다른 가게의 상품을 추가하실경우' +
+                                            ' 기존 장바구니 상품은 지워지고, 해당 상품이 추가됩니다.')) {
+                                            sendAjax('/cart/api/add', data, true);
+                                        }
+                                    }else{
+                                        sendAjax('/cart/api/add', data, true);
+                                    }
+                                }
                             },
-                            error: function(xhr){
-                                alert('장바구니에 상품을 추가하는중 에러가 발생했습니다.' +
-                                    '계속해서 에러가 발생할경우 관리자에게 문의부탁드립니다.');
+                            error: function (xhr) {
+                                if (alertOkay) {
+                                    alert('장바구니에 상품을 추가하는중 에러가 발생했습니다.' +
+                                        '계속해서 에러가 발생할경우 관리자에게 문의부탁드립니다.');
+                                }
                             }
                         });
                     }

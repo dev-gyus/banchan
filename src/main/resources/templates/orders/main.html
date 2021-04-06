@@ -21,21 +21,20 @@
                 <div class="col-sm-12 fs-1" style="background-color: #e9ecef">
                     현재 주문내역
                 </div>
-                <div class="col-sm-12 text-center fs-1" th:if="${notCompOrderList == null || notCompOrderList.isEmpty()}">
-                    <hr class="mt-1">
+                <div class="col-sm-12 text-center fs-1 border" th:if="${notCompOrderList == null || notCompOrderList.isEmpty()}">
                     현재 주문중인 내역이 없네요! <br> 정성스럽게 준비한 반찬으로 근사한 식탁을 꾸며보는건 어떨까요?<br>
                     <a th:href="@{/storelist}" class="btn btn-outline-primary fs-3">상품고르러가기</a>
                 </div>
-                <div class="col-sm-12 text-center mt-1" th:each="order : ${notCompOrderList}" th:if="${notCompOrderList != null && !notCompOrderList.isEmpty()}">
-                    <hr class="mt-1">
+                <div class="col-sm-12 text-center border" th:each="order : ${notCompOrderList}" th:if="${notCompOrderList != null && !notCompOrderList.isEmpty()}">
+                    <hr class="mt-1 bg-light">
                     <div class="row g-3 gx-4 justify-content-center">
-                        <div class="col-sm-6 text-end fs-3 mt-0"
+                        <div class="col-sm-6 text-end fs-3 mt-0 text-danger"
                              th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).WAITING}"
                              th:text="'주문상태: 주문확인중'"></div>
-                        <div class="col-sm-6 text-end fs-3 mt-0"
+                        <div class="col-sm-6 text-end fs-3 mt-0 text-primary"
                              th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).READY}"
                              th:text="'주문상태: 상품준비중'"></div>
-                        <div class="col-sm-6 text-end fs-3 mt-0"
+                        <div class="col-sm-6 text-end fs-3 mt-0 text-success"
                              th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).DELIVERY}"
                              th:text="'주문상태: 배달중'"></div>
                         <div class="col-sm-6 text-start fs-3 mt-0">
@@ -56,17 +55,18 @@
                                      th:each="itemOption : ${itemOptionMap.get(orderItem.id)}">
                                     <span th:text="${itemOption.name + ' +' + itemOption.price + '₩'}"></span>
                                 </div>
-                                <hr class="mt-1 mb-0">
                                 <div class="col-sm-12 fs-4 mt-1">
+                                    <span th:text="'총 구매수량: ' + ${orderItem.count}"></span><br>
                                     <span th:text="'상품 가격: ' + ${orderPriceMap.get(orderItem.id) + '₩'}"></span>
+                                    <hr>
                                 </div>
                             </div>
                         </div>
                         <div class="col-sm-12 text-center">
                             <span th:text="${'총 주문금액: ' + order.totalPrice + '₩'}"></span>
                         </div>
-                        <div class="col-sm-6 d-grid text-center" th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).WAITING}">
-                            <form th:action="@{'/orders/' + order.id + '/delete'}" method="post">
+                        <div class="col-sm-6 d-grid text-center mb-3" th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).WAITING}">
+                            <form th:action="@{'/orders/' + ${order.id} + '/cancel'}" method="post">
                                 <small class="form-text">주문 취소는 주문상태가 주문확인중일때만 가능합니다.</small>
                                 <button type="submit" class="btn btn-outline-danger fs-4">주문취소</button>
                             </form>

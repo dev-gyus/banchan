@@ -3,6 +3,7 @@ package com.devgyu.banchan.items.query;
 import com.devgyu.banchan.items.ItemOption;
 import com.devgyu.banchan.items.QItem;
 import com.devgyu.banchan.items.QItemOption;
+import com.devgyu.banchan.modules.storeowner.QStoreOwner;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import javax.persistence.EntityManager;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import static com.devgyu.banchan.items.QItem.item;
 import static com.devgyu.banchan.items.QItemOption.itemOption;
+import static com.devgyu.banchan.modules.storeowner.QStoreOwner.storeOwner;
 
 public class ItemOptionRepositoryImpl implements ItemOptionQueryRepository{
     private final EntityManager em;

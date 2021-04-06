@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light p-0 pb-5">
+    <div th:replace="mystore/mystore-fragments :: mystoreNav ('주문목록')"></div>
+
+    <div class="row justify-content-center">
+        <div class="col-sm-12 fs-2">
+            <hr class="m-1">
+            <nav class="nav nav-pills nav-justified">
+                <a class="nav-link border" aria-current="page" th:href="@{/orders/order-list/waiting}"
+                   th:classappend="${orderStatus == 'waiting'} ? 'active'">새 주문목록</a>
+                <a class="nav-link border" aria-current="page" th:href="@{/orders/order-list/ready}"
+                   th:classappend="${orderStatus == 'ready'} ? 'active'">보낼 주문목록</a>
+                <a class="nav-link border" th:href="@{/orders/order-list/delivery}"
+                   th:classappend="${orderStatus == 'delivery'} ? 'active'">발송한 주문목록</a>
+            </nav>
+            <hr>
+        </div>
+        <div class="col-sm-12 text-center fs-1" th:if="${orderList == null}">
+            <span class="fs-2">아직 새로운 주문이 없네요</span><br>
+            하지만 곧 주문이 들어올 예정입니다!
+        </div>
+        <div class="col-sm-12" th:if="${orderList != null}" th:each="order : ${orderList}">
+            <div class="row g-1 justify-content-center">
+                <div class="col-sm-12 fs-4 text-center"
+                     th:text="${'주문자: ' + orderAccountMap.get(order.id).nickname}"></div>
+                <div class="col-sm-12 fs-4 text-center">-배송지-</div>
+                <div class="col-sm-12 fs-4 text-center"
+                     th:text="${orderAccountMap.get(order.id).address.jibun}"></div>
+                <div class="col-sm-12 fs-4 text-center"
+                     th:text="${orderAccountMap.get(order.id).address.detail + ' ' + orderAccountMap.get(order.id).address.detail
+                     + ' ' + orderAccountMap.get(order.id).address.extra}"></div>
+                <div class="col-sm-12">
+                    <table class="table table-hover text-center g-1">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="col-sm-4">상품명</th>
+                            <th scope="col" class="col-sm-4">상품옵션</th>
+                            <th scope="col" class="col-sm-2">구매수량</th>
+                            <th scope="col" class="col-sm-2">상품가격</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="ordersItem : ${ordersItemMap.get(order.id)}">
+                            <td class="align-middle">
+                                <span th:text="${itemMap.get(ordersItem.addDate).name}"></span>
+                                <span th:text="${'+' + itemMap.get(ordersItem.addDate).price + '₩'}"></span>
+                            </td>
+                            <td class="align-middle" th:if="${itemOptionMap.get(ordersItem.addDate).isEmpty()}">
+                                -
+                            </td>
+                            <td class="align-middle" th:if="${!itemOptionMap.get(ordersItem.addDate).isEmpty()}">
+                                <div class="align-self-center" th:each="itemOption : ${itemOptionMap.get(ordersItem.addDate)}">
+                                    <span th:text="${itemOption.name + ': '}"></span>
+                                    <span th:text="${'+' + itemOption.price + '₩'}"></span>
+                                </div>
+                            </td>
+                            <td class="align-middle" th:text="${ordersItem.count}">Otto</td>
+                            <td class="align-middle" th:text="${ordersItem.price}">@mdo</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-12 text-center" th:text="${'총 가격: ' + order.totalPrice} + '₩'"></div>
+                <div class="col-sm-7" th:if="${orderStatus == 'waiting'}">
+                    <div class="mb-3">
+                        <form th:action="@{'/orders/' + ${order.id} + '/accept'}" class="d-grid" method="post">
+                            <button type="submit" class="btn btn-outline-success fs-4">주문수락</button>
+                        </form>
+                    </div>
+                    <div>
+                        <form th:action="@{'/orders/' + ${order.id} + '/reject'}" class="d-grid" method="post">
+                            <button type="submit" class="btn btn-outline-danger fs-4">주문거절</button>
+                        </form>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

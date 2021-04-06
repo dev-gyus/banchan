@@ -42,8 +42,6 @@ public class ItemService {
         Item item = new Item(addItemDto.getName(), addItemDto.getPrice(), addItemDto.getItemIntroduce(), findOwner, findCategory,
                 addItemDto.getItemOptionList());
         saveImageFile(item, addItemDto.getThumbnailFile(), "item");
-        findOwner.addItem(item);
-        findCategory.addItem(item);
     }
 
     private void saveImageFile(Item item, MultipartFile thumbnailFile, String path) throws IOException {

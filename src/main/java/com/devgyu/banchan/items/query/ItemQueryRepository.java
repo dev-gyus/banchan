@@ -9,4 +9,5 @@ public interface ItemQueryRepository {
     Item findItemOptionFetchById(Long itemId);
 
     Item findItemOptionCategoryFetchById(Long itemId);
+    Item findStoreFetchById(Long itemId);
 }

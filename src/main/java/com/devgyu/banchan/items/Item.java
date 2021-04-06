@@ -50,7 +50,9 @@ public class Item {
         this.price = price;
         this.itemIntroduce = itemIntroduce;
         this.storeOwner = storeOwner;
+        storeOwner.getItems().add(this);
         this.category = category;
+        category.getItems().add(this);
         this.itemOptionList = itemOptionList;
         for (ItemOption itemOption : itemOptionList) {
             itemOption.setItem(this);

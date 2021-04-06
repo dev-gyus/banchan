@@ -38,6 +38,7 @@ public class Orders {
     }
 
     private int totalPrice;
+    private boolean reviewed;
 
     public void addItem(OrdersItem ordersItem){
         this.ordersItemList.add(ordersItem);

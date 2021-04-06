@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,5 +119,67 @@ public class OrdersController {
     public String cart_order(@CurrentUser Account account){
         ordersService.addCartOrder(account.getId());
         return "redirect:/orders";
+    }
+
+    @PostMapping("/{orderId}/cancel")
+    public String order_cancel(@PathVariable Long orderId){
+        ordersService.cancelOrder(orderId);
+        return "redirect:/orders";
+    }
+
+    @GetMapping("/order-list/{orderStatus}")
+    public String order_list(@CurrentUser StoreOwner storeOwner, @PathVariable String orderStatus,
+                             @PageableDefault Pageable pageable,Model model){
+        Page<Orders> orders;
+        if(orderStatus.equals("waiting")) {
+            orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
+                    pageable, OrderStatus.WAITING, null, null);
+        }else if(orderStatus.equals("ready")){
+            orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
+                    pageable, OrderStatus.READY, null, null);
+        }else if(orderStatus.equals("delivery")){
+            orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
+                    pageable, OrderStatus.DELIVERY, null, null);
+        }else if(orderStatus.equals("completed")){
+            orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
+                    pageable, OrderStatus.COMPLETED, null, null);
+        }else{
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+        if(!orders.isEmpty()) {
+            List<Orders> orderList = orders.getContent();
+            Map<Long, Account> orderAccountMap = new HashMap<>();
+            Map<Long, List<OrdersItem>> ordersItemMap = new HashMap<>();
+            Map<LocalDateTime, Item> itemMap = new HashMap<>();
+            Map<LocalDateTime, List<ItemOption>> itemOptionMap = new HashMap<>(); // 동일한 아이템옵션 Key 중복방지
+            for (Orders findOrders : orderList) {
+                List<OrdersItem> ordersItemList = findOrders.getOrdersItemList();
+                ordersItemMap.put(findOrders.getId(), ordersItemList);
+                orderAccountMap.put(findOrders.getId(), findOrders.getAccount());
+                for (OrdersItem ordersItem : ordersItemList) {
+                    itemMap.put(ordersItem.getAddDate(), ordersItem.getItem());
+                        itemOptionMap.put(ordersItem.getAddDate(), ordersItem.getItemOptionList());
+                }
+            }
+            model.addAttribute("hasNext", orders.hasNext());
+            model.addAttribute("orderList", orderList);
+            model.addAttribute("orderAccountMap", orderAccountMap);
+            model.addAttribute("ordersItemMap", ordersItemMap);
+            model.addAttribute("itemMap", itemMap);
+            model.addAttribute("itemOptionMap", itemOptionMap);
+            model.addAttribute("orderStatus", orderStatus);
+        }
+        return "mystore/order-list";
+    }
+    @PostMapping("/{ordersId}/accept")
+    public String orders_accept(@PathVariable Long ordersId){
+        ordersService.acceptOrder(ordersId);
+        return "redirect:/orders/order-list/waiting";
+    }
+
+    @PostMapping("/{ordersId}/reject")
+    public String orders_reject(@PathVariable Long ordersId){
+        ordersService.rejectOrder(ordersId);
+        return "redirect:/orders/order-list/waiting";
     }
 }

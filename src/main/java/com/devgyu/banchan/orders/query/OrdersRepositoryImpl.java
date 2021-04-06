@@ -54,6 +54,23 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
                 .fetchResults();
         return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
+    @Override
+    public Page<Orders> findAccountItemFetchByStoreIdAndStatus(Long storeOwnerId, Pageable pageable, OrderStatus firstCondition,
+                                                          @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition){
+        QueryResults<Orders> result = queryFactory
+                .selectFrom(orders)
+                .distinct()
+                .join(orders.account, account).fetchJoin()
+                .join(orders.ordersItemList, ordersItem).fetchJoin()
+                .join(ordersItem.item, item).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
+                .where(storeOwner.id.eq(storeOwnerId).and(conditionSelect(firstCondition, secondCondition, thirdCondition)))
+                .orderBy(orders.regDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+        return new PageImpl<>(result.getResults(), pageable, result.getTotal());
+    }
     private BooleanExpression conditionSelect(OrderStatus firstCondition,
                                               @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition){
         return secondCondition == null ? orders.orderStatus.eq(firstCondition) :
@@ -61,5 +78,15 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
                 orders.orderStatus.eq(firstCondition).or(orders.orderStatus.eq(secondCondition))
                 .or(orders.orderStatus.eq(thirdCondition));
     }
+
+    @Override
+    public List<Orders> findAccountFetchById(Long ordersId){
+        return queryFactory
+                .selectFrom(orders)
+                .join(orders.account, account).fetchJoin()
+                .where(orders.id.eq(ordersId))
+                .fetch();
+    }
+
 
 }
