@@ -60,13 +60,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-12 text-center">
+                <div class="col-sm-12 text-center" th:if="${cartItemList != null && !cartItemList.isEmpty()}">
                     <hr class="m-0">
                     <span th:text="${'총 상품 수 = ' + cartItemList.size()}"></span><br>
                     <span th:text="${'총 금액 = ' + cart.totalCartPrice + '₩'}"></span>
                 </div>
                 <div class="col-sm-6">
-                    <form th:action="@{/orders/cart-order}" method="post" class="d-grid">
+                    <form th:action="@{/orders/cart-order}" th:if="${cartItemList != null && !cartItemList.isEmpty()}" method="post" class="d-grid">
                         <button type="submit" class="btn btn-outline-success fs-4">주문하기</button>
                     </form>
                 </div>

@@ -1,7 +1,7 @@
 package com.devgyu.banchan.account;
 
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
-import com.devgyu.banchan.rider.Rider;
+import com.devgyu.banchan.modules.rider.Rider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

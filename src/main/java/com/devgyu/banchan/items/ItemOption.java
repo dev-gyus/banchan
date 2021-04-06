@@ -5,7 +5,6 @@ import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import javax.jdo.annotations.Join;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;

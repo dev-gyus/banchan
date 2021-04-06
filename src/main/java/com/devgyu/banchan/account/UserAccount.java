@@ -2,7 +2,7 @@ package com.devgyu.banchan.account;
 
 import com.devgyu.banchan.account.customer.Customer;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
-import com.devgyu.banchan.rider.Rider;
+import com.devgyu.banchan.modules.rider.Rider;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;

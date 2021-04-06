@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light p-0 pb-5">
+
+    <div class="row justify-content-center">
+        <div class="col-sm-12 fs-4">
+            <div th:replace="rider/rider-fragments :: riderPageNav('배달할주문')"></div>
+        </div>
+        <div class="col-sm-12 fs-2">
+            <div th:replace="rider/rider-fragments :: riderOrderNav (${orderStatus})"></div>
+        </div>
+        <div class="col-sm-12">
+            <div class="text-center" th:if="${orderStatus == 'delivery'}" style="font-size: 40px">배달중인 주문</div>
+            <div class="text-center" th:if="${orderStatus == 'completed'}" style="font-size: 40px">배달완료 주문</div>
+            <hr>
+        </div>
+        <div class="col-sm-12">
+            <table class="table table-hover text-center fs-4">
+                <thead>
+                <tr>
+                    <th scope="col" class="col-sm-3">가게명</th>
+                    <th scope="col" class="col-sm-6">가게위치</th>
+                    <th scope="col" class="col-sm-3">버튼</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

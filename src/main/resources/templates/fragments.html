@@ -72,10 +72,10 @@
                 </div>
 
                 <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
-                    <div th:replace="fragments :: profileImage ('/rider-page')"></div>
+                    <div th:replace="fragments :: profileImage ('/rider/rider-page')"></div>
                 </div>
                 <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
-                    <div th:replace="fragments :: profileNickname ('/rider-page')"></div>
+                    <div th:replace="fragments :: profileNickname ('/rider/rider-page')"></div>
                 </div>
 
                 <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="주문확인">

@@ -3,6 +3,8 @@ package com.devgyu.banchan.orders;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.items.Item;
 import com.devgyu.banchan.items.ItemOption;
+import com.devgyu.banchan.modules.rider.Rider;
+import com.devgyu.banchan.modules.rider.RiderOrders;
 import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -25,6 +27,10 @@ public class Orders {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "orders", cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
+    @JsonIgnore
+    private RiderOrders riderOrders;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

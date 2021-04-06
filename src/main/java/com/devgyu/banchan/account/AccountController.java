@@ -1,9 +1,11 @@
 package com.devgyu.banchan.account;
 
+import com.devgyu.banchan.account.customer.Customer;
 import com.devgyu.banchan.account.dto.ForgotDto;
 import com.devgyu.banchan.account.dto.LoginDto;
 import com.devgyu.banchan.account.dto.ModifyPasswordDto;
 import com.devgyu.banchan.account.dto.MypageDto;
+import com.devgyu.banchan.modules.rider.Rider;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -137,14 +140,15 @@ public class AccountController {
     @PostMapping("/mypage/modify-password")
     public String modifyPassword(@CurrentUser Account customer, @ModelAttribute ModifyPasswordDto modifyPasswordDto,
                                  BindingResult result){
-        if(modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), customer.getPassword())){
+        Account findAccount = accountRepository.findById(customer.getId()).get();
+        if(modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), findAccount.getPassword())){
             result.rejectValue("password", null, "인증에 실패 하였습니다.");
             return "mypage/change-password";
         }
         return "mypage/change-password-main";
     }
     @PostMapping("/mypage/modify-password-main")
-    public String modifyPassword_main(@CurrentUser Account customer, @ModelAttribute ModifyPasswordDto modifyPasswordDto,
+    public String modifyPassword_main(@CurrentUser Account account, @ModelAttribute ModifyPasswordDto modifyPasswordDto,
                                       BindingResult result) throws IllegalAccessException {
         if(modifyPasswordDto.getPasswordRepeat().equals("")){
             result.rejectValue("passwordRepeat",null,"비밀번호 확인은 필수입니다.");
@@ -156,8 +160,16 @@ public class AccountController {
             result.rejectValue("passwordRepeat",null,"비밀번호가 일치하지 않습니다.");
             return "mypage/change-password-main";
         }
-        accountService.modifyPassword(customer.getEmail(), modifyPasswordDto);
-        return "redirect:/mypage";
+        accountService.modifyPassword(account.getEmail(), modifyPasswordDto);
+        if(account instanceof Customer) {
+            return "redirect:/mypage";
+        }else if(account instanceof StoreOwner){
+            return "redirect:/mystore";
+        }else if(account instanceof Rider){
+            return "redirect:/rider/rider-page";
+        }else{
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
     }
 
 }

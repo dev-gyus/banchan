@@ -80,6 +80,23 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
     }
 
     @Override
+    public Page<Orders> findAccountItemFetchByStoreRoadIdAndStatus(String doSigungu, OrderStatus orderStatus, Pageable pageable){
+        QueryResults<Orders> results = queryFactory
+                .selectFrom(orders)
+                .join(orders.account, account).fetchJoin()
+                .join(orders.ordersItemList, ordersItem).fetchJoin()
+                .join(ordersItem.item, item).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
+                .where(storeOwner.address.road.contains(doSigungu).and(orders.orderStatus.eq(orderStatus)))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(results.getResults(), pageable, results.getTotal());
+
+    }
+
+    @Override
     public List<Orders> findAccountFetchById(Long ordersId){
         return queryFactory
                 .selectFrom(orders)

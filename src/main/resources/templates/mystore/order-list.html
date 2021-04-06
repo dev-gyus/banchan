@@ -6,10 +6,10 @@
 <div th:replace="fragments :: commonNav">공통네비</div>
 
 <div class="container-sm bg-light p-0 pb-5">
-    <div th:replace="mystore/mystore-fragments :: mystoreNav ('주문목록')"></div>
+    <div th:replace="mystore/mystore-fragments :: mystoreNav ('받은주문목록')"></div>
 
     <div class="row justify-content-center">
-        <div class="col-sm-12 fs-2">
+        <div class="col-sm-12 fs-3">
             <hr class="m-1">
             <nav class="nav nav-pills nav-justified">
                 <a class="nav-link border" aria-current="page" th:href="@{/orders/order-list/waiting}"

@@ -16,5 +16,8 @@ public interface OrdersQueryRepository {
     Page<Orders> findAccountItemFetchByStoreIdAndStatus(Long storeOwnerId, Pageable pageable, OrderStatus firstCondition,
                                                         @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition);
 
+    Page<Orders> findAccountItemFetchByStoreRoadIdAndStatus(String doSigungu, OrderStatus orderStatus, Pageable pageable);
+
     List<Orders> findAccountFetchById(Long ordersId);
+
 }
