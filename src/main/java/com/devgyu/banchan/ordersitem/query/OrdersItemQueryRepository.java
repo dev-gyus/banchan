@@ -8,4 +8,6 @@ import java.util.List;
 public interface OrdersItemQueryRepository {
 
     List<OrdersItem> findItemOptionFetchByIdIn(List<Long> orderItemIdList);
+
+    List<OrdersItem> findOrdersItemItemOptionStoreOwnerByOrderId(Long orderId);
 }

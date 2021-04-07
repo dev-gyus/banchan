@@ -43,10 +43,10 @@ public class OrdersController {
         // 이전 주문내역도 같이 가져오면 페이징이 제대로 처리가 안되므로 따로 가져오도록 한다.
         Page<Orders> notCompOrderList = ordersRepository
                 .findAccountItemFetchByIdAndStatus(account.getId(), pageable,
-                        OrderStatus.DELIVERY, OrderStatus.READY, OrderStatus.WAITING);
+                        OrderStatus.DELIVERY_READY, OrderStatus.DELIVERY_START, OrderStatus.READY, OrderStatus.WAITING);
         Page<Orders> compOrderList = ordersRepository
                 .findAccountItemFetchByIdAndStatus(account.getId(), pageable,
-                        OrderStatus.COMPLETED, null, null);
+                        OrderStatus.COMPLETED, null, null, null);
         if (notCompOrderList.isEmpty() && compOrderList.isEmpty()) {
             Account findAccount = accountRepository.findById(account.getId()).get();
             model.addAttribute("account", findAccount);
@@ -68,7 +68,7 @@ public class OrdersController {
         for (Orders orders : orderList) {
             ordersItemMap.put(orders.getId(), orders.getOrdersItemList());
             if (orders.getOrderStatus() == OrderStatus.READY ||
-                    orders.getOrderStatus() == OrderStatus.DELIVERY ||
+                    orders.getOrderStatus() == OrderStatus.DELIVERY_START ||
                     orders.getOrderStatus() == OrderStatus.WAITING) {
                 List<Long> ordersItemIdList = new ArrayList<>();
                 // 하나의 주문은 하나의 가게에서만 할수있음
@@ -139,7 +139,7 @@ public class OrdersController {
                     pageable, OrderStatus.READY, null, null);
         }else if(orderStatus.equals("delivery")){
             orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
-                    pageable, OrderStatus.DELIVERY, null, null);
+                    pageable, OrderStatus.DELIVERY_START, null, null);
         }else if(orderStatus.equals("completed")){
             orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
                     pageable, OrderStatus.COMPLETED, null, null);

@@ -1,5 +1,6 @@
 package com.devgyu.banchan.modules.rider;
 
+import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.CurrentUser;
 import com.devgyu.banchan.account.dto.ModifyPasswordDto;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,33 +109,14 @@ public class RiderController {
     @GetMapping("/order-list/{orderStatus}")
     public String findStatusOrder(@CurrentUser Rider rider, @PathVariable String orderStatus, Pageable pageable,Model model){
 
-        if(orderStatus.equals("delivery")) {
-            Page<RiderOrders> riderOrders = riderOrdersRepository.findOrdersItemStoreFetchByRiderIdAndStatus(rider.getId(), OrderStatus.DELIVERY, pageable);
-            Map<LocalDateTime, OrdersItem> ordersItemMap = new HashMap<>();
-            Map<LocalDateTime, Item> itemMap = new HashMap<>();
-            Map<LocalDateTime, List<ItemOption>> itemOptionMap = new HashMap<>();
-
-            List<Orders> ordersList = riderOrders.getContent().stream().map(ro -> ro.getOrders()).collect(Collectors.toList());
-            for (Orders orders : ordersList) {
-                List<OrdersItem> ordersItemList = orders.getOrdersItemList();
-                for (OrdersItem ordersItem : ordersItemList) {
-
-                    ordersItemMap.put(ordersItem.getAddDate(), ordersItem);
-
-                    itemMap.put(ordersItem.getAddDate(), ordersItem.getItem());
-                    List<Long> itemOptionIdList = ordersItem.getItemOptionList().stream().map(io -> io.getId()).collect(Collectors.toList());
-
-                    List<ItemOption> findItemOptionList = itemOptionRepository.findAllByItemIdAndIdIn(ordersItem.getItem().getId(), itemOptionIdList);
-                    itemOptionMap.put(ordersItem.getAddDate(), findItemOptionList);
-                }
-            }
-            model.addAttribute("ordersList", ordersList);
-            model.addAttribute("ordersItemMap", ordersItemMap);
-            model.addAttribute("itemMap", itemMap);
-            model.addAttribute("itemOptionMap", itemOptionMap);
+        if(orderStatus.equals("delivery_ready")){
+            deliveryMethod(rider, pageable, OrderStatus.DELIVERY_READY, model);
+        }
+        else if(orderStatus.equals("delivery_start")) {
+            deliveryMethod(rider, pageable, OrderStatus.DELIVERY_START, model);
 
         }else if(orderStatus.equals("completed")){
-            Page<RiderOrders> findRiderOrders = riderOrdersRepository.findOrdersItemStoreFetchByRiderIdAndStatus(rider.getId(), OrderStatus.COMPLETED, pageable);
+            Page<RiderOrders> findRiderOrders = riderOrdersRepository.findAccountOrdersItemStoreFetchByRiderIdAndStatus(rider.getId(), OrderStatus.COMPLETED, pageable);
             List<RiderOrders> riderOrdersList = findRiderOrders.getContent();
             Map<Long, StoreOwner> storeMap = new HashMap<>();
             Map<Long, Orders> ordersMap = new HashMap<>();
@@ -159,6 +142,56 @@ public class RiderController {
         return "rider/order-list-status";
     }
 
+    private void deliveryMethod(@CurrentUser Rider rider, Pageable pageable, OrderStatus orderStatus, Model model) {
+        Page<RiderOrders> findRiderOrders = riderOrdersRepository.findAccountOrdersItemStoreFetchByRiderIdAndStatus(rider.getId(), orderStatus, pageable);
+        List<Orders> ordersList = findRiderOrders.getContent().stream().map(ro -> ro.getOrders()).collect(Collectors.toList());
+
+        Map<LocalDateTime, StoreOwner> storeOwnerMap = new HashMap<>();
+        Map<LocalDateTime, Account> accountMap = new HashMap<>();
+
+        for (Orders orders : ordersList) {
+            List<OrdersItem> ordersItemList = orders.getOrdersItemList();
+
+            StoreOwner findStoreOwner = ordersItemList.get(0).getItem().getStoreOwner();
+            Account customer = orders.getAccount();
+
+            storeOwnerMap.put(orders.getRegDate(), findStoreOwner);
+            accountMap.put(orders.getRegDate(), customer);
+        }
+        model.addAttribute("ordersList", ordersList);
+        model.addAttribute("storeOwnerMap", storeOwnerMap);
+        model.addAttribute("accountMap", accountMap);
+    }
+
+    @GetMapping("/delivery/{orderId}")
+    public String delivery_detail(@CurrentUser Rider rider, @PathVariable Long orderId, Model model){
+        List<RiderOrders> riderOrders = riderOrdersRepository.findAccountOrdersItemStoreFetchByOrdersIdAndRiderId(orderId, rider.getId());
+        if(riderOrders.isEmpty()){
+            throw new IllegalArgumentException("잘못된 요청입니다");
+        }
+        Orders orders = riderOrders.get(0).getOrders(); // orderId로 조회한거라 오더는 무조건 한 개임
+        Map<LocalDateTime, OrdersItem> ordersItemMap = new HashMap<>();
+        Map<LocalDateTime, Item> itemMap = new HashMap<>();
+        Map<LocalDateTime, List<ItemOption>> itemOptionMap = new HashMap<>();
+
+            List<OrdersItem> ordersItemList = orders.getOrdersItemList();
+            for (OrdersItem ordersItem : ordersItemList) {
+
+                ordersItemMap.put(ordersItem.getAddDate(), ordersItem);
+
+                itemMap.put(ordersItem.getAddDate(), ordersItem.getItem());
+                List<Long> itemOptionIdList = ordersItem.getItemOptionList().stream().map(io -> io.getId()).collect(Collectors.toList());
+
+                List<ItemOption> findItemOptionList = itemOptionRepository.findAllByItemIdAndIdIn(ordersItem.getItem().getId(), itemOptionIdList);
+                itemOptionMap.put(ordersItem.getAddDate(), findItemOptionList);
+            }
+
+        model.addAttribute("orders", orders);
+        model.addAttribute("ordersItemMap", ordersItemMap);
+        model.addAttribute("itemMap", itemMap);
+        model.addAttribute("itemOptionMap", itemOptionMap);
+        return "rider/delivery";
+    }
     @GetMapping("/modify-password")
     public String modifyPassword(@CurrentUser Rider rider, @ModelAttribute ModifyPasswordDto modifyPasswordDto){
 

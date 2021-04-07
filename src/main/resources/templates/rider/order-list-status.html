@@ -8,7 +8,7 @@
 <div class="container-sm bg-light p-0 pb-5">
 
     <div class="row justify-content-center">
-        <div class="col-sm-12 fs-4">
+        <div class="col-sm-12">
             <div th:replace="rider/rider-fragments :: riderPageNav('배달할주문')"></div>
         </div>
         <div class="col-sm-12 fs-2">
@@ -24,12 +24,30 @@
                 <thead>
                 <tr>
                     <th scope="col" class="col-sm-3">가게명</th>
-                    <th scope="col" class="col-sm-6">가게위치</th>
-                    <th scope="col" class="col-sm-3">버튼</th>
+                    <th scope="col" class="col-sm-4">가게위치</th>
+                    <th scope="col" class="col-sm-4"
+                        th:if="${orderStatus == 'delivery_ready' or orderStatus == 'delivery_start'}">배송지</th>
+                    <th scope="col" class="col-sm-1"
+                        th:if="${orderStatus == 'delivery_ready' or orderStatus == 'delivery_start'}">기타</th>
                 </tr>
                 </thead>
                 <tbody>
+                <tr th:if="${orderStatus == 'delivery_ready' or orderStatus == 'delivery_start'}" th:each="order : ${ordersList}">
+                        <td class="align-middle" th:text="${storeOwnerMap.get(order.regDate).nickname}"></td>
+                        <td class="align-middle" th:text="${storeOwnerMap.get(order.regDate).address.road +
+                     ' ' + storeOwnerMap.get(order.regDate).address.detail}"></td>
+                        <td class="align-middle" th:text="${accountMap.get(order.regDate).address.road +
+                    ' ' + accountMap.get(order.regDate).address.detail}"></td>
+                    <td>
+                        <a th:href="@{'/rider/delivery/' + ${order.id}}" class="btn btn-outline-primary">상세보기</a>
+                    </td>
 
+                </tr>
+                <tr th:if="${orderStatus == 'completed'}" th:each="riderOrders : ${riderOrdersList}">
+                    <td th:text="${storeMap.get(riderOrders.id).nickname}"></td>
+                    <td th:text="${storeMap.get(riderOrders.id).address.road + ' ' +
+                    storeMap.get(riderOrders.id).address.detail}"></td>
+                </tr>
                 </tbody>
             </table>
         </div>

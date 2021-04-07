@@ -57,6 +57,9 @@ public class QStoreOwner extends EntityPathBase<StoreOwner> {
     public final StringPath phone;
 
     //inherited
+    public final ListPath<com.devgyu.banchan.review.Review, com.devgyu.banchan.review.QReview> reviewList;
+
+    //inherited
     public final EnumPath<com.devgyu.banchan.account.Roles> role;
 
     public final ListPath<com.devgyu.banchan.modules.storecategory.StoreCategory, com.devgyu.banchan.modules.storecategory.QStoreCategory> storeCategories = this.<com.devgyu.banchan.modules.storecategory.StoreCategory, com.devgyu.banchan.modules.storecategory.QStoreCategory>createList("storeCategories", com.devgyu.banchan.modules.storecategory.StoreCategory.class, com.devgyu.banchan.modules.storecategory.QStoreCategory.class, PathInits.DIRECT2);
@@ -97,6 +100,7 @@ public class QStoreOwner extends EntityPathBase<StoreOwner> {
         this.ordersList = _super.ordersList;
         this.password = _super.password;
         this.phone = _super.phone;
+        this.reviewList = _super.reviewList;
         this.role = _super.role;
         this.thumbnail = _super.thumbnail;
     }

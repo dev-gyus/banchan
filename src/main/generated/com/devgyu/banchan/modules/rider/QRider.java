@@ -56,6 +56,9 @@ public class QRider extends EntityPathBase<Rider> {
     //inherited
     public final StringPath phone;
 
+    //inherited
+    public final ListPath<com.devgyu.banchan.review.Review, com.devgyu.banchan.review.QReview> reviewList;
+
     public final ListPath<RiderOrders, QRiderOrders> riderOrdersList = this.<RiderOrders, QRiderOrders>createList("riderOrdersList", RiderOrders.class, QRiderOrders.class, PathInits.DIRECT2);
 
     //inherited
@@ -93,6 +96,7 @@ public class QRider extends EntityPathBase<Rider> {
         this.ordersList = _super.ordersList;
         this.password = _super.password;
         this.phone = _super.phone;
+        this.reviewList = _super.reviewList;
         this.role = _super.role;
         this.thumbnail = _super.thumbnail;
     }

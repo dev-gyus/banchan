@@ -1,5 +1,6 @@
 package com.devgyu.banchan.modules.rider.query;
 
+import com.devgyu.banchan.account.QAccount;
 import com.devgyu.banchan.items.QItem;
 import com.devgyu.banchan.modules.rider.QRider;
 import com.devgyu.banchan.modules.rider.QRiderOrders;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import javax.persistence.EntityManager;
 import java.util.List;
 
+import static com.devgyu.banchan.account.QAccount.account;
 import static com.devgyu.banchan.items.QItem.item;
 import static com.devgyu.banchan.modules.rider.QRider.rider;
 import static com.devgyu.banchan.modules.rider.QRiderOrders.riderOrders;
@@ -35,13 +37,14 @@ public class RiderOrdersRepositoryImpl implements RiderOrdersQueryRepository{
     }
 
     @Override
-    public Page<RiderOrders> findOrdersItemStoreFetchByRiderIdAndStatus(Long riderId, OrderStatus orderStatus, Pageable pageable){
+    public Page<RiderOrders> findAccountOrdersItemStoreFetchByRiderIdAndStatus(Long riderId, OrderStatus orderStatus, Pageable pageable){
         QueryResults<RiderOrders> results = queryFactory
                 .selectFrom(riderOrders)
                 .join(riderOrders.orders, orders).fetchJoin()
                 .join(riderOrders.rider, rider).fetchJoin()
                 .join(orders.ordersItemList, ordersItem).fetchJoin()
                 .join(ordersItem.item, item).fetchJoin()
+                .join(orders.account, account).fetchJoin()
                 .join(item.storeOwner, storeOwner).fetchJoin()
                 .where(rider.id.eq(riderId).and(orders.orderStatus.eq(orderStatus)))
                 .offset(pageable.getOffset())
@@ -49,5 +52,19 @@ public class RiderOrdersRepositoryImpl implements RiderOrdersQueryRepository{
                 .fetchResults();
 
         return new PageImpl<>(results.getResults(), pageable, results.getTotal());
+    }
+
+    @Override
+    public List<RiderOrders> findAccountOrdersItemStoreFetchByOrdersIdAndRiderId(Long ordersId, Long riderId){
+        return queryFactory
+                .selectFrom(riderOrders)
+                .join(riderOrders.rider, rider)
+                .join(riderOrders.orders, orders).fetchJoin()
+                .join(orders.account, account).fetchJoin()
+                .join(orders.ordersItemList, ordersItem).fetchJoin()
+                .join(ordersItem.item, item).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
+                .where(orders.id.eq(ordersId).and(rider.id.eq(riderId)))
+                .fetch();
     }
 }

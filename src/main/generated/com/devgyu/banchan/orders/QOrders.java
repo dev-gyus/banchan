@@ -34,6 +34,8 @@ public class QOrders extends EntityPathBase<Orders> {
 
     public final BooleanPath reviewed = createBoolean("reviewed");
 
+    public final ListPath<com.devgyu.banchan.review.Review, com.devgyu.banchan.review.QReview> reviewList = this.<com.devgyu.banchan.review.Review, com.devgyu.banchan.review.QReview>createList("reviewList", com.devgyu.banchan.review.Review.class, com.devgyu.banchan.review.QReview.class, PathInits.DIRECT2);
+
     public final com.devgyu.banchan.modules.rider.QRiderOrders riderOrders;
 
     public final NumberPath<Integer> totalPrice = createNumber("totalPrice", Integer.class);

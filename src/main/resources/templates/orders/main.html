@@ -10,7 +10,7 @@
         <div th:replace="mypage/mypage-fragments :: mypageNav ('주문조회')"></div>
     </div>
     <div th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
-        <div th:replace="mystore/mystore-fragments :: mystoreNav ('내가한주문목록')"></div>
+        <div th:replace="mystore/mystore-fragments :: mystoreNav ('내주문조회')"></div>
     </div>
     <div th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
         <div th:replace="rider/rider-fragments :: riderPageNav ('주문조회')"></div>
@@ -43,9 +43,12 @@
                         <div class="col-sm-6 text-end fs-3 mt-0 text-primary"
                              th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).READY}"
                              th:text="'주문상태: 상품준비중'"></div>
+                        <div class="col-sm-6 text-end fs-3 mt-0 text-primary"
+                             th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).DELIVERY_READY}"
+                             th:text="'주문상태: 배달준비중'"></div>
                         <div class="col-sm-6 text-end fs-3 mt-0 text-success"
-                             th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).DELIVERY}"
-                             th:text="'주문상태: 배달중'"></div>
+                             th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).DELIVERY_START}"
+                             th:text="'주문상태: 배달출발'"></div>
                         <div class="col-sm-6 text-start fs-3 mt-0">
                             <span th:text="'주문일: ' + ${#temporals.format(order.regDate, 'yyyy-MM-dd')}"></span><br>
                         </div>
@@ -105,11 +108,9 @@
                             <span th:text="${' x ' + orderItem.count}"></span>
                         </div>
                     </div>
-                    <hr>
-                    <div class="col-sm-12 fs-4 d-grid">
-                        <form th:action="@{/review}">
-                            <button class="btn btn-outline-primary fs-4">리뷰쓰기</button>
-                        </form>
+                    <div th:if="${!order.isReviewed()}" class="col-sm-12 fs-4">
+                        <hr>
+                        <a th:href="@{'/review/' + ${order.id} + '/add'}" class="btn btn-outline-primary fs-4">리뷰쓰기</a>
                     </div>
                 </div>
             </div>

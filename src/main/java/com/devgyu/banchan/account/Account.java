@@ -2,6 +2,7 @@ package com.devgyu.banchan.account;
 
 import com.devgyu.banchan.cart.Cart;
 import com.devgyu.banchan.orders.Orders;
+import com.devgyu.banchan.review.Review;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -52,6 +53,10 @@ public abstract class Account {
     @JsonIgnore
     private Cart cart;
 
+    @OneToMany(mappedBy = "account")
+    @JsonIgnore
+    private List<Review> reviewList = new ArrayList<>();
+
     public Account(String email, String nickname, String password, String name, String phone, Roles role, Address address, String emailToken) {
         this.email = email;
         this.nickname = nickname;
@@ -66,5 +71,10 @@ public abstract class Account {
     public void addOrder(Orders orders){
         this.ordersList.add(orders);
         orders.setAccount(this);
+    }
+
+    public void addReview(Review review){
+        review.setAccount(this);
+        this.reviewList.add(review);
     }
 }

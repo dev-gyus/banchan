@@ -5,9 +5,10 @@
         <a class="nav-link border" aria-current="page" th:href="@{/mystore}" th:classappend="${nowPage == '내가게정보'} ? 'active'">내 가게정보</a>
         <a class="nav-link border" aria-current="page" th:href="@{/orders/order-list/waiting}" th:classappend="${nowPage == '받은주문목록'} ? 'active'">받은주문목록</a>
         <a class="nav-link border" th:href="@{/mystore/modify-password}" th:classappend="${nowPage == '비밀번호변경'} ? 'active'">비밀번호변경</a>
+        <a class="nav-link border" th:href="@{/review/store}" th:classappend="${nowPage == '가게리뷰조회'} ? 'active'">가게리뷰조회</a>
         <a class="nav-link border" th:href="@{/items}" th:classappend="${nowPage == '상품목록관리'} ? 'active'">상품목록관리</a>
         <a class="nav-link border" th:href="@{/orders}" th:classappend="${nowPage == '내주문조회'} ? 'active'">내주문조회</a>
-        <a class="nav-link border" href="#" th:classappend="${nowPage == '리뷰조회'} ? 'active'">리뷰조회</a>
+        <a class="nav-link border" th:href="@{/review}" th:classappend="${nowPage == '내리뷰조회'} ? 'active'">내리뷰조회</a>
     </nav>
 </div>
 

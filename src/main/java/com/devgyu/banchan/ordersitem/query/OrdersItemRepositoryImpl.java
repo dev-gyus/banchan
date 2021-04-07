@@ -1,5 +1,6 @@
 package com.devgyu.banchan.ordersitem.query;
 
+import com.devgyu.banchan.account.QAccount;
 import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,19 @@ public class OrdersItemRepositoryImpl implements OrdersItemQueryRepository{
                 .join(ordersItem.item, item).fetchJoin()
                 .join(ordersItem.orders, orders).fetchJoin()
                 .join(orders.account, account).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
+                .where(orders.id.eq(orderId))
+                .fetch();
+    }
+
+    @Override
+    public List<OrdersItem> findOrdersItemItemOptionStoreOwnerByOrderId(Long orderId) {
+        return queryFactory
+                .selectFrom(ordersItem)
+                .distinct()
+                .join(ordersItem.orders, orders).fetchJoin()
+                .join(ordersItem.item, item).fetchJoin()
+                .leftJoin(ordersItem.itemOptionList, itemOption).fetchJoin()
                 .join(item.storeOwner, storeOwner).fetchJoin()
                 .where(orders.id.eq(orderId))
                 .fetch();

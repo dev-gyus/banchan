@@ -13,7 +13,8 @@
 <div th:fragment="riderOrderNav (nowPage)">
     <nav class="nav nav-pills nav-justified">
         <a class="nav-link border" aria-current="page" th:href="@{/rider/order-list}" th:classappend="${nowPage == 'ready'} ? 'active'">배달할 주문</a>
-        <a class="nav-link border" th:href="@{/rider/order-list/delivery}" th:classappend="${nowPage == 'delivery'} ? 'active'">배달중인 주문</a>
+        <a class="nav-link border" aria-current="page" th:href="@{/rider/order-list/delivery_ready}" th:classappend="${nowPage == 'delivery_ready'} ? 'active'">픽업할 주문</a>
+        <a class="nav-link border" th:href="@{/rider/order-list/delivery_start}" th:classappend="${nowPage == 'delivery_start'} ? 'active'">배달중인 주문</a>
         <a class="nav-link border" th:href="@{/rider/order-list/completed}" th:classappend="${nowPage == 'completed'} ? 'active'">배달완료 주문</a>
     </nav>
 </div>

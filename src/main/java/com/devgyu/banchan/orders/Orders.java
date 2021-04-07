@@ -6,6 +6,7 @@ import com.devgyu.banchan.items.ItemOption;
 import com.devgyu.banchan.modules.rider.Rider;
 import com.devgyu.banchan.modules.rider.RiderOrders;
 import com.devgyu.banchan.ordersitem.OrdersItem;
+import com.devgyu.banchan.review.Review;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -35,6 +36,10 @@ public class Orders {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<OrdersItem> ordersItemList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "orders")
+    @JsonIgnore
+    private List<Review> reviewList = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus = OrderStatus.WAITING;

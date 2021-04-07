@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <style>
+        #star a {
+            text-decoration: none;
+            color: gray;
+        }
+
+        #star a.on {
+            color: red;
+        }
+
+    </style>
+    <script>
+        $(document).ready(function() {
+            // a href='#' 클릭 무시 스크립트
+            $('a[href="#"]').click(function(ignore) {
+                ignore.preventDefault();
+            });
+        });
+    </script>
+</head>
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light pb-5">
+
+    <div class="row g-3 justify-content-center">
+        <div class="col-sm-12">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12 fs-1 text-center" style="background-color: #e9ecef">
+                    리뷰쓰기
+                </div>
+                <div class="col-sm-12 text-start">
+                    <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
+                </div>
+                <div class="col-sm-12 text-center border">
+                    <hr class="mt-1 bg-light">
+                    <div class="row g-3 gx-4 justify-content-center">
+                        <div class="col-sm-12 fs-3">
+                            <span th:text="'상호명: ' + ${storeOwner.nickname}"></span>
+                        </div>
+                        <div class="col-sm-12">
+                            <table class="table table-hover text-center">
+                                <thead>
+                                <tr>
+                                    <th scope="col" class="col-sm-2">상품이미지</th>
+                                    <th scope="col" class="col-sm-4">상품명</th>
+                                    <th scope="col" class="col-sm-4">상품옵션</th>
+                                    <th scope="col" class="col-sm-2">구매수량</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="orderItem : ${ordersItemList}">
+                                    <td class="align-middle">
+                                        <img th:src="@{'/upload/item/' + ${itemMap.get(orderItem.addDate).thumbnail}}"
+                                             width="70"/>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span th:text="${itemMap.get(orderItem.addDate).name} + ' '"></span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="col-sm-12 fs-5"
+                                             th:if="${itemOptionMap.get(orderItem.addDate).isEmpty()}">
+                                            -
+                                        </div>
+                                        <div class="col-sm-12 fs-5"
+                                             th:if="${!itemOptionMap.get(orderItem.addDate).isEmpty()}"
+                                             th:each="itemOption : ${itemOptionMap.get(orderItem.addDate)}">
+                                            <span th:text="${itemOption.name}"></span>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span th:text="'x' + ${orderItem.count}"></span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <form th:action="@{'/review/' + ${orders.id} + '/add'}" th:object="${reviewDto}" class="row g-2" method="post">
+                            <input id="starPoint" type="hidden" name="starPoint" value="1"/>
+                            <div class="form-group col-sm-12 fs-3">
+                                <span>이번 주문은 어떠셨나요? 전체적인 느낌을 평가해주세요!</span>
+                                <p id="star" class="fs-2"> <!-- 부모 -->
+                                    <a href="#" value="1" class="on">★</a><!-- 자식들-->
+                                    <a href="#" value="2">★</a>
+                                    <a href="#" value="3">★</a>
+                                    <a href="#" value="4">★</a>
+                                    <a href="#" value="5">★</a>
+                                <p>
+                                    <script>
+                                        $('#star a').click(function () {
+                                            $(this).parent().children("a").removeClass("on");
+                                            $(this).addClass("on").prevAll("a").addClass("on");
+                                            $('#starPoint').val($(this).attr("value"));
+                                        });
+                                    </script>
+                            </div>
+                            <div class="form-group col-sm-12 text-start">
+                                <textarea class="summernote" name="content"></textarea>
+                            </div>
+                            <div class="form-group d-grid">
+                                <button type="submit" class="btn btn-outline-success fs-4">작성완료</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:replace="fragments :: summernoteJS"></script>
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

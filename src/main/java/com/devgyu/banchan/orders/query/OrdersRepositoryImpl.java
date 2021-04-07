@@ -39,7 +39,8 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
 
     @Override
     public Page<Orders> findAccountItemFetchByIdAndStatus(Long accountId, Pageable pageable, OrderStatus firstCondition,
-                                                          @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition){
+                                                          @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition,
+                                                          @Nullable OrderStatus fourthCondition){
         QueryResults<Orders> result = queryFactory
                 .selectFrom(orders)
                 .distinct()
@@ -47,7 +48,7 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
                 .join(orders.ordersItemList, ordersItem).fetchJoin()
                 .join(ordersItem.item, item).fetchJoin()
                 .join(item.storeOwner, storeOwner).fetchJoin()
-                .where(account.id.eq(accountId).and(conditionSelect(firstCondition, secondCondition, thirdCondition)))
+                .where(account.id.eq(accountId).and(conditionSelect(firstCondition, secondCondition, thirdCondition, fourthCondition)))
                 .orderBy(orders.regDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -64,7 +65,7 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
                 .join(orders.ordersItemList, ordersItem).fetchJoin()
                 .join(ordersItem.item, item).fetchJoin()
                 .join(item.storeOwner, storeOwner).fetchJoin()
-                .where(storeOwner.id.eq(storeOwnerId).and(conditionSelect(firstCondition, secondCondition, thirdCondition)))
+                .where(storeOwner.id.eq(storeOwnerId).and(conditionSelect(firstCondition, secondCondition, thirdCondition, null)))
                 .orderBy(orders.regDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -72,11 +73,13 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
         return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
     private BooleanExpression conditionSelect(OrderStatus firstCondition,
-                                              @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition){
+                                              @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition,
+                                              @Nullable OrderStatus fourthCondition){
         return secondCondition == null ? orders.orderStatus.eq(firstCondition) :
                 thirdCondition == null ? orders.orderStatus.eq(firstCondition).or(orders.orderStatus.eq(secondCondition)) :
-                orders.orderStatus.eq(firstCondition).or(orders.orderStatus.eq(secondCondition))
-                .or(orders.orderStatus.eq(thirdCondition));
+                fourthCondition == null ? orders.orderStatus.eq(firstCondition).or(orders.orderStatus.eq(secondCondition))
+                .or(orders.orderStatus.eq(thirdCondition)) : orders.orderStatus.eq(firstCondition).or(orders.orderStatus.eq(secondCondition))
+                        .or(orders.orderStatus.eq(thirdCondition)).or(orders.orderStatus.eq(fourthCondition));
     }
 
     @Override

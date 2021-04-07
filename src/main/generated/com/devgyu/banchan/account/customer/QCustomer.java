@@ -55,6 +55,9 @@ public class QCustomer extends EntityPathBase<Customer> {
     public final StringPath phone;
 
     //inherited
+    public final ListPath<com.devgyu.banchan.review.Review, com.devgyu.banchan.review.QReview> reviewList;
+
+    //inherited
     public final EnumPath<com.devgyu.banchan.account.Roles> role;
 
     //inherited
@@ -89,6 +92,7 @@ public class QCustomer extends EntityPathBase<Customer> {
         this.ordersList = _super.ordersList;
         this.password = _super.password;
         this.phone = _super.phone;
+        this.reviewList = _super.reviewList;
         this.role = _super.role;
         this.thumbnail = _super.thumbnail;
     }

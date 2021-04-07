@@ -42,6 +42,8 @@ public class QAccount extends EntityPathBase<Account> {
 
     public final StringPath phone = createString("phone");
 
+    public final ListPath<com.devgyu.banchan.review.Review, com.devgyu.banchan.review.QReview> reviewList = this.<com.devgyu.banchan.review.Review, com.devgyu.banchan.review.QReview>createList("reviewList", com.devgyu.banchan.review.Review.class, com.devgyu.banchan.review.QReview.class, PathInits.DIRECT2);
+
     public final EnumPath<Roles> role = createEnum("role", Roles.class);
 
     public final StringPath thumbnail = createString("thumbnail");

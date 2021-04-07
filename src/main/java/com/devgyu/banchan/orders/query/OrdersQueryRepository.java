@@ -11,7 +11,7 @@ import java.util.List;
 public interface OrdersQueryRepository {
     Page<Orders> findAccountItemFetchByIdAndStatus(Long accountId, Pageable pageable,
                                                    OrderStatus firstCondition, @Nullable OrderStatus secondCondition,
-                                                   @Nullable OrderStatus thirdCondition);
+                                                   @Nullable OrderStatus thirdCondition, @Nullable OrderStatus fourthCondition);
 
     Page<Orders> findAccountItemFetchByStoreIdAndStatus(Long storeOwnerId, Pageable pageable, OrderStatus firstCondition,
                                                         @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition);

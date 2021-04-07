@@ -1,4 +1,4 @@
-package com.devgyu.banchan.modules.rider;
+package com.devgyu.banchan.review;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -11,18 +11,20 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QRiderOrders is a Querydsl query type for RiderOrders
+ * QReview is a Querydsl query type for Review
  */
 @Generated("com.querydsl.codegen.EntitySerializer")
-public class QRiderOrders extends EntityPathBase<RiderOrders> {
+public class QReview extends EntityPathBase<Review> {
 
-    private static final long serialVersionUID = -792498332L;
+    private static final long serialVersionUID = -1278904210L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QRiderOrders riderOrders = new QRiderOrders("riderOrders");
+    public static final QReview review = new QReview("review");
 
-    public final NumberPath<Integer> deliveryPrice = createNumber("deliveryPrice", Integer.class);
+    public final com.devgyu.banchan.account.QAccount account;
+
+    public final StringPath content = createString("content");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
@@ -30,28 +32,28 @@ public class QRiderOrders extends EntityPathBase<RiderOrders> {
 
     public final DateTimePath<java.time.LocalDateTime> regDate = createDateTime("regDate", java.time.LocalDateTime.class);
 
-    public final QRider rider;
+    public final NumberPath<Integer> starPoint = createNumber("starPoint", Integer.class);
 
-    public QRiderOrders(String variable) {
-        this(RiderOrders.class, forVariable(variable), INITS);
+    public QReview(String variable) {
+        this(Review.class, forVariable(variable), INITS);
     }
 
-    public QRiderOrders(Path<? extends RiderOrders> path) {
+    public QReview(Path<? extends Review> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
-    public QRiderOrders(PathMetadata metadata) {
+    public QReview(PathMetadata metadata) {
         this(metadata, PathInits.getFor(metadata, INITS));
     }
 
-    public QRiderOrders(PathMetadata metadata, PathInits inits) {
-        this(RiderOrders.class, metadata, inits);
+    public QReview(PathMetadata metadata, PathInits inits) {
+        this(Review.class, metadata, inits);
     }
 
-    public QRiderOrders(Class<? extends RiderOrders> type, PathMetadata metadata, PathInits inits) {
+    public QReview(Class<? extends Review> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.account = inits.isInitialized("account") ? new com.devgyu.banchan.account.QAccount(forProperty("account"), inits.get("account")) : null;
         this.orders = inits.isInitialized("orders") ? new com.devgyu.banchan.orders.QOrders(forProperty("orders"), inits.get("orders")) : null;
-        this.rider = inits.isInitialized("rider") ? new QRider(forProperty("rider"), inits.get("rider")) : null;
     }
 
 }

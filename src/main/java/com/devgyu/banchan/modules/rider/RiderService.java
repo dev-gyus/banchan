@@ -48,7 +48,7 @@ public class RiderService {
         Rider findRider = riderRepository.findById(rider.getId()).get();
         Orders findOrders = ordersRepository.findById(ordersId).get();
         RiderOrders riderOrders = new RiderOrders(findRider, findOrders);
-        findOrders.setOrderStatus(OrderStatus.DELIVERY);
+        findOrders.setOrderStatus(OrderStatus.DELIVERY_READY);
         // TODO 지도 연동하면 거리에따라서 배달료 다르게 측정하는 로직 구현해볼것, 기본료는 3천원
     }
 }
