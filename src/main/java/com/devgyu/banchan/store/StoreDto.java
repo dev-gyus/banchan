@@ -10,6 +10,7 @@ import java.util.List;
 
 @Data
 public class StoreDto {
+    private Long id;
     private String email;
     private String name;
     private Address address;

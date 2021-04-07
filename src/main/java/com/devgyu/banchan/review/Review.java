@@ -2,6 +2,7 @@ package com.devgyu.banchan.review;
 
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.orders.Orders;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,6 +28,15 @@ public class Review {
     private String content;
     private int starPoint = 1;
     private LocalDateTime regDate = LocalDateTime.now();
+    private ReviewStatus reviewStatus = ReviewStatus.NORMAL;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_review_id")
+    private Review storeReview;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "storeReview")
+    @JsonIgnore
+    private Review customerReview;
 
     public Review(Account account, Orders orders, String content, int starPoint) {
         this.account = account;
@@ -35,5 +45,11 @@ public class Review {
         this.starPoint = starPoint;
         account.getReviewList().add(this);
         orders.getReviewList().add(this);
+    }
+
+    public Review(String content, Review customerReview) {
+        this.content = content;
+        this.customerReview = customerReview;
+        customerReview.setStoreReview(this);
     }
 }

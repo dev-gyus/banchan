@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <style>
+        #star span {
+            text-decoration: none;
+            color: gray;
+        }
+
+        #star span.on {
+            color: #FFD700;
+        }
+
+    </style>
+</head>
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light pb-5">
+
+    <div class="row g-3 justify-content-center">
+        <div class="col-sm-12">
+            <div class="row g-3 justify-content-center">
+                <div th:replace="mystore/mystore-fragments :: mystoreNav ('가게리뷰조회')"></div>
+                <div class="col-sm-12 fs-1 text-center" style="background-color: #e9ecef">
+                    가게리뷰조회
+                </div>
+                <div class="col-sm-12 text-start">
+                    <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
+                </div>
+                <div class="col-sm-12 text-center">
+                    <hr class="mt-1 bg-light">
+                    <div class="row gx-4 justify-content-center">
+                        <div class="col-sm-12 fs-2" th:if="${reviewList.isEmpty()}">
+                            아직 가게 리뷰가 없네요!<br> 곧 작성될 예정이에요~
+                        </div>
+                        <div class="col-sm-12 fs-3 p-3 border" th:if="${!reviewList.isEmpty()}" th:each="review : ${reviewList}">
+                            <div class="row g-3 justify-content-center">
+                                <div class="col-sm-12 text-center">
+                                    <img th:src="${accountMap.get(review.regDate).thumbnail}" width="70"/>
+                                    <span th:text="'작성자: ' + ${accountMap.get(review.regDate).nickname}"></span>
+                                </div>
+                                <div class="col-sm-12">
+                                    <p id="star" class="fs-2"> <!-- 부모 -->
+                                        <span th:classappend="${review.starPoint >= number} ? 'on'" th:each="number : ${#numbers.sequence(1,5)}">★</span>
+                                    <p>
+                                    <hr>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div th:utext="${review.content}"></div>
+                                </div>
+                                <div class="col-sm-6" th:if="${storeReviewMap.get(review.regDate) == null}">
+                                    <div class="text-start"><i class="fas fa-reply fa-rotate-180"></i> 사장님 :</div>
+                                    <div th:id="${review.id}"class="d-grid">
+                                        <button id="replyButton" type="button" class="btn btn-outline-success fs-4" onclick="makeReply(this)">답글달기</button>
+                                    </div>
+                                        <div id="formDiv" class="form-floating col-sm-12 d-grid">
+                                        </div>
+
+                                    <script>
+                                        function addStoreReview(reviewId){
+                                            let content = document.getElementById('content');
+                                            let token = $('meta[name="_csrf"]').attr('content');
+                                            let header = $('meta[name="_csrf_header"]').attr('content');
+                                            let data = {
+                                                'content' : content.value
+                                            };
+                                            $.ajax({
+                                                url: '/mystore/' + reviewId + '/add-store-review',
+                                                type: 'post',
+                                                data: JSON.stringify(data),
+                                                contentType: 'application/json',
+                                                beforeSend: function(xhr){
+                                                    xhr.setRequestHeader(header, token);
+                                                },
+                                                success: function(result){
+                                                    alert('답글이 정상적으로 추가되었습니다');
+                                                    window.location.href = '[[${#request.getContextPath()}]]' + '/mystore/review';
+                                                },
+                                                error: function(){
+                                                    alert('답글 추가중 에러가 발생하였습니다. 계속 반복 될 경우 관리자에게 문의해주세요');
+                                                }
+                                            })
+                                        }
+
+                                        function makeReply(btn){
+                                            let replyButton = $('#replyButton')
+                                            let formDiv = document.getElementById('formDiv');
+                                            let textarea = document.createElement('textarea');
+                                            let reviewId = btn.parentNode.id;
+                                            textarea.id = 'content';
+                                            textarea.name = 'content';
+                                            textarea.setAttribute('class', 'form-control fs-3');
+                                            textarea.style.height = '300px';
+                                            textarea.style.resize = 'none';
+                                            formDiv.appendChild(textarea);
+
+                                            let submitBtn = document.createElement('button');
+                                            submitBtn.type = 'button';
+                                            submitBtn.setAttribute('class', 'btn btn-outline-success mt-2 fs-4');
+                                            submitBtn.innerHTML = '작성하기'
+                                            submitBtn.addEventListener('click', function(){
+                                               addStoreReview(reviewId);
+                                            });
+                                            formDiv.appendChild(submitBtn);
+
+                                            replyButton.hide();
+
+                                        }
+                                    </script>
+                                </div>
+                                <div class="col-sm-6" th:if="${storeReviewMap.get(review.regDate) != null}">
+                                    <div class="text-start" style="background-color: #dee2e6"><i class="fas fa-reply fa-rotate-180"></i> 사장님 :</div>
+                                    <hr class="m-0">
+                                    <div style="background-color: #e9ecef" th:text="${storeReviewMap.get(review.regDate).content}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

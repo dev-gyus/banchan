@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div th:fragment="storeNav (nowPage, storeId)">
+    <nav class="nav nav-pills nav-justified">
+        <a class="nav-link border" aria-current="page" th:href="@{'/store/' + ${storeId}}" th:classappend="${nowPage == '상품'} ? 'active'">상품</a>
+        <a class="nav-link border" aria-current="page" th:href="@{'/store/' + ${storeId} + '/review'}" th:classappend="${nowPage == '리뷰'} ? 'active'">리뷰</a>
+    </nav>
+</div>
+</html>

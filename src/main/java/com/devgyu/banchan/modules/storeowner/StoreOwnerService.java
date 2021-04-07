@@ -6,6 +6,9 @@ import com.devgyu.banchan.modules.category.Category;
 import com.devgyu.banchan.modules.category.CategoryRepository;
 import com.devgyu.banchan.modules.storecategory.StoreCategory;
 import com.devgyu.banchan.mystore.MystoreDto;
+import com.devgyu.banchan.review.Review;
+import com.devgyu.banchan.review.ReviewDto;
+import com.devgyu.banchan.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 public class StoreOwnerService {
     private final StoreOwnerRepository storeOwnerRepository;
     private final CategoryRepository categoryRepository;
+    private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
 
     public void modifyStoreOwner(StoreOwner storeOwner, MystoreDto mystoreDto) {
@@ -62,5 +66,12 @@ public class StoreOwnerService {
             throw new IllegalAccessException("잘못된 접근 입니다.");
         }
         findOwner.setPassword(passwordEncoder.encode(modifyPasswordDto.getPassword()));
+    }
+
+    public void addStoreReview(StoreOwner storeOwner, Long reviewId, ReviewDto reviewDto) {
+        Review customerReview = reviewRepository.findById(reviewId).get();
+        if(customerReview == null) throw new IllegalArgumentException("잘못된 요청입니다");
+        Review storeReview = new Review(reviewDto.getContent(), customerReview);
+        reviewRepository.save(storeReview);
     }
 }

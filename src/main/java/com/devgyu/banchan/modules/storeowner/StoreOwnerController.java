@@ -1,14 +1,26 @@
 package com.devgyu.banchan.modules.storeowner;
 
+import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.CurrentUser;
 import com.devgyu.banchan.account.dto.ModifyPasswordDto;
+import com.devgyu.banchan.items.Item;
+import com.devgyu.banchan.items.ItemOption;
+import com.devgyu.banchan.items.ItemOptionRepository;
 import com.devgyu.banchan.modules.category.CategoryRepository;
 import com.devgyu.banchan.modules.storecategory.StoreCategory;
 import com.devgyu.banchan.mystore.CategoryWrapper;
 import com.devgyu.banchan.mystore.MystoreDto;
+import com.devgyu.banchan.ordersitem.OrdersItem;
+import com.devgyu.banchan.review.Review;
+import com.devgyu.banchan.review.ReviewDto;
+import com.devgyu.banchan.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,21 +28,21 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/mystore")
 public class StoreOwnerController {
+    private final ReviewRepository reviewRepository;
     private final StoreOwnerRepository ownerRepository;
+    private final ItemOptionRepository itemOptionRepository;
     private final StoreOwnerService ownerService;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
-    private final CategoryRepository categoryRepository;
+    private final StoreOwnerService storeOwnerService;
 
     @GetMapping({"", "/"})
     public String myStore_main(@CurrentUser StoreOwner storeOwner, @ModelAttribute MystoreDto mystoreDto,
@@ -49,6 +61,49 @@ public class StoreOwnerController {
         mystoreDto.setCategories(categories);
         return "mystore/main";
     }
+    @GetMapping("/review")
+    public String mystore_review(@CurrentUser StoreOwner storeOwner, @ModelAttribute ReviewDto reviewDto, @PageableDefault Pageable pageable, Model model){
+        Page<Review> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeOwner.getId(), pageable);
+        List<Review> reviewList = findReviews.getContent();
+        Map<LocalDateTime, Review> storeReviewMap = new HashMap<>();
+        Map<LocalDateTime, Account> accountMap = new HashMap<>();
+        Map<LocalDateTime, List<OrdersItem>> ordersItemMap = new HashMap<>();
+        Map<LocalDateTime, Item> itemMap = new HashMap<>();
+        Map<LocalDateTime, List<ItemOption>> itemOptionMap = new HashMap<>();
+
+        for (Review review : reviewList) {
+            List<OrdersItem> ordersItemList = review.getOrders().getOrdersItemList();
+            ordersItemMap.put(review.getRegDate(), ordersItemList);
+            accountMap.put(review.getRegDate(), review.getAccount());
+            storeReviewMap.put(review.getRegDate(), review.getStoreReview());
+
+            for (OrdersItem ordersItem : ordersItemList) {
+                itemMap.put(ordersItem.getAddDate(), ordersItem.getItem());
+
+                List<Long> itemOptionList = ordersItem.getItemOptionList().stream().map(io -> io.getId()).collect(Collectors.toList());
+                List<ItemOption> findItemOptionList = itemOptionRepository.findAllByItemIdAndIdIn(ordersItem.getItem().getId(), itemOptionList);
+                itemOptionMap.put(ordersItem.getAddDate(), findItemOptionList);
+            }
+        }
+        model.addAttribute("reviewList", reviewList);
+        model.addAttribute("storeReviewMap", storeReviewMap);
+        model.addAttribute("accountMap", accountMap);
+        model.addAttribute("itemMap", itemMap);
+        model.addAttribute("ordersItemMap", ordersItemMap);
+        model.addAttribute("itemOptionMap", itemOptionMap);
+
+        return "mystore/review";
+    }
+
+    @PostMapping("/{reviewId}/add-store-review")
+    @ResponseBody
+    public ResponseEntity add_store_review(@CurrentUser StoreOwner storeOwner, @PathVariable Long reviewId,
+                                           @Valid @RequestBody ReviewDto reviewDto){
+
+        storeOwnerService.addStoreReview(storeOwner, reviewId, reviewDto);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/modify")
     public String myStore_main_do(@CurrentUser StoreOwner storeOwner, @Valid @ModelAttribute MystoreDto mystoreDto,
                                   BindingResult result, Model model){

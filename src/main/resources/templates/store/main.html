@@ -10,18 +10,22 @@
     <div class="row g-3 justify-content-center fs-2">
         <div class="col-sm-12">
             <div class="row g-3 justify-content-center">
+                <div class="col-sm-12 fs-2">
+                    <div th:replace="store/store-fragments :: storeNav ('상품', ${storeDto.id})"></div>
+                </div>
+                <div class="col-sm-12 text-start">
+                    <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
+                </div>
                 <div class="col-sm-12 text-center fs-1">
                     <div th:replace="fragments :: accountThumbnail(${storeDto}, 125, false)"></div>
                     <span th:text="${storeDto.name}"></span>
-                    <div class="col-sm-12 text-end">
-                        <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
-                    </div>
                 </div>
                 <div class="col-sm-12 text-center fs-1">
                     <span class="form-text" th:if="${storeDto.storeIntroduce != null}" th:text="${storeDto.storeIntroduce}"></span>
                     <small class="form-text" th:if="${storeDto.storeIntroduce == null}" th:text="${storeDto.name}"></small>
                     <hr>
                 </div>
+
             </div>
         </div>
         <div class="col-sm-12" th:each="map : ${itemMap}">

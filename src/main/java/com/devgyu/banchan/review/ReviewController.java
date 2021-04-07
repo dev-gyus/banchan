@@ -10,6 +10,9 @@ import com.devgyu.banchan.orders.OrdersRepository;
 import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.devgyu.banchan.ordersitem.OrdersItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +31,21 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ReviewRepository reviewRepository;
     private final OrdersItemRepository ordersItemRepository;
+
+    @GetMapping({"","/"})
+    public String review_main(@CurrentUser Account account, @PageableDefault Pageable pageable, Model model){
+        Page<Review> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByAccountId(account.getId(), pageable);
+        List<Review> reviewList = findReviews.getContent();
+        Map<Long, StoreOwner> storeMap = new HashMap<>();
+        for (Review review : reviewList) {
+            // Review -> Orders 다대일, 하나의 주문의 상품은 하나의 가게의 상품이므로 어떤 주문 상품에서 가게를 추출하더라도 같은 가게가 나옴
+            StoreOwner storeOwner = review.getOrders().getOrdersItemList().get(0).getItem().getStoreOwner();
+            storeMap.put(review.getId(), storeOwner);
+        }
+        model.addAttribute("reviewList", reviewList);
+        model.addAttribute("storeMap", storeMap);
+        return "review/main";
+    }
 
     @GetMapping("/{orderId}/add")
     public String review_add(@CurrentUser Account account, @ModelAttribute ReviewDto reviewDto,

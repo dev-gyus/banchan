@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <style>
+        #star span {
+            text-decoration: none;
+            color: gray;
+        }
+
+        #star span.on {
+            color: #FFD700;
+        }
+
+    </style>
+</head>
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light pb-5">
+
+    <div class="row g-3 justify-content-center">
+        <div class="col-sm-12">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12 fs-1 text-center" style="background-color: #e9ecef">
+                    내리뷰조회
+                </div>
+                <div class="col-sm-12 text-start">
+                    <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
+                </div>
+                <div class="col-sm-12 text-center border">
+                    <hr class="mt-1 bg-light">
+                    <div class="row g-3 gx-4 justify-content-center">
+                        <div class="col-sm-12 fs-3" th:each="review : ${reviewList}">
+                            <div class="row g-3 justify-content-center">
+                                <div class="col-sm-12 text-center">
+                                    <img th:src="${storeMap.get(review.id).thumbnail}" width="70"/>
+                                    <span th:text="'상호명: ' + ${storeMap.get(review.id).nickname}"></span>
+                                </div>
+                                <div class="col-sm-12">
+                                    <p id="star" class="fs-2"> <!-- 부모 -->
+                                        <span th:classappend="${review.starPoint >= number} ? 'on'" th:each="number : ${#numbers.sequence(1,5)}">★</span>
+                                    <p>
+                                    <hr>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div th:utext="${review.content}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:replace="fragments :: summernoteJS"></script>
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

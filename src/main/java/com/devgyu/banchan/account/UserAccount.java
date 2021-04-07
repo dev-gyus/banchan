@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.User;
 import java.util.Collection;
 
 @Getter @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "id", callSuper = false)
 public class UserAccount extends User {
     private Long id;
     private Customer customer;

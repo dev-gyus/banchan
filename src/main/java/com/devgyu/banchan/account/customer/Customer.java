@@ -11,7 +11,6 @@ import javax.persistence.*;
 @Entity
 @DiscriminatorColumn
 @Getter @Setter
-@EqualsAndHashCode(of = "id")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Customer extends Account {
 
