@@ -4,8 +4,10 @@
 
 <body>
 <div th:replace="fragments :: commonNav">공통네비</div>
+<script type="text/javascript"
+        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9592e762541282dc4f2596f4108d38d9&libraries=services"></script>
 
-<div class="container-sm bg-light p-0 pb-5">
+<div class="container-sm bg-light p-0 pb-3">
 
     <div class="row justify-content-center">
         <div class="col-sm-12">
@@ -14,44 +16,138 @@
         <div class="col-sm-12 fs-2">
             <div th:replace="rider/rider-fragments :: riderOrderNav (${orderStatus})"></div>
         </div>
-        <div class="col-sm-12">
-            <div class="text-center" th:if="${orderStatus == 'delivery'}" style="font-size: 40px">배달중인 주문</div>
+        <div class="col-sm-12 text-center fs-3">
+            <div class="text-center" th:if="${orderStatus == 'delivery_ready'}" style="font-size: 40px">픽업할 주문</div>
+            <div class="text-center" th:if="${orderStatus == 'delivery_start'}" style="font-size: 40px">배달중인 주문</div>
+            <small class="form-text" th:if="${orderStatus == 'delivery_start'}"><u>길찾기 기능은 '카카오내비'가 설치된 모바일 환경에서만
+                작동합니다.</u></small>
             <div class="text-center" th:if="${orderStatus == 'completed'}" style="font-size: 40px">배달완료 주문</div>
             <hr>
         </div>
-        <div class="col-sm-12">
-            <table class="table table-hover text-center fs-4">
-                <thead>
+
+        <!-- Delivery Completed -->
+        <div class="col-sm-12 fs-4 text-center" th:if="${orderStatus == 'completed'}">
+            <table class="table table-hover text-center">
+                <thead class="fs-2">
                 <tr>
-                    <th scope="col" class="col-sm-3">가게명</th>
-                    <th scope="col" class="col-sm-4">가게위치</th>
-                    <th scope="col" class="col-sm-4"
-                        th:if="${orderStatus == 'delivery_ready' or orderStatus == 'delivery_start'}">배송지</th>
-                    <th scope="col" class="col-sm-1"
-                        th:if="${orderStatus == 'delivery_ready' or orderStatus == 'delivery_start'}">기타</th>
+                    <th scope="col" class="col-sm-6">가게명</th>
+                    <th scope="col" class="col-sm-6">가게위치</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:if="${orderStatus == 'delivery_ready' or orderStatus == 'delivery_start'}" th:each="order : ${ordersList}">
-                        <td class="align-middle" th:text="${storeOwnerMap.get(order.regDate).nickname}"></td>
-                        <td class="align-middle" th:text="${storeOwnerMap.get(order.regDate).address.road +
-                     ' ' + storeOwnerMap.get(order.regDate).address.detail}"></td>
-                        <td class="align-middle" th:text="${accountMap.get(order.regDate).address.road +
-                    ' ' + accountMap.get(order.regDate).address.detail}"></td>
-                    <td>
-                        <a th:href="@{'/rider/delivery/' + ${order.id}}" class="btn btn-outline-primary">상세보기</a>
+                <tr th:each="riderOrders : ${riderOrdersList}">
+                    <td class="align-middle fs-3">
+                        <span th:id="${riderOrders.id + 'store' + 'storename'}"
+                              th:text="${storeMap.get(riderOrders.id).nickname}"></span>
                     </td>
-
-                </tr>
-                <tr th:if="${orderStatus == 'completed'}" th:each="riderOrders : ${riderOrdersList}">
-                    <td th:text="${storeMap.get(riderOrders.id).nickname}"></td>
-                    <td th:text="${storeMap.get(riderOrders.id).address.road + ' ' +
-                    storeMap.get(riderOrders.id).address.detail}"></td>
+                    <td th:id="${riderOrders.id + 'store' + 'storetd'}">
+                        <span th:id="${riderOrders.id + 'store' + 'store-road'}"
+                              th:text="${storeMap.get(riderOrders.id).address.road}"></span>
+                        <span th:text="${storeMap.get(riderOrders.id).address.detail}"></span>
+                        <span class="position-relative link-primary" th:id="${riderOrders.id + 'store'}"
+                              onclick="makeMap(this, 'store')">
+                            <a href="#" class="stretched-link" onclick="return false;"></a>
+                            <i class="fas fa-map-marked-alt"></i>
+                        </span>
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- Delivery Ready or Start -->
+        <div class="col-sm-12 fs-4 text-center"
+             th:if="${orderStatus == 'delivery_ready' or orderStatus == 'delivery_start'}"
+             th:each="order : ${ordersList}">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-1 align-self-center text-center" th:if="${orderStatus == 'delivery_start'}">
+                    <form th:action="@{'/rider/' + ${order.id} + '/delivery-completed'}" method="post"
+                          class="row justify-content-center d-grid">
+                        <button type="submit" class="btn btn-outline-success fs-4">완료</button>
+                    </form>
+                </div>
+                <div class="col-sm-2 align-self-center">
+                    <span>가게명</span><br>
+                    <span th:id="${order.regDate + 'store' + 'storename'}"
+                          th:text="${storeMap.get(order.regDate).nickname}"></span>
+                </div>
+                <div class="col-sm-4 align-middle">
+                    <div class="row justify-content-center">
+                        <div class="col-sm-12">
+                            <span>가게위치</span><br>
+                            <span th:id="${order.regDate + 'store' + 'store-road'}"
+                                  th:text="${storeMap.get(order.regDate).address.road}"></span>
+                            <span th:text="${' ' + storeMap.get(order.regDate).address.detail}"></span><br>
+                            <span class="position-relative link-primary" th:id="${order.regDate + 'store'}"
+                                  onclick="makeMap(this, 'store')">
+                            <a href="#" class="stretched-link" onclick="return false;"></a>
+                            <i class="fas fa-map-marked-alt"></i>
+                        </span>
+                        </div>
+                        <div class="col-sm-12"
+                             th:id="${order.regDate + 'store'} + 'storetd'"></div>
+                    </div>
+                </div>
+                <div class="col-sm-4 align-middle">
+                    <div class="row justify-content-center">
+                        <div class="col-sm-12">
+                            <span>배송지</span><br>
+                            <span th:id="${order.regDate + 'account' + 'account-road'}"
+                                  th:text="${accountMap.get(order.regDate).address.road}"></span>
+
+                            <span th:text="${accountMap.get(order.regDate).address.detail}"></span><br>
+                            <span class="position-relative link-primary"
+                                  th:id="${order.regDate + 'account'}"
+                                  onclick="makeMap(this, 'account')">
+                            <a href="#" class="stretched-link" onclick="return false;"></a>
+                            <i class="fas fa-map-marked-alt"></i>
+                        </span>
+                        </div>
+                        <div class="col-sm-12"
+                             th:id="${order.regDate + 'account'} + 'accounttd'"></div>
+                    </div>
+                </div>
+                <div class="col-sm-1 align-self-center" th:if="${orderStatus == 'delivery_ready'}">
+                    <a th:href="@{'/rider/' + ${order.id} + '/detail'}"
+                       class="btn btn-outline-primary fs-5 my-2">상세보기</a>
+                    <form th:action="@{'/rider/' + ${order.id} + '/delivery-start'}" method="post">
+                        <button type="submit" class="btn btn-outline-success fs-5">배달시작</button>
+                    </form>
+                </div>
+                <div class="col-sm-1 align-self-center " th:if="${orderStatus == 'delivery_start'}">
+                    <div>길찾기</div>
+                    <a th:id="${order.regDate + 'account'}" href="#" onclick="navi(this)">
+                        <img src="https://developers.kakao.com/assets/img/about/buttons/navi/kakaonavi_btn_medium.png"/>
+                    </a>
+                </div>
+                <div class="col-sm-12">
+                    <hr>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+<script th:replace="rider/rider-fragments :: riderMapJs"></script>
+<script>
+    function navi(object) {
+        let id = object.getAttribute('id');
+        let road = document.getElementById(id + 'account-road').innerText;
+        // 주소-좌표 변환 객체를 생성합니다
+        var geocoder = new kakao.maps.services.Geocoder();
+        // 주소로 좌표를 검색합니다
+        geocoder.addressSearch(road, function (result, status) {
+            // 정상적으로 검색이 완료됐으면
+            if (status === kakao.maps.services.Status.OK) {
+                // result = 위의 addressSearch에서 road값으로 검색한 결과의 x,y값을 갖고있음
+                Kakao.Navi.share({
+                    name: road,
+                    x: result[0].x,
+                    y: result[0].y,
+                    coordType: 'wgs84',
+                });
+            }
+        });
+    }
+</script>
 </body>
 </html>

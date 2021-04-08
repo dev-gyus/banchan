@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -21,6 +23,7 @@ public class RiderService {
     private final RiderRepository riderRepository;
     private final OrdersRepository ordersRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RiderOrdersRepository riderOrdersRepository;
 
     public void modifyRider(Account account, RiderMainDto riderMainDto) {
         Rider rider = riderRepository.findById(account.getId()).get();
@@ -45,10 +48,28 @@ public class RiderService {
     }
 
     public void addOrders(Rider rider, Long ordersId) {
+        Orders findOrders = ordersRepository.findRiderLeftFetchByOrderId(ordersId);
+        if(findOrders.getRiderOrders() != null){
+            throw new IllegalArgumentException("이미 배송이 시작된 주문입니다");
+        }
         Rider findRider = riderRepository.findById(rider.getId()).get();
-        Orders findOrders = ordersRepository.findById(ordersId).get();
         RiderOrders riderOrders = new RiderOrders(findRider, findOrders);
         findOrders.setOrderStatus(OrderStatus.DELIVERY_READY);
         // TODO 지도 연동하면 거리에따라서 배달료 다르게 측정하는 로직 구현해볼것, 기본료는 3천원
+    }
+
+    public void startDelivery(Rider rider, Long orderId) {
+        List<RiderOrders> findOrder = riderOrdersRepository.findOrderFetchByRiderIdAndOrderId(rider.getId(), orderId);
+        Rider findRider = riderRepository.findById(rider.getId()).get();
+        if(findOrder.isEmpty()){
+            throw new IllegalArgumentException("잘못된 요청입니다");
+        }
+        RiderOrders riderOrders = findOrder.get(0);
+        riderOrders.getOrders().setOrderStatus(OrderStatus.DELIVERY_START);
+    }
+
+    public void completedDelivery(Long orderId) {
+        Orders orders = ordersRepository.findById(orderId).get();
+        orders.setOrderStatus(OrderStatus.COMPLETED);
     }
 }

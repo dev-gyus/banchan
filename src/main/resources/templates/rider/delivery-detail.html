@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+<script type="text/javascript"
+        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9592e762541282dc4f2596f4108d38d9&libraries=services"></script>
+
+<div class="container-sm bg-light p-0 pb-3">
+
+    <div class="row justify-content-center">
+        <div class="col-sm-12">
+            <div th:replace="rider/rider-fragments :: riderPageNav('배달할주문')"></div>
+        </div>
+        <div class="col-sm-12 fs-2">
+            <div th:replace="rider/rider-fragments :: riderOrderNav (${orderStatus})"></div>
+        </div>
+        <div class="col-sm-12">
+            <div class="text-center" style="font-size: 40px">주문 상세보기</div>
+            <div class="col-sm-12 text-start">
+                <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
+            </div>
+            <hr>
+        </div>
+        <div class="col-sm-12 fs-2 text-center">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12 align-self-center">
+                    <span class="fs-1">가게명</span><br>
+                    <span th:id="${#temporals.format(order.regDate, 'yyyy-MM-dd') + 'store' + 'storename'}"
+                          th:text="${storeOwner.nickname}"></span>
+                </div>
+                <div class="col-sm-12 align-middle">
+                    <div class="row justify-content-center">
+                        <div class="col-sm-12">
+                            상품목록
+                            <hr>
+                        </div>
+                        <div class="col-sm-12">
+                            <table class="table table-hover text-center">
+                                <thead>
+                                <tr>
+                                    <th scope="col" class="col-sm-3">상품사진</th>
+                                    <th scope="col" class="col-sm-3">상품명</th>
+                                    <th scope="col" class="col-sm-3">추가상품</th>
+                                    <th scope="col" class="col-sm-3">수량</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="ordersItem : ${ordersItemList}">
+                                    <td>
+                                            <span>
+                                                <img th:src="@{'/upload/item/' + ${itemMap.get(ordersItem.addDate).thumbnail}}"
+                                                     width="70px"/>
+                                            </span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${itemMap.get(ordersItem.addDate).name}"></span>
+                                    </td>
+                                    <td>
+                                        <div th:if="${itemOptionMap.get(ordersItem.addDate).isEmpty()}">
+                                            -
+                                        </div>
+                                        <div th:if="${!itemOptionMap.get(ordersItem.addDate).isEmpty()}"
+                                             th:each="itemOption : ${itemOptionMap.get(ordersItem.addDate)}">
+                                            <span th:text="${itemOption.name}"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span th:text="${'x ' + ordersItem.count}"></span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 align-middle">
+                    <div class="row justify-content-center">
+                        <div class="col-sm-12">
+                            <span class="fs-1">가게위치</span><br>
+                            <span th:id="${#temporals.format(order.regDate, 'yyyy-MM-dd') + 'store' + 'store-road'}"
+                                  th:text="${storeOwner.address.road}"></span>
+                            <span th:text="${' ' + storeOwner.address.detail}"></span>
+                        </div>
+                        <div class="col-sm-12" th:id="${#temporals.format(order.regDate, 'yyyy-MM-dd') + 'store'} + 'storetd'"></div>
+                        <div class="col-sm-12">
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 align-middle">
+                    <div class="row justify-content-center">
+                        <div class="col-sm-12">
+                            <span class="fs-1">배송지</span><br>
+                            <span th:id="${#temporals.format(order.regDate, 'yyyy-MM-dd') + 'account' + 'account-road'}"
+                                  th:text="${account.address.road}"></span>
+
+                            <span th:text="${account.address.detail}"></span>
+                        </div>
+                        <div class="col-sm-12" th:id="${#temporals.format(order.regDate, 'yyyy-MM-dd') + 'account'} + 'accounttd'"></div>
+                    </div>
+
+                </div>
+                <div class="col-sm-6 align-self-center" th:if="${orderStatus == 'delivery_ready'}">
+                    <form th:action="@{'/rider/' + ${order.id} + '/delivery-start'}" method="post" class="d-grid">
+                        <button type="submit" class="btn btn-outline-success fs-2">배달시작</button>
+                    </form>
+                </div>
+                <div class="col-sm-12">
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        makeMap('store', 'store');
+        makeMap('account', 'account');
+    })
+    function makeMap(subFix, position) {
+        let id = '[[${#temporals.format(order.regDate, "yyyy-MM-dd")}]]' + subFix;
+        let road;
+        let td;
+        let placename;
+        let accounttd = document.getElementById(id + 'accounttd');
+        if (accounttd == null || position == 'store') {
+            td = document.getElementById(id + 'storetd');
+            placename = document.getElementById(id + 'storename').innerText;
+            road = document.getElementById(id + 'store-road').innerText;
+        } else {
+            td = accounttd;
+            console.log(document.getElementById(id + 'account-road'));
+            placename = document.getElementById(id + 'account-road').innerText;
+            road = document.getElementById(id + 'account-road').innerText;
+        }
+        let container = document.getElementById(id + 'mapDiv');
+        if (container == null) {
+            container = document.createElement('div') //지도를 담을 영역의 DOM 레퍼런스
+            container.id = id + 'mapDiv';
+            container.style.width = '100%';
+            container.style.height = '400px';
+            td.appendChild(container);
+        } else {
+            td.removeChild(container);
+            return;
+        }
+        var options = { //지도를 생성할 때 필요한 기본 옵션
+            center: new kakao.maps.LatLng(33.450701, 126.570667), //지도의 중심좌표.
+            level: 3 //지도의 레벨(확대, 축소 정도)
+        };
+
+        var map = new kakao.maps.Map(container, options); //지도 생성 및 객체 리턴
+
+        // 주소-좌표 변환 객체를 생성합니다
+        var geocoder = new kakao.maps.services.Geocoder();
+
+        // 주소로 좌표를 검색합니다
+        geocoder.addressSearch(road, function (result, status) {
+
+            // 정상적으로 검색이 완료됐으면
+            if (status === kakao.maps.services.Status.OK) {
+
+                var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                // 결과값으로 받은 위치를 마커로 표시합니다
+                var marker = new kakao.maps.Marker({
+                    map: map,
+                    position: coords
+                });
+
+                // 인포윈도우로 장소에 대한 설명을 표시합니다
+                var infowindow = new kakao.maps.InfoWindow({
+                    content: '<div style="width:200px;text-align:center;padding:6px 0;" class="fs-5">' + placename + '</div>'
+                });
+                infowindow.open(map, marker);
+
+                // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다 (panTo = 부드럽게이동)
+                map.panTo(coords);
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -8,6 +8,7 @@ import com.devgyu.banchan.modules.rider.Rider;
 import com.devgyu.banchan.modules.rider.RiderOrders;
 import com.devgyu.banchan.modules.storeowner.QStoreOwner;
 import com.devgyu.banchan.orders.OrderStatus;
+import com.devgyu.banchan.orders.Orders;
 import com.devgyu.banchan.orders.QOrders;
 import com.devgyu.banchan.ordersitem.QOrdersItem;
 import com.querydsl.core.QueryResults;
@@ -65,6 +66,16 @@ public class RiderOrdersRepositoryImpl implements RiderOrdersQueryRepository{
                 .join(ordersItem.item, item).fetchJoin()
                 .join(item.storeOwner, storeOwner).fetchJoin()
                 .where(orders.id.eq(ordersId).and(rider.id.eq(riderId)))
+                .fetch();
+    }
+
+    @Override
+    public List<RiderOrders> findOrderFetchByRiderIdAndOrderId(Long riderId, Long orderId) {
+        return queryFactory
+                .selectFrom(riderOrders)
+                .join(riderOrders.rider, rider).fetchJoin()
+                .join(riderOrders.orders, orders).fetchJoin()
+                .where(rider.id.eq(riderId).and(orders.id.eq(orderId)))
                 .fetch();
     }
 }

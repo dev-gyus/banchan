@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragments :: commonHead"></head>
+<head>
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9592e762541282dc4f2596f4108d38d9&libraries=services"></script>
+</head>
 
 <body>
 <div th:replace="fragments :: commonNav">공통네비</div>
@@ -29,9 +33,14 @@
                 </thead>
                 <tbody>
                 <tr th:each="order : ${orderList}">
-                    <td th:text="${storeMap.get(order.id).nickname}"></td>
-                    <td>
-                        <span th:text="${storeAddressMap.get(order.id).road + ' ' + storeAddressMap.get(order.id).detail}"></span>
+                    <td th:id="${order.id + 'storename'}" th:text="${storeMap.get(order.id).nickname}"></td>
+                    <td th:id="${order.id} + 'storetd'">
+                        <span th:id="${order.id + 'store-road'}" th:text="${storeAddressMap.get(order.id).road}"></span>
+                        <span th:text="${' ' + storeAddressMap.get(order.id).detail}"></span><br>
+                        <span class="position-relative link-primary" th:id="${order.id}" onclick="makeMap(this)">
+                            <a href="#" class="stretched-link" onclick="return false;"></a>
+                            <i class="fas fa-map-marked-alt"></i>
+                        </span>
                     </td>
                     <td>
                         <form th:action="@{'/rider/order-accept/' + ${order.id}}" method="post" class="d-grid">
@@ -41,6 +50,7 @@
                 </tr>
                 </tbody>
             </table>
+            <script th:replace="rider/rider-fragments :: riderMapJs"></script>
         </div>
     </div>
 </div>

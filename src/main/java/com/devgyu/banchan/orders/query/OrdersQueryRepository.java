@@ -20,4 +20,5 @@ public interface OrdersQueryRepository {
 
     List<Orders> findAccountFetchById(Long ordersId);
 
+    Orders findRiderLeftFetchByOrderId(Long ordersId);
 }

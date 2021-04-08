@@ -1,9 +1,7 @@
 package com.devgyu.banchan.todo;
 
 public class TodoClass {
-    //TODO 지도연동해서 가게 위치랑 배달 위치 거리 계산해서 배달비 계산로직 구현
-    //TODO Delivery_Ready 상태에선 라이더 현재 위치에서 가게까지 네비, Delivery_Start 상태에선 라이더 현재 위치에서 배달지까지 네비 로직 구현
-    //TODO 주문한 고객에게 알림 보낼것
+    //TODO 주문한 고객에게 알림 보낼것것
     //TODO StoreOwner 프로필 변경하거나 가게 상품 추가, 수정하면 관리자 승인 받아야 상점리스트에 검색되도록 수정
     //TODO StoreOwner, Rider의 경우 신규가입시 관리자 승인 받아야 사이트 기능 정상이용가능 하도록 수정
     //TODO 불량이용자 블럭 / 비밀번호 5회이상 틀릴경우 계정 락 기능 구현

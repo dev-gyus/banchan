@@ -18,14 +18,24 @@
                 </div>
                 <div class="col-sm-12 text-center fs-1">
                     <div th:replace="fragments :: accountThumbnail(${storeDto}, 125, false)"></div>
-                    <span th:text="${storeDto.name}"></span>
+                    <span th:id="${storeDto.id + 'storename'}" th:text="${storeDto.name}"></span>
+                </div>
+                <div class="col-sm-12 text-center fs-3">
+                    <span th:id="${storeDto.id + 'store-road'}" th:text="${storeDto.road}"></span>
+                    <span class="position-relative link-primary" th:id="${storeDto.id}"
+                          onclick="makeMap(this, 'store')">
+                            <a href="#" class="stretched-link" onclick="return false;"></a>
+                            <i class="fas fa-map-marked-alt"></i>
+                        </span>
                 </div>
                 <div class="col-sm-12 text-center fs-1">
-                    <span class="form-text" th:if="${storeDto.storeIntroduce != null}" th:text="${storeDto.storeIntroduce}"></span>
-                    <small class="form-text" th:if="${storeDto.storeIntroduce == null}" th:text="${storeDto.name}"></small>
+                    <span class="form-text" th:if="${storeDto.storeIntroduce != null}"
+                          th:text="${storeDto.storeIntroduce}"></span>
+                    <small class="form-text" th:if="${storeDto.storeIntroduce == null}"
+                           th:text="${storeDto.name}"></small>
                     <hr>
                 </div>
-
+                <div th:id="${storeDto.id + 'storetd'}" class="col-sm-12 text-center"></div>
             </div>
         </div>
         <div class="col-sm-12" th:each="map : ${itemMap}">
@@ -52,6 +62,7 @@
     </div>
 </div>
 
+<script th:replace="store/store-fragments :: storeMapJs"></script>
 <script th:replace="fragments :: form-validate"></script>
 </body>
 </html>

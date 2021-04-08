@@ -3,6 +3,8 @@ package com.devgyu.banchan.orders.query;
 import com.devgyu.banchan.account.QAccount;
 import com.devgyu.banchan.items.QItem;
 import com.devgyu.banchan.items.QItemOption;
+import com.devgyu.banchan.modules.rider.QRider;
+import com.devgyu.banchan.modules.rider.QRiderOrders;
 import com.devgyu.banchan.modules.storeowner.QStoreOwner;
 import com.devgyu.banchan.orders.OrderStatus;
 import com.devgyu.banchan.orders.Orders;
@@ -24,6 +26,7 @@ import java.util.List;
 import static com.devgyu.banchan.account.QAccount.account;
 import static com.devgyu.banchan.items.QItem.item;
 import static com.devgyu.banchan.items.QItemOption.itemOption;
+import static com.devgyu.banchan.modules.rider.QRiderOrders.riderOrders;
 import static com.devgyu.banchan.modules.storeowner.QStoreOwner.storeOwner;
 import static com.devgyu.banchan.orders.QOrders.orders;
 import static com.devgyu.banchan.ordersitem.QOrdersItem.ordersItem;
@@ -35,6 +38,16 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
     public OrdersRepositoryImpl(EntityManager em) {
         this.em = em;
         queryFactory = new JPAQueryFactory(em);
+    }
+
+    @Override
+    public Orders findRiderLeftFetchByOrderId(Long ordersId) {
+        return queryFactory
+                .selectFrom(orders)
+                .leftJoin(orders.riderOrders, riderOrders).fetchJoin()
+                .leftJoin(riderOrders.rider, QRider.rider).fetchJoin()
+                .where(orders.id.eq(ordersId))
+                .fetchOne();
     }
 
     @Override
