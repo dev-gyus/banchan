@@ -107,7 +107,6 @@ public class StoreOwnerController {
     @PostMapping("/modify")
     public String myStore_main_do(@CurrentUser StoreOwner storeOwner, @Valid @ModelAttribute MystoreDto mystoreDto,
                                   BindingResult result, Model model){
-        // TODO 가게소개(StoreIntroduce)도 수정할 수 있도록 변경
         if(result.hasErrors()){
             return "mystore/main";
         }

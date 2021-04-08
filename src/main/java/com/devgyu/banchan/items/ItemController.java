@@ -60,7 +60,6 @@ public class ItemController {
     @PostMapping("/add")
     public String add_item_do(@CurrentUser StoreOwner storeOwner, @RequestParam String category, @Valid @ModelAttribute AddItemDto addItemDto,
                               BindingResult result, Model model) throws IOException {
-        // TODO DTO에 ItemOption 엔티티 그대로 쓰지말고 DTO쓰도록 변경
         if(addItemDto.getThumbnailFile().getSize() == 0){
             result.rejectValue("thumbnailFile", null, "상품 사진을 첨부해주세요");
         }
