@@ -31,15 +31,33 @@
     </div>
     <div class="row g-3 mt-2 fs-3">
         <div th:replace="storelist/store-list-fragments :: mystoreNav"></div>
+        <div class="col-sm-12 text-center fs-1" th:if="${storeList.isEmpty()}">
+            아직 카테고리에 주문가능한 가게가 없네요.<br>
+            곧 추가 될 예정이에요!<br>
+            <button type="button" class="btn btn-outline-success fs-3" onclick="history.back()">이전화면</button>
+        </div>
 
         <div class="col-sm-12 position-relative" th:each="store : ${storeList}">
             <hr>
             <div class="row g-3 mt-2 fs-1">
-                <div class="col-sm-3 text-center">
+                <div th:if="${store.managerAuthenticated}" class="col-sm-3 text-center">
                     <div th:replace="fragments :: accountThumbnail (${store}, 150, false)"></div>
                 </div>
-                <div class="col-sm-9 align-self-center text-center" th:text="${store.name}"></div>
-                <a th:href="@{'/store/' + ${store.id}}" class="stretched-link"></a>
+
+                <div th:if="${store.managerAuthenticated}" class="col-sm-9 align-self-center text-center">
+                    <span th:text="${store.name}"></span>
+                    <a th:href="@{'/store/' + ${store.id}}" class="stretched-link"></a>
+                </div>
+
+                <div th:if="${!store.managerAuthenticated}" class="col-sm-3 text-center">
+                    <div th:replace="fragments :: storeNoAuthThumbnail (${store}, 150, false)"></div>
+                </div>
+                <div th:if="${!store.managerAuthenticated}" class="col-sm-3 text-center align-self-center">
+                    <span class="p-2 fs-3" style="background-color: #dee2e6">가게준비중</span>
+                </div>
+                <div class="col-sm-6 align-self-center text-center" th:if="${!store.managerAuthenticated}">
+                    <span th:text="${store.name}"></span>
+                </div>
             </div>
         </div>
     </div>

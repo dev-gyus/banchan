@@ -40,7 +40,7 @@
                     <label th:for="'option[' + ${optionStat.index} + ']'" class="form-check-label"
                            th:text="${option.optionName + '   ' + '+' + option.optionPrice + '₩'}"></label>
                 </div>
-                <div class="form-group text-center">
+                <div class="form-group text-center" th:if="${selectOptionDto.managerAuthenticated}">
                     <button type="button" class="btn btn-outline-primary fs-4" onclick="addCart()">장바구니 추가</button>
                     <button type="submit" class="btn btn-outline-success fs-4">주문하기</button>
                 </div>
@@ -61,21 +61,17 @@
 
                     function addCart() {
                         let optionId = [];
-                        console.log(optionCount);
-                        console.log(itemId);
                         for (let a = 0; a < optionCount; a++) {
                             let checkbox = document.querySelector("input[id='option[" + a + "]'");
                             if (checkbox.checked) {
                                 optionId.push(checkbox.value);
                             }
                         }
-                        console.log(optionId);
 
                         let data = {
                             'itemId': itemId,
                             'itemOptionIdList': optionId
                         };
-                        console.log(data);
 
                         sendAjax('/cart/api/confirm', data, false);
                     }
@@ -85,15 +81,21 @@
                             url: url,
                             type: 'post',
                             data: JSON.stringify(data),
+                            dataType: 'text',
                             contentType: 'application/json',
                             beforeSend: function (xhr) {
                                 xhr.setRequestHeader(header, token);
                             },
                             success: function (result, xhr) {
+                                console.log(result);
                                 if (alertOkay) {
                                     alert('장바구니에 추가가 완료되었습니다.');
                                 } else {
-                                    if (!alertOkay && result) {
+                                    if(result == 'store_update'){
+                                        alert('현재 준비중인 가게입니다.');
+                                        return;
+                                    }
+                                    if (!alertOkay && result == 'true') {
                                         if (confirm('장바구니는 한 가게의 상품만 주문 가능합니다. 만약 다른 가게의 상품을 추가하실경우' +
                                             ' 기존 장바구니 상품은 지워지고, 해당 상품이 추가됩니다.')) {
                                             sendAjax('/cart/api/add', data, true);

@@ -30,10 +30,13 @@
                 <div class="col-sm-12 text-start">
                     <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
                 </div>
-                <div class="col-sm-12 text-center border">
+                <div class="col-sm-12 fs-2 text-center" th:if="${reviewList.isEmpty()}">
+                    현재 작성하신 리뷰가 아직 없으시네요!
+                </div>
+                <div class="col-sm-12 text-center" th:if="${!reviewList.isEmpty()}" >
                     <hr class="mt-1 bg-light">
                     <div class="row g-3 gx-4 justify-content-center">
-                        <div class="col-sm-12 fs-3" th:each="review : ${reviewList}">
+                        <div class="col-sm-12 fs-3 p-3 m-0 border" th:each="review : ${reviewList}">
                             <div class="row g-3 justify-content-center">
                                 <div class="col-sm-12 text-center">
                                     <img th:src="${storeMap.get(review.id).thumbnail}" width="70"/>
@@ -47,6 +50,10 @@
                                 </div>
                                 <div class="col-sm-12">
                                     <div th:utext="${review.content}"></div>
+                                </div>
+                                <div class="col-sm-6" th:if="${storeReviewMap.get(review.id) != null}">
+                                    <div class="text-start" style="background-color: #dee2e6"><i class="fas fa-reply fa-rotate-180"></i> 사장님 :</div>
+                                    <div style="background-color: #e9ecef" th:text="${storeReviewMap.get(review.id).content}"></div>
                                 </div>
                             </div>
                         </div>

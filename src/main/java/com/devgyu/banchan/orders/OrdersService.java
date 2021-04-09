@@ -30,14 +30,15 @@ public class OrdersService {
         Account findAccount = accountRepository.findById(account.getId()).get();
         Orders newOrder;
         if (!selectOptionDto.getOptionId().isEmpty()) { // 옵션을 선택한경우
-            List<ItemOption> selectItemOptions = itemOptionRepository.findAllByItemIdAndIdIn(itemId,
+            List<ItemOption> selectItemOptions = itemOptionRepository.findAllByItemIdAndIdInStoreAuthTrue(itemId,
                     selectOptionDto.getOptionId().stream().collect(Collectors.toList()));
+            if(selectItemOptions.isEmpty()) throw new IllegalArgumentException("상품이 존재하지 않거나, 현재 준비중인 가게 입니다.");
             Item item = selectItemOptions.get(0).getItem();
             newOrder = new Orders(findAccount);
             OrdersItem ordersItem = new OrdersItem(newOrder, item, selectItemOptions, 1);
         } else {                                                      // 옵션을 선택하지 않은경우
-            Item item = itemRepository.findById(itemId).get();
-            if (item == null) throw new IllegalArgumentException("잘못된 요청입니다.");
+            Item item = itemRepository.findItemOptionStoreAuthTrueFetchById(itemId);
+            if (item == null) throw new IllegalArgumentException("상품이 존재하지 않거나, 현재 준비중인 가게 입니다.");
             newOrder = new Orders(findAccount);
             OrdersItem ordersItem = new OrdersItem(newOrder, item, 1);
         }
@@ -45,7 +46,7 @@ public class OrdersService {
     }
 
     public void addCartOrder(Long accountId) {
-        List<CartItem> cartItemList = cartItemRepository.findAccountCartCartItemStoreFetchByAccountId(accountId);
+        List<CartItem> cartItemList = cartItemRepository.findAccountCartCartItemStoreAuthTrueFetchByAccountId(accountId);
         Cart findCart = cartItemList.get(0).getCart();
         if(cartItemList.isEmpty()){
             throw new IllegalArgumentException("잘못된 요청 입니다.");

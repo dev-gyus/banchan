@@ -3,6 +3,7 @@ package com.devgyu.banchan.mystore;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.modules.storecategory.StoreCategory;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Basic;
@@ -42,7 +43,11 @@ public class MystoreDto {
     private String thumbnail;
     private List<String> categories;
     private List<StoreCategory> storeCategoryList;
+    @Length(max = 50)
     private String storeIntroduce;
+
+    private boolean managerAuthenticated;
+    private boolean haveOrders;
 
 
 

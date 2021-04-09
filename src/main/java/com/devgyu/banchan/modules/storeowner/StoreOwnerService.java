@@ -10,6 +10,7 @@ import com.devgyu.banchan.review.Review;
 import com.devgyu.banchan.review.ReviewDto;
 import com.devgyu.banchan.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,19 +27,26 @@ public class StoreOwnerService {
     private final CategoryRepository categoryRepository;
     private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     public void modifyStoreOwner(StoreOwner storeOwner, MystoreDto mystoreDto) {
         StoreOwner findOwner = storeOwnerRepository.findCategoriesFetchById(storeOwner.getId()).get(0);
-            Address modifyAddress =
+        // 실제 가게 정보에 대한 부분이 변경될 경우 관리자 승인을 받기 위해 관리자 승인여부 false로 둠
+        if(findOwner.isStoreOwnerChanged(mystoreDto)){
+            findOwner.setManagerAuthenticated(false);
+        }
+        Address modifyAddress =
                     new Address(mystoreDto.getZipcode(), mystoreDto.getRoad(), mystoreDto.getJibun(), mystoreDto.getDetail(), mystoreDto.getExtra());
         findOwner.setAddress(modifyAddress);
         findOwner.setNickname(mystoreDto.getName());
         findOwner.setName(mystoreDto.getName());
         findOwner.setPhone(mystoreDto.getPhone());
         findOwner.setTel(mystoreDto.getTel());
+        findOwner.setStoreIntroduce(mystoreDto.getStoreIntroduce());
             if(!mystoreDto.getThumbnail().equals("")) {
                 findOwner.setThumbnail(mystoreDto.getThumbnail());
             }
+
         List<String> categories = mystoreDto.getCategories();
         List<Category> ownerCategory = findOwner.getStoreCategories().stream().map(sc -> sc.getCategory()).collect(Collectors.toList());
         if(categories.size() > ownerCategory.size()) {

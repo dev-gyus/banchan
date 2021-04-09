@@ -63,4 +63,17 @@ public class CartItemRepositoryImpl implements CartItemQueryRepository{
                 .where(account.id.eq(accountId))
                 .fetch();
     }
+    @Override
+    public List<CartItem> findAccountCartCartItemStoreAuthTrueFetchByAccountId(Long accountId) {
+        return queryFactory
+                .selectFrom(cartItem)
+                .distinct()
+                .join(cartItem.cart, cart).fetchJoin()
+                .join(cart.account, account).fetchJoin()
+                .join(cartItem.item, item).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
+                .leftJoin(cartItem.itemOptionList, itemOption).fetchJoin()
+                .where(account.id.eq(accountId).and(storeOwner.managerAuthenticated.isTrue()))
+                .fetch();
+    }
 }

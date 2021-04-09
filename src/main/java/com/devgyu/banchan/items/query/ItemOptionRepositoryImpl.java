@@ -23,12 +23,33 @@ public class ItemOptionRepositoryImpl implements ItemOptionQueryRepository{
     }
 
     @Override
+    public List<ItemOption> findAllByItemIdAndIdInStoreAuthTrue(Long itemId, List<Long> itemOptionIdList) {
+        return queryFactory
+                .selectFrom(itemOption)
+                .distinct()
+                .join(itemOption.item, item).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
+                .where(item.id.eq(itemId).and(itemOption.id.in(itemOptionIdList)).and(storeOwner.managerAuthenticated.isTrue()))
+                .fetch();
+    }
+
+    @Override
     public List<ItemOption> findAllByItemIdAndNamesIn(Long itemId, List<String> itemOptionNameList){
         return queryFactory
                 .selectFrom(itemOption)
                 .distinct()
                 .join(itemOption.item, item).fetchJoin()
                 .where(item.id.eq(itemId).and(itemOption.name.in(itemOptionNameList)))
+                .fetch();
+    }
+    @Override
+    public List<ItemOption> findAllStoreAuthTrueByItemIdAndNamesIn(Long itemId, List<String> itemOptionNameList) {
+        return queryFactory
+                .selectFrom(itemOption)
+                .distinct()
+                .join(itemOption.item, item).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
+                .where(item.id.eq(itemId).and(itemOption.name.in(itemOptionNameList)).and(storeOwner.managerAuthenticated.isTrue()))
                 .fetch();
     }
 
@@ -38,8 +59,10 @@ public class ItemOptionRepositoryImpl implements ItemOptionQueryRepository{
                 .selectFrom(itemOption)
                 .distinct()
                 .join(itemOption.item, item).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
                 .where(item.id.eq(itemId).and(itemOption.id.in(itemOptionIdList)))
                 .fetch();
     }
+
 
 }

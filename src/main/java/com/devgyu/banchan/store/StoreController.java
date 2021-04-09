@@ -60,14 +60,14 @@ public class StoreController {
 
     @GetMapping("/{itemId}/selectoption")
     public String item_selectoption(@PathVariable Long itemId, @ModelAttribute SelectOptionDto selectOptionDto, Model model){
-        Item findItem = itemRepository.findItemOptionFetchById(itemId);
-        if(findItem == null) throw new IllegalArgumentException("잘못된 요청입니다.");
+        Item findItem = itemRepository.findItemOptionStoreAuthTrueFetchById(itemId);
+        if(findItem == null || !findItem.getStoreOwner().isManagerAuthenticated()) throw new IllegalArgumentException("상품이 존재하지 않거나, 현재 준비중인 가게 입니다.");
 
         List<SelectOptionListDto> convertedOptionList = findItem.getItemOptionList()
                 .stream().map(io -> new SelectOptionListDto(io.getId(), io.getName(), io.getPrice())).collect(Collectors.toList());
 
         selectOptionDto.settingParameters(findItem.getId(), findItem.getName(), findItem.getThumbnail(),
-                findItem.getPrice(), findItem.getItemIntroduce(), convertedOptionList);
+                findItem.getPrice(), findItem.getItemIntroduce(), convertedOptionList, findItem.getStoreOwner().isManagerAuthenticated());
 
         model.addAttribute(selectOptionDto);
         return "store/select-option";

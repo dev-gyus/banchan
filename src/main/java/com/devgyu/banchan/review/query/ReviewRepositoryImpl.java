@@ -33,9 +33,11 @@ public class ReviewRepositoryImpl implements ReviewQueryRepository{
     }
 
     @Override
-    public Page<Review> findAccountOrdersOrderItemItemStoreByAccountId(Long accountId, Pageable pageable){
+    public Page<Review> findStoreReviewAccountOrdersOrderItemItemStoreByAccountId(Long accountId, Pageable pageable){
+        QReview storeReview = new QReview("storeReview");
         QueryResults<Review> results = queryFactory
                 .selectFrom(review)
+                .join(review.storeReview, storeReview).fetchJoin()
                 .join(review.account, account).fetchJoin()
                 .join(review.orders, orders).fetchJoin()
                 .join(orders.ordersItemList, ordersItem).fetchJoin()

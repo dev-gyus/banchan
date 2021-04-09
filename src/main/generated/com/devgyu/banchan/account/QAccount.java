@@ -24,11 +24,15 @@ public class QAccount extends EntityPathBase<Account> {
 
     public final QAddress address;
 
+    public final BooleanPath blocked = createBoolean("blocked");
+
     public final com.devgyu.banchan.cart.QCart cart;
 
     public final StringPath email = createString("email");
 
     public final StringPath emailToken = createString("emailToken");
+
+    public final NumberPath<Integer> failCount = createNumber("failCount", Integer.class);
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 

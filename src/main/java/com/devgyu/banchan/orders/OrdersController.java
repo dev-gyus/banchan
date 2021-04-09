@@ -8,6 +8,7 @@ import com.devgyu.banchan.cart.CartItem;
 import com.devgyu.banchan.cart.CartItemRepository;
 import com.devgyu.banchan.items.*;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
+import com.devgyu.banchan.modules.storeowner.StoreOwnerRepository;
 import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.devgyu.banchan.ordersitem.OrdersItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +33,8 @@ public class OrdersController {
     private final AccountRepository accountRepository;
     private final OrdersService ordersService;
     private final OrdersRepository ordersRepository;
-    private final ItemRepository itemRepository;
-    private final ItemOptionRepository itemOptionRepository;
     private final OrdersItemRepository ordersItemRepository;
-    private final CartItemRepository cartItemRepository;
-
+    private final StoreOwnerRepository storeOwnerRepository;
     @GetMapping({"", "/"})
     public String orders_main(@CurrentUser Account account, @PageableDefault Pageable pageable, Model model) {
         // 현재 주문내역 가져오기 ( 쿼리 2 + 카운트쿼리 2 + item의 option선택한 order의 갯수(최대 order페이징수만큼 ))
@@ -131,6 +129,7 @@ public class OrdersController {
     public String order_list(@CurrentUser StoreOwner storeOwner, @PathVariable String orderStatus,
                              @PageableDefault Pageable pageable,Model model){
         Page<Orders> orders;
+        StoreOwner findStoreOwner;
         if(orderStatus.equals("waiting")) {
             orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
                     pageable, OrderStatus.WAITING, null, null);
@@ -161,6 +160,9 @@ public class OrdersController {
                         itemOptionMap.put(ordersItem.getAddDate(), ordersItem.getItemOptionList());
                 }
             }
+            // 주문 가져올때 특정 가게의 Id를 갖고 가져왔고, 하나의 주문은 모두 같은 가게의 상품만 주문 가능하기 때문에 어떤 주문의 아이템을 가져오더라도 같은 가게를 추출함
+            findStoreOwner = orders.getContent().get(0).getOrdersItemList().get(0).getItem().getStoreOwner();
+            model.addAttribute("storeOwner", findStoreOwner);
             model.addAttribute("hasNext", orders.hasNext());
             model.addAttribute("orderList", orderList);
             model.addAttribute("orderAccountMap", orderAccountMap);
@@ -168,7 +170,11 @@ public class OrdersController {
             model.addAttribute("itemMap", itemMap);
             model.addAttribute("itemOptionMap", itemOptionMap);
             model.addAttribute("orderStatus", orderStatus);
+        }else{
+            findStoreOwner = storeOwnerRepository.findById(storeOwner.getId()).get();
         }
+        model.addAttribute("storeOwner", findStoreOwner);
+
         return "mystore/order-list";
     }
     @PostMapping("/{ordersId}/accept")

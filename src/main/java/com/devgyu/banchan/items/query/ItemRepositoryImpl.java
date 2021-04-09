@@ -46,12 +46,22 @@ public class ItemRepositoryImpl implements ItemQueryRepository{
                 .fetchOne();
     }
     @Override
-    public Item findItemOptionCategoryFetchById(Long itemId){
+    public Item findItemOptionStoreAuthTrueFetchById(Long itemId) {
         return queryFactory
                 .selectFrom(item)
                 .distinct()
                 .leftJoin(item.itemOptionList, itemOption).fetchJoin()
+                .join(item.storeOwner, storeOwner).fetchJoin()
+                .where(item.id.eq(itemId).and(storeOwner.managerAuthenticated.isTrue()))
+                .fetchOne();
+    }
+    @Override
+    public Item findItemOptionCategoryFetchById(Long itemId){
+        return queryFactory
+                .selectFrom(item)
+                .distinct()
                 .join(item.category, category).fetchJoin()
+                .leftJoin(item.itemOptionList, itemOption).fetchJoin()
                 .where(item.id.eq(itemId))
                 .fetchOne();
     }

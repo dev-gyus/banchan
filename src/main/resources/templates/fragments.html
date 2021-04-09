@@ -324,6 +324,15 @@
          th:src="${accountObject.thumbnail}" th:width="${size}">
 </span>
 
+<span th:fragment="storeNoAuthThumbnail (accountObject, size, isRounded)">
+    <svg th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:id="current-profile-image" th:if="${accountObject.thumbnail == null}"
+         th:data-jdenticon-value="${accountObject.name}" th:width="${size}" th:height="${size}" style="mix-blend-mode: luminosity;">
+        Fallback text or image for browsers not supporting inline svg.
+    </svg>
+    <img style="mix-blend-mode: luminosity;" th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:if="${accountObject.thumbnail != null}" th:id="current-profile-image"
+         th:src="${accountObject.thumbnail}" th:width="${size}">
+</span>
+
 <script th:fragment="summernoteJS">
     $(document).ready(function () {
         //여기 아래 부분

@@ -10,7 +10,6 @@
 
     <div class="row justify-content-center">
         <div class="col-sm-12 fs-3">
-            <hr class="m-1">
             <nav class="nav nav-pills nav-justified">
                 <a class="nav-link border" aria-current="page" th:href="@{/orders/order-list/waiting}"
                    th:classappend="${orderStatus == 'waiting'} ? 'active'">새 주문목록</a>
@@ -19,7 +18,9 @@
                 <a class="nav-link border" th:href="@{/orders/order-list/delivery}"
                    th:classappend="${orderStatus == 'delivery'} ? 'active'">발송한 주문목록</a>
             </nav>
-            <hr>
+        </div>
+        <div class="col-sm-10 text-center fs-1" th:if="${!storeOwner.managerAuthenticated}">
+            <div th:replace="mystore/mystore-fragments :: storeAuthDiv"></div>
         </div>
         <div class="col-sm-12 text-center fs-1" th:if="${orderList == null}">
             <span class="fs-2">아직 새로운 주문이 없네요</span><br>

@@ -9,4 +9,8 @@ public interface ItemOptionQueryRepository {
 
     List<ItemOption> findAllByItemIdAndIdIn(Long itemId, List<Long> itemOptionIdList);
 
+    List<ItemOption> findAllByItemIdAndIdInStoreAuthTrue(Long itemId, List<Long> itemOptionIdList);
+
+    List<ItemOption> findAllStoreAuthTrueByItemIdAndNamesIn(Long id, List<String> itemOptionDtoName);
+
 }

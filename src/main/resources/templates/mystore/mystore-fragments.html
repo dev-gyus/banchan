@@ -12,6 +12,12 @@
     </nav>
 </div>
 
+<div th:fragment="storeAuthDiv">
+        <span class="fs-3 p-2" style="background-color: #dee2e6">관리자 승인 대기 중</span><br>
+        <small class="form-text fs-4">관리자 승인 대기중 상태에선 신규 주문이 발생하지 않으니 참고부탁드립니다.</small>
+    <hr>
+</div>
+
 <script th:fragment="tagJS">
     let categories = '';
     let tagInput = document.querySelector('input[name=tagInput]');

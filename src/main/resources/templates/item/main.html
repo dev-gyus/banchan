@@ -13,14 +13,15 @@
             <div class="text-center" style="font-size: 40px">상품목록관리</div>
             <hr>
         </div>
-        <div class="col-sm-12">
-            <div class="row g-3 justify-content-center">
-                <div class="col-sm-12">
-                    <div th:replace="fragments :: accountThumbnail(${mystoreDto}, 125, false)"></div>
-                    <span th:if="${mystoreDto.storeIntroduce != null}" th:text="${mystoreDto.storeIntroduce}"></span>
-                    <small class="form-text" th:if="${mystoreDto.storeIntroduce == null}">가게 소개를 작성해주세요!</small>
-                </div>
-            </div>
+        <div class="col-sm-12 text-center" th:if="${!mystoreDto.managerAuthenticated}">
+            <div th:replace="mystore/mystore-fragments :: storeAuthDiv"></div>
+        </div>
+        <div class="col-sm-12 text-center">
+            <span th:replace="fragments :: accountThumbnail(${mystoreDto}, 125, false)"></span>
+            <span th:text="${mystoreDto.name}"></span><br>
+            <span th:if="${mystoreDto.storeIntroduce != ''}" th:text="${mystoreDto.storeIntroduce}"></span>
+            <small class="form-text" th:if="${mystoreDto.storeIntroduce == ''}">가게 소개를 작성해주세요!</small>
+            <hr>
         </div>
         <div class="col-sm-12" th:each="map : ${itemMap}">
             <div class="row g-3 justify-content-center">
@@ -50,7 +51,7 @@
                         <div class="col-sm-2 align-self-center text-center fs-5" th:text="${item.price} + '₩'"></div>
                         <div class="col-sm-2 align-self-center text-center fs-5">
                             <a
-                                    class="btn btn-outline-success"
+                                    class="btn btn-outline-success fs-4"
                                     th:href="@{'/items/' + ${item.id} + '/modify'}">수정
                             </a>
                         </div>

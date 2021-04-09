@@ -6,6 +6,7 @@ import com.devgyu.banchan.account.Roles;
 import com.devgyu.banchan.cart.Cart;
 import com.devgyu.banchan.items.Item;
 import com.devgyu.banchan.modules.storecategory.StoreCategory;
+import com.devgyu.banchan.mystore.MystoreDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -17,7 +18,7 @@ import java.util.UUID;
 @Entity
 @Getter @Setter
 @DiscriminatorColumn
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class StoreOwner extends Account {
 
     private String tel;
@@ -31,9 +32,31 @@ public class StoreOwner extends Account {
     @JsonIgnore
     private List<StoreCategory> storeCategories = new ArrayList<>();
 
+    private boolean managerAuthenticated;
+
     public StoreOwner(String email, String nickname, String password, String name, String phone, Address address, String tel) {
         super(email, nickname, password, name, phone, Roles.ROLE_OWNER, address, UUID.randomUUID().toString());
         this.tel = tel;
+    }
+
+    // 실제 가게에 대한 정보가 변경 될경우를 판단하기 위한 비즈니스 메소드
+    public boolean isStoreOwnerChanged(MystoreDto mystoreDto){
+        if(!this.getNickname().equals(mystoreDto.getName())){
+            return true;
+        }else if(!this.getName().equals(mystoreDto.getName())){
+            return true;
+        }else if(!this.getTel().equals(mystoreDto.getTel())){
+            return true;
+        }else if(!this.getAddress().getZipcode().equals(mystoreDto.getZipcode())){
+            return true;
+        }else if(!this.getAddress().getRoad().equals(mystoreDto.getRoad())){
+            return true;
+        }else if(!this.getAddress().getJibun().equals(mystoreDto.getJibun())){
+            return true;
+        }else if(!this.getAddress().getDetail().equals(mystoreDto.getDetail())){
+            return true;
+        }
+        return false;
     }
 
     public void addStoreCategory(StoreCategory storeCategory){

@@ -67,4 +67,14 @@ public class Item {
     public void removeItemOptions(List<ItemOption> itemItemOptionList) {
         this.itemOptionList.removeAll(itemOptionList);
     }
+
+    // 상품 수정시 관리자 확인 받기위한 비지니스 메소드 (상품명, 가격만 변동됐는지 확인)
+    public boolean isItemChanged(AddItemDto addItemDto){
+        if(!this.name.equals(addItemDto.getName())){
+            return true;
+        }else if(this.price != addItemDto.getPrice()){
+            return true;
+        }
+        return false;
+    }
 }

@@ -13,15 +13,18 @@ public class SelectOptionDto {
     private int itemPrice;
     private String itemIntroduce;
     private List<Long> optionId = new ArrayList<>();
+    private boolean managerAuthenticated;
 
     private List<SelectOptionListDto> selectOptionListDtoList = new ArrayList<>();
 
-    public void settingParameters(Long itemId, String itemName, String thumbnail, int itemPrice, String itemIntroduce, List<SelectOptionListDto> selectOptionListDtoList) {
+    public void settingParameters(Long itemId, String itemName, String thumbnail, int itemPrice, String itemIntroduce,
+                                  List<SelectOptionListDto> selectOptionListDtoList, boolean managerAuthenticated) {
         this.itemId = itemId;
         this.itemName = itemName;
         this.thumbnail = thumbnail;
         this.itemPrice = itemPrice;
         this.itemIntroduce = itemIntroduce;
         this.selectOptionListDtoList = selectOptionListDtoList;
+        this.managerAuthenticated = managerAuthenticated;
     }
 }

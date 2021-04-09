@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+<head>
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9592e762541282dc4f2596f4108d38d9&libraries=services"></script>
+</head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light p-0 pb-5">
+
+    <div class="row justify-content-center">
+        <div class="col-sm-12">
+            <div th:replace="rider/rider-fragments :: riderPageNav('배달할주문')"></div>
+        </div>
+        <div class="col-sm-12 text-center">
+            <div style="font-size: 50px">앗!..</div>
+            <hr>
+        </div>
+        <div class="col-sm-12 text-center fs-2">
+                <span>현재</span>
+                <span>???</span>
+                <span>님은 관리자 승인 대기중입니다.</span>
+                <div>조금만 기다려주시면 곧 정상 이용이 가능하실거에요!</div>
+            <hr>
+        </div>
+    </div>
+</div>
+</body>
+</html>

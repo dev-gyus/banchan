@@ -7,7 +7,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ReviewQueryRepository {
-    public Page<Review> findAccountOrdersOrderItemItemStoreByAccountId(Long accountId, Pageable pageable);
 
     public Page<Review> findAccountOrdersOrderItemItemStoreByStoreId(Long storeId, Pageable pageable);
+
+    Page<Review> findStoreReviewAccountOrdersOrderItemItemStoreByAccountId(Long id, Pageable pageable);
 }

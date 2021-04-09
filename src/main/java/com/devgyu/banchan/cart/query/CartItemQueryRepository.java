@@ -10,4 +10,6 @@ public interface CartItemQueryRepository {
     Page<CartItem> findAccountCartItemItemOptionFetchByAccountId(Long id, Pageable pageable);
 
     List<CartItem> findAccountCartCartItemStoreFetchByAccountId(Long accountId);
+
+    List<CartItem> findAccountCartCartItemStoreAuthTrueFetchByAccountId(Long accountId);
 }

@@ -4,6 +4,7 @@ import com.devgyu.banchan.modules.category.QCategory;
 import com.devgyu.banchan.modules.storecategory.QStoreCategory;
 import com.devgyu.banchan.modules.storeowner.QStoreOwner;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
+import com.devgyu.banchan.orders.QOrders;
 import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class StoreOwnerRepositoryImpl implements StoreOwnerQueryRepository{
         this.queryFactory = new JPAQueryFactory(em);
     }
 
+    @Override
     public List<StoreOwner> findCategoriesFetchById(Long id){
         return queryFactory
                 .selectFrom(storeOwner)

@@ -21,6 +21,8 @@ public class Rider extends Account {
     @JsonIgnore
     private List<RiderOrders> riderOrdersList = new ArrayList<>();
 
+    private boolean managerAuthenticated;
+
     public Rider(String email, String nickname, String password, String name, String phone, Address address, String emailToken, String driverLicense) {
         super(email, nickname, password, name, phone, Roles.ROLE_RIDER, address, emailToken);
         this.driverLicense = driverLicense;

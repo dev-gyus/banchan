@@ -34,16 +34,21 @@ public class ReviewController {
 
     @GetMapping({"","/"})
     public String review_main(@CurrentUser Account account, @PageableDefault Pageable pageable, Model model){
-        Page<Review> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByAccountId(account.getId(), pageable);
+        Page<Review> findReviews = reviewRepository.findStoreReviewAccountOrdersOrderItemItemStoreByAccountId(account.getId(), pageable);
         List<Review> reviewList = findReviews.getContent();
         Map<Long, StoreOwner> storeMap = new HashMap<>();
+        Map<Long, Review> storeReviewMap = new HashMap<>();
         for (Review review : reviewList) {
             // Review -> Orders 다대일, 하나의 주문의 상품은 하나의 가게의 상품이므로 어떤 주문 상품에서 가게를 추출하더라도 같은 가게가 나옴
             StoreOwner storeOwner = review.getOrders().getOrdersItemList().get(0).getItem().getStoreOwner();
             storeMap.put(review.getId(), storeOwner);
+
+            Review storeReview = review.getStoreReview();
+            storeReviewMap.put(review.getId(), storeReview);
         }
         model.addAttribute("reviewList", reviewList);
         model.addAttribute("storeMap", storeMap);
+        model.addAttribute("storeReviewMap", storeReviewMap);
         return "review/main";
     }
 

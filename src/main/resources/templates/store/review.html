@@ -52,10 +52,10 @@
                                 <div class="col-sm-12">
                                     <div th:utext="${review.content}"></div>
                                 </div>
-                                <div class="col-sm-6" th:if="${storeReviewMap.get(review.regDate) != null}">
+                                <div class="col-sm-6" th:if="${storeReviewMap.get(review.id) != null}">
                                     <div class="text-start" style="background-color: #dee2e6"><i class="fas fa-reply fa-rotate-180"></i> 사장님 :</div>
                                     <hr class="m-0">
-                                    <div style="background-color: #e9ecef" th:text="${storeReviewMap.get(review.regDate).content}"></div>
+                                    <div style="background-color: #e9ecef" th:text="${storeReviewMap.get(review.id).content}"></div>
                                 </div>
                             </div>
                         </div>

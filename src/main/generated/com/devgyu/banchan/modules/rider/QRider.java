@@ -27,6 +27,9 @@ public class QRider extends EntityPathBase<Rider> {
     // inherited
     public final com.devgyu.banchan.account.QAddress address;
 
+    //inherited
+    public final BooleanPath blocked;
+
     // inherited
     public final com.devgyu.banchan.cart.QCart cart;
 
@@ -39,7 +42,12 @@ public class QRider extends EntityPathBase<Rider> {
     public final StringPath emailToken;
 
     //inherited
+    public final NumberPath<Integer> failCount;
+
+    //inherited
     public final NumberPath<Long> id;
+
+    public final BooleanPath managerAuthenticated = createBoolean("managerAuthenticated");
 
     //inherited
     public final StringPath name;
@@ -87,9 +95,11 @@ public class QRider extends EntityPathBase<Rider> {
         super(type, metadata, inits);
         this._super = new com.devgyu.banchan.account.QAccount(type, metadata, inits);
         this.address = _super.address;
+        this.blocked = _super.blocked;
         this.cart = _super.cart;
         this.email = _super.email;
         this.emailToken = _super.emailToken;
+        this.failCount = _super.failCount;
         this.id = _super.id;
         this.name = _super.name;
         this.nickname = _super.nickname;

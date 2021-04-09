@@ -67,22 +67,25 @@ public class CartController {
 
     @PostMapping("/api/confirm")
     @ResponseBody
-    public boolean cart_add_confirm(@CurrentUser Account account, @RequestBody CartAddDto cartAddDto){
+    public String cart_add_confirm(@CurrentUser Account account, @RequestBody CartAddDto cartAddDto){
         List<CartItem> findCartItemList = cartItemRepository.findAccountCartCartItemStoreFetchByAccountId(account.getId());
         Item newItem = itemRepository.findStoreFetchById(cartAddDto.getItemId());
+        StoreOwner findStoreOwner = findCartItemList.get(0).getItem().getStoreOwner();
+        if(!findStoreOwner.isManagerAuthenticated()){
+            return "store_update";
+        }
 
         Cart cart;
         if (!findCartItemList.isEmpty()) {
             cart = findCartItemList.get(0).getCart(); // CartItem -> Cart 다대일 관계 -> 어떤 카트상품에서 카트를 추출해도 같은 카트이다.
-            StoreOwner findStoreOwner = findCartItemList.get(0).getItem().getStoreOwner();
 
             // 기존 카트에 담긴 상품의 가게와 새로 추가한 상품의 가게가 일치하는지 확인. 일치하지않으면 기존 장바구니상품 모두 삭제
             StoreOwner addItemStoreOwner = newItem.getStoreOwner();
             if(!findStoreOwner.equals(addItemStoreOwner)){
-                return true;
+                return "true";
             }
         }
-        return false;
+        return "false";
     }
 
     @PostMapping("/api/add")

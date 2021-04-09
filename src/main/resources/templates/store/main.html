@@ -28,17 +28,24 @@
                             <i class="fas fa-map-marked-alt"></i>
                         </span>
                 </div>
-                <div class="col-sm-12 text-center fs-1">
-                    <span class="form-text" th:if="${storeDto.storeIntroduce != null}"
+                <div class="col-sm-12 text-center fs-2">
+                    <span class="form-text" th:if="${storeDto.storeIntroduce != ''}"
                           th:text="${storeDto.storeIntroduce}"></span>
-                    <small class="form-text" th:if="${storeDto.storeIntroduce == null}"
+                    <small class="form-text" th:if="${storeDto.storeIntroduce == ''}"
                            th:text="${storeDto.name}"></small>
                     <hr>
                 </div>
                 <div th:id="${storeDto.id + 'storetd'}" class="col-sm-12 text-center"></div>
             </div>
         </div>
-        <div class="col-sm-12" th:each="map : ${itemMap}">
+        <div class="col-sm-6 fs-1 text-center" style="background-color: #dee2e6" th:if="${!storeDto.managerAuthenticated}">
+            가게 변경중
+        </div>
+        <div class="col-sm-12 fs-2 text-center" th:if="${!storeDto.managerAuthenticated}">
+            가게를 새롭게 변경 중입니다!<br>
+            조금만 기다려 주시면 곧 새로워진 저희가게를 보실거에요!
+        </div>
+        <div class="col-sm-12" th:each="map : ${itemMap}" th:if="${storeDto.managerAuthenticated}">
             <div class="row g-3 justify-content-center">
                 <div class="col-sm-12">
                     <span>상품 카테고리: </span><span th:text="${map.key} "></span>

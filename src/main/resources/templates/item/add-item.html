@@ -14,9 +14,11 @@
             <hr>
         </div>
         <div class="col-sm-10">
-            <span th:text="${'현재 카테고리: ' + category}"></span>
             <span><button type="button" class="btn btn-outline-success fs-5"
-                          onclick="history.back()">이전화면</button></span>
+                                      onclick="history.back()">이전화면</button></span>
+        </div>
+        <div class="col-sm-10">
+            <span th:text="${'현재 카테고리: ' + category}"></span>
         </div>
         <div class="col-sm-10 mb-2">
             <form th:action="@{'/items/add?category=' + ${category} + '&_csrf=' + ${_csrf.getToken()}}"
@@ -25,9 +27,11 @@
                 <div class="form-group">
                     <label for="profile-image-file" class="form-label">상품사진</label>
                     <div id="new-profile-image" class="text-center mb-2"></div>
-                    <input id="profile-image-file" type="file" class="form-control mb-1" name="thumbnailFile"/>
+                    <input id="profile-image-file" type="file" class="form-control mb-1" name="thumbnailFile" required/>
+                    <small class="invalid-feedback fs-4">상품이미지를 업로드 해 주세요</small>
                     <small class="form-text fs-4">이미지는 150x150 크기로 수정되어 표시됩니다. 업로드 전 확인해주세요!</small>
-                    <small class="form-text text-danger" th:if="${#fields.hasErrors('thumbnailFile')}" th:errors="*{thumbnailFile}">
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('thumbnailFile')}"
+                           th:errors="*{thumbnailFile}">
                         상품 사진을 업로드 해 주세요</small>
                     <div id="cropped-new-profile-image" class="text-center mb-1"></div>
                 </div>
@@ -91,20 +95,23 @@
                     <div id="optionDiv" class="row g-3 justify-content-center">
                         <div th:id="${'optionDiv' + itemOption.id}" th:each="itemOption : ${addItemDto.itemOptionList}"
                              th:if="${!addItemDto.itemOptionList.isEmpty()}" class="form-group">
-                            <input type="text" class="form-control" th:name="${'itemOption['+ itemOptionStat.index + '].name'}" th:field="*{itemOption.name}" minlength="2"
+                            <input type="text" class="form-control"
+                                   th:name="${'itemOption['+ itemOptionStat.index + '].name'}"
+                                   th:field="*{itemOption.name}" minlength="2"
                                    maxlength="10" readonly/>
                             <small class="form-text fs-4">상품 옵션명을 입력해주세요.</small>
                             <small class="invalid-feedback fs-4">글자는 최소 1글자 이상, 최대 50글자를 넘을 수 없습니다.</small>
                             <small class="form-text text-danger fs-4"
                                    th:if="${#fields.hasErrors('itemOption')}"
                                    th:errors="*{itemOption}">상품 가격은 숫자로 1이상 입력해주세요.</small>
-                            <button type="button" class="btn btn-outline-danger">옵션 삭제</button>
+                            <button type="button" class="btn btn-outline-danger fs-5">옵션 삭제</button>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="addItemOption" class="form-label">상품옵션추가</label>
-                    <span id="addItemOption" class="link-primary position-relative"><a href="#" class="stretched-link" onclick="return false"></a>
+                    <span id="addItemOption" class="link-primary position-relative"><a href="#" class="stretched-link"
+                                                                                       onclick="return false"></a>
                         <i class="far fa-plus-square"></i></span>
                 </div>
                 <script>
@@ -116,6 +123,7 @@
 
                     let optionDiv = document.getElementById('optionDiv');
                     let optionCount = optionDiv.childElementCount;
+
                     function addOptionTags() {
                         console.log(optionCount);
                         let parentDiv = document.createElement('div');
@@ -130,7 +138,7 @@
                         deleteBtnFormGroup.setAttribute('class', 'col-md-2 fs-4');
 
                         let nameLabel = document.createElement('label');
-                        nameLabel.setAttribute('for','optionName[' + optionCount + ']');
+                        nameLabel.setAttribute('for', 'optionName[' + optionCount + ']');
                         nameLabel.setAttribute('class', 'form-label');
                         nameLabel.innerHTML = '옵션명';
                         nameFormGroup.appendChild(nameLabel);
@@ -157,7 +165,7 @@
                         rowDiv.appendChild(nameFormGroup);
 
                         let priceLabel = document.createElement('label');
-                        priceLabel.setAttribute('for','optionPrice[' + optionCount + ']');
+                        priceLabel.setAttribute('for', 'optionPrice[' + optionCount + ']');
                         priceLabel.setAttribute('class', 'form-label');
                         priceLabel.innerHTML = '옵션가격'
                         priceFormGroup.appendChild(priceLabel);
@@ -186,7 +194,7 @@
                         deleteButton.type = 'button';
                         deleteButton.innerHTML = '옵션 삭제';
                         deleteButton.setAttribute('class', 'btn btn-outline-danger fs-5');
-                        deleteButton.onclick = function(){
+                        deleteButton.onclick = function () {
                             optionDiv.removeChild(parentDiv);
                         }
                         deleteBtnFormGroup.appendChild(deleteButton);

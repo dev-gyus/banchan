@@ -46,6 +46,8 @@ public class RiderController {
     private final PasswordEncoder passwordEncoder;
     private final RiderService riderService;
 
+
+
     @GetMapping("/rider-page")
     public String rider_page(@CurrentUser Rider rider, @ModelAttribute RiderMainDto riderMainDto) {
         Rider findRider = riderRepository.findById(rider.getId()).get();
@@ -66,7 +68,7 @@ public class RiderController {
     }
 
     @GetMapping("/order-list")
-    public String order_list(@CurrentUser Rider rider, @PageableDefault Pageable pageable, Model model) {
+    public String main(@CurrentUser Rider rider, @PageableDefault Pageable pageable, Model model) {
         Rider findRider = riderRepository.findById(rider.getId()).get();
         String road = findRider.getAddress().getRoad();
         String gu = road.split(" ")[1];
@@ -189,6 +191,11 @@ public class RiderController {
         model.addAttribute("itemMap", itemMap);
         model.addAttribute("itemOptionMap", itemOptionMap);
         return "rider/delivery-detail";
+    }
+
+    @GetMapping("/auth-waiting")
+    public String auth_waiting(){
+        return "rider/auth-waiting";
     }
 
     @PostMapping("/{orderId}/delivery-start")

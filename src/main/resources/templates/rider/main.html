@@ -30,7 +30,7 @@
                 <button id="reset-button" type="button" class="btn btn-outline-danger">취소</button>
             </div>
         </div>
-        <div class="col-sm-10 bg-light">
+        <div class="col-sm-10 bg-light fs-4">
             <form th:action="@{/rider/modify}" method="post"
                   th:object="${riderMainDto}" class="row g-2 justify-content-center needs-validation" novalidate>
                 <input type="hidden" id="profileImage" name="thumbnail"/>
@@ -97,6 +97,9 @@
                             <input id="sample4_jibunAddress" type="text" name="jibun" class="form-control" th:field="*{jibun}" required>
                             <small class="invalid-feedback">필수 항목 입니다.<br></small>
                             <small class="form-text text-danger" th:if="${#fields.hasErrors('jibun')}" th:errors="*{jibun}"></small>
+                        </div>
+                        <div class="col-sm-12">
+                            <small class="form-text">현재 입력하신 주소의 시,군,구를 기준으로 발생한 주문에 한해 배달수락이 가능하오니, 주로 활동하시는 지역을 정확히 입력해주세요</small>
                         </div>
                     </div>
                 </div>

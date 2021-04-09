@@ -24,6 +24,7 @@ public class StoreDto {
     private List<String> categories;
     private List<StoreCategory> storeCategoryList;
     private String storeIntroduce;
+    private boolean managerAuthenticated;
 
 
 

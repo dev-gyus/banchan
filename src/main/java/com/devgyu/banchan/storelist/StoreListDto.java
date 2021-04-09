@@ -11,10 +11,12 @@ public class StoreListDto {
     private Long id;
     private String name;
     private String thumbnail;
+    private boolean managerAuthenticated;
 
-    public StoreListDto(Long id, String name, String thumbnail) {
+    public StoreListDto(Long id, String name, String thumbnail, boolean managerAuthenticated) {
         this.id = id;
         this.name = name;
         this.thumbnail = thumbnail;
+        this.managerAuthenticated = managerAuthenticated;
     }
 }

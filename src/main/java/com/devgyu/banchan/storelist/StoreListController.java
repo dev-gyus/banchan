@@ -31,10 +31,11 @@ public class StoreListController {
 
     @GetMapping("/{category}")
     public String category(@PathVariable String category, @PageableDefault Pageable pageable, Model model){
+        // TODO 카테고리로 검색한 가게들 중 Auth False인 가게는 준비중이라고 표시할것 (아예 검색 안되게 하는것 보다 이렇게 하는게 홍보효과 높을듯)
         Page<StoreOwner> findStore = storeOwnerRepository.findCategoriesFetchByCategoryName(category, pageable);
         List<Category> all = categoryRepository.findAll();
         List<StoreListDto> collect = findStore.getContent()
-                .stream().map(fs -> new StoreListDto(fs.getId(), fs.getName(), fs.getThumbnail()))
+                .stream().map(fs -> new StoreListDto(fs.getId(), fs.getName(), fs.getThumbnail(), fs.isManagerAuthenticated()))
                 .collect(Collectors.toList());
         model.addAttribute("storeList", collect);
         model.addAttribute("category", category);

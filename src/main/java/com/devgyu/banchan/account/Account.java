@@ -57,6 +57,9 @@ public abstract class Account {
     @JsonIgnore
     private List<Review> reviewList = new ArrayList<>();
 
+    private boolean blocked;
+    private int failCount;
+
     public Account(String email, String nickname, String password, String name, String phone, Roles role, Address address, String emailToken) {
         this.email = email;
         this.nickname = nickname;
