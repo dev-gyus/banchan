@@ -49,8 +49,8 @@ public abstract class Account {
     @JsonIgnore
     private List<Orders> ordersList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "cart_id")
     private Cart cart;
 
     @OneToMany(mappedBy = "account")
@@ -79,5 +79,9 @@ public abstract class Account {
     public void addReview(Review review){
         review.setAccount(this);
         this.reviewList.add(review);
+    }
+
+    public void addFailCount(){
+        this.failCount++;
     }
 }

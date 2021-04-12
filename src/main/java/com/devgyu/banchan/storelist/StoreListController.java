@@ -1,5 +1,7 @@
 package com.devgyu.banchan.storelist;
 
+import com.devgyu.banchan.AppProperties;
+import com.devgyu.banchan.ScrollingDto;
 import com.devgyu.banchan.modules.category.Category;
 import com.devgyu.banchan.modules.category.CategoryRepository;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
@@ -13,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +27,7 @@ public class StoreListController {
     private final StoreListService storeListService;
     private final CategoryRepository categoryRepository;
     private final StoreOwnerRepository storeOwnerRepository;
+    private final AppProperties appProperties;
     @GetMapping({"/", ""})
     public String storeList(){
         return "storelist/main";
@@ -31,15 +35,23 @@ public class StoreListController {
 
     @GetMapping("/{category}")
     public String category(@PathVariable String category, @PageableDefault Pageable pageable, Model model){
-        // TODO 카테고리로 검색한 가게들 중 Auth False인 가게는 준비중이라고 표시할것 (아예 검색 안되게 하는것 보다 이렇게 하는게 홍보효과 높을듯)
         Page<StoreOwner> findStore = storeOwnerRepository.findCategoriesFetchByCategoryName(category, pageable);
-        List<Category> all = categoryRepository.findAll();
         List<StoreListDto> collect = findStore.getContent()
                 .stream().map(fs -> new StoreListDto(fs.getId(), fs.getName(), fs.getThumbnail(), fs.isManagerAuthenticated()))
                 .collect(Collectors.toList());
+
         model.addAttribute("storeList", collect);
         model.addAttribute("category", category);
-        model.addAttribute("categoryList", all);
         return "storelist/list";
+    }
+    @GetMapping("/api/{category}")
+    @ResponseBody
+    public ScrollingDto category_scrolling(@PathVariable String category, @PageableDefault Pageable pageable){
+        Page<StoreOwner> findStore = storeOwnerRepository.findCategoriesFetchByCategoryName(category, pageable);
+        List<StoreListDto> collect = findStore.getContent()
+                .stream().map(fs -> new StoreListDto(fs.getId(), fs.getName(), fs.getThumbnail(), fs.isManagerAuthenticated()))
+                .collect(Collectors.toList());
+        ScrollingDto scrollingDto = new ScrollingDto(collect, findStore.isLast());
+        return scrollingDto;
     }
 }

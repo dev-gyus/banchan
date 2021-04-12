@@ -7,7 +7,7 @@
 <script type="text/javascript"
         src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9592e762541282dc4f2596f4108d38d9&libraries=services"></script>
 
-<div class="container-sm bg-light p-0 pb-3">
+<div class="container-sm bg-light pb-3">
 
     <div class="row justify-content-center">
         <div class="col-sm-12">
@@ -25,7 +25,13 @@
             <hr>
         </div>
 
+
         <!-- Delivery Completed -->
+        <div class="col-sm-12 text-center">
+            <div class="col-sm-12" th:if="${orderStatus == 'completed' && !rider.managerAuthenticated}">
+                <div th:replace="rider/rider-fragments :: riderAuthDiv"></div>
+            </div>
+        </div>
         <div class="col-sm-12 fs-2 text-center" th:if="${orderStatus == 'completed' && riderOrdersList.isEmpty()}">
             현재 배달 완료한 주문이 아직 없으시네요!
         </div>
@@ -37,7 +43,7 @@
                     <th scope="col" class="col-sm-6">가게위치</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="completedTbody">
                 <tr th:each="riderOrders : ${riderOrdersList}">
                     <td class="align-middle fs-3">
                         <span th:id="${riderOrders.id + 'store' + 'storename'}"
@@ -56,17 +62,99 @@
                 </tr>
                 </tbody>
             </table>
+            <script>
+                let orderStatus = '[[${orderStatus}]]';
+                let nowPage = 1;
+                let ajaxReady = true;
+                let isLast = false;
+
+                $(document).ready(function () {
+                    $(document).scroll(function () {
+                        var maxHeight = $(document).height();
+                        var currentScroll = $(window).scrollTop() + $(window).height();
+
+                        if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+                            ajaxReady = false;
+                            $.ajax({
+                                url: '/rider/api/order-list/' + orderStatus + '?page=' + nowPage,
+                                type: 'get',
+                                dataType: 'json',
+                                success: function (result) {
+                                    ajaxReady = false;
+                                    isLast = result.last;
+                                    if (orderStatus == 'completed') {
+                                        let orderRegDateList = result.orderRegDateList;
+                                        let storeAddressMap = result.storeAddressMap;
+                                        let storeNicknameMap = result.storeNicknameMap;
+                                        let completedTbody = document.getElementById('completedTbody');
+                                        isLast = result.last;
+
+                                        for (let orderRegDate of orderRegDateList) {
+                                            let tr = document.createElement('tr');
+                                            let firstTd = document.createElement('td');
+                                            firstTd.className = 'align-middle fs-3';
+                                            let storeNameSpan = document.createElement('span');
+                                            storeNameSpan.id = orderRegDate + 'store' + 'storename';
+                                            storeNameSpan.innerText = storeNicknameMap[orderRegDate];
+                                            firstTd.appendChild(storeNameSpan);
+                                            tr.appendChild(firstTd);
+
+                                            let secondTd = document.createElement('td');
+                                            secondTd.id = orderRegDate + 'store' + 'storetd';
+                                            let storeRoadSpan = document.createElement('span');
+                                            storeRoadSpan.id = orderRegDate + 'store' + 'store-road';
+                                            storeRoadSpan.innerText = storeAddressMap[orderRegDate].road;
+                                            secondTd.appendChild(storeRoadSpan);
+
+                                            let storeDetailSpan = document.createElement('span');
+                                            storeDetailSpan.innerText = ' ' + storeAddressMap[orderRegDate].detail;
+                                            secondTd.appendChild(storeDetailSpan);
+                                            let secondTdBr = document.createElement('br');
+                                            secondTd.appendChild(secondTdBr);
+
+                                            let mapSpan = document.createElement('span');
+                                            mapSpan.className = 'position-relative link-primary';
+                                            mapSpan.id = orderRegDate + 'store';
+                                            mapSpan.setAttribute('onclick', "makeMap(this, 'store')");
+                                            let mapLink = document.createElement('a');
+                                            mapLink.href = '#';
+                                            mapLink.className = 'stretched-link';
+                                            mapLink.setAttribute('onclick', 'return false;');
+                                            mapSpan.appendChild(mapLink);
+                                            let mapIcon = document.createElement('i');
+                                            mapIcon.className = 'fas fa-map-marked-alt';
+                                            mapSpan.appendChild(mapIcon);
+                                            secondTd.appendChild(mapSpan);
+                                            tr.appendChild(secondTd);
+                                            completedTbody.appendChild(tr);
+                                        }
+                                    }
+                                },
+                                error: function () {
+                                    alert('목록을 불러오던 중 에러가 발생하였습니다. 계속 발생할경우 관리자에게 문의해주세요')
+                                }
+                            });
+                        }
+                    });
+                });
+            </script>
         </div>
 
         <!-- Delivery Ready or Start -->
-        <div class="col-sm-12 fs-2 text-center" th:if="${ordersList.isEmpty() && orderStatus == 'delivery_ready'}">
+        <div class="col-sm-12 text-center"
+             th:if="${(orderStatus == 'delivery_ready' || orderStatus == 'delivery_start') && !rider.managerAuthenticated}">
+            <div class="col-sm-12">
+                <div th:replace="rider/rider-fragments :: riderAuthDiv"></div>
+            </div>
+        </div>
+        <div class="col-sm-12 fs-2 text-center" th:if="${orderStatus == 'delivery_ready' && ordersList.isEmpty()}">
             현재 배달 수락하신 주문이 없네요!
         </div>
-        <div class="col-sm-12 fs-2 text-center" th:if="${ordersList.isEmpty() && orderStatus == 'delivery_start'}">
+        <div class="col-sm-12 fs-2 text-center" th:if="${orderStatus == 'delivery_start' && ordersList.isEmpty()}">
             현재 배달 중이신 주문이 없네요!
         </div>
         <div class="col-sm-12 fs-4 text-center"
-             th:if="${!ordersList.isEmpty() && (orderStatus == 'delivery_ready' or orderStatus == 'delivery_start')}"
+             th:if="${(orderStatus == 'delivery_ready' or orderStatus == 'delivery_start') && !ordersList.isEmpty()}"
              th:each="order : ${ordersList}">
             <div class="row g-3 justify-content-center">
                 <div class="col-sm-1 align-self-center text-center" th:if="${orderStatus == 'delivery_start'}">
@@ -81,21 +169,16 @@
                           th:text="${storeMap.get(order.regDate).nickname}"></span>
                 </div>
                 <div class="col-sm-4 align-middle">
-                    <div class="row justify-content-center">
-                        <div class="col-sm-12">
-                            <span>가게위치</span><br>
-                            <span th:id="${order.regDate + 'store' + 'store-road'}"
-                                  th:text="${storeMap.get(order.regDate).address.road}"></span>
-                            <span th:text="${' ' + storeMap.get(order.regDate).address.detail}"></span><br>
-                            <span class="position-relative link-primary" th:id="${order.regDate + 'store'}"
-                                  onclick="makeMap(this, 'store')">
+                    <span>가게위치</span><br>
+                    <span th:id="${order.regDate + 'store' + 'store-road'}"
+                          th:text="${storeMap.get(order.regDate).address.road}"></span>
+                    <span th:text="${' ' + storeMap.get(order.regDate).address.detail}"></span><br>
+                    <span class="position-relative link-primary" th:id="${order.regDate + 'store'}"
+                          onclick="makeMap(this, 'store')">
                             <a href="#" class="stretched-link" onclick="return false;"></a>
                             <i class="fas fa-map-marked-alt"></i>
                         </span>
-                        </div>
-                        <div class="col-sm-12"
-                             th:id="${order.regDate + 'store'} + 'storetd'"></div>
-                    </div>
+                    <div th:id="${order.regDate + 'store'} + 'storetd'"></div>
                 </div>
                 <div class="col-sm-4 align-middle">
                     <div class="row justify-content-center">
@@ -133,6 +216,197 @@
                     <hr>
                 </div>
             </div>
+        </div>
+        <div class="col-sm-12 fs-4 text-center"
+             th:if="${(orderStatus == 'delivery_ready' or orderStatus == 'delivery_start') && !ordersList.isEmpty()}">
+            <div id="orderListDiv" class="row g-3 justify-content-center">
+
+            </div>
+            <script>
+                let orderStatus = '[[${orderStatus}]]';
+                let nowPage = 1;
+                let ajaxReady = true;
+                let isLast = false;
+
+                $(document).ready(function () {
+                    $(document).scroll(function () {
+                        var maxHeight = $(document).height();
+                        var currentScroll = $(window).scrollTop() + $(window).height();
+
+                        if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+                            ajaxReady = false;
+                            $.ajax({
+                                url: '/rider/api/order-list/' + orderStatus + '?page=' + nowPage,
+                                type: 'get',
+                                dataType: 'json',
+                                success: function (result) {
+                                    ajaxReady = false;
+                                    isLast = result.last;
+                                    if (orderStatus == 'delivery_ready' || orderStatus == 'delivery_start') {
+                                        let orderListDiv = document.getElementById('orderListDiv');
+                                        let orderRegDateList = result.orderRegDateList;
+                                        let orderIdMap = result.orderIdMap;
+                                        let storeNicknameMap = result.storeNicknameMap;
+                                        let storeAddressMap = result.storeAddressMap;
+                                        let accountAddressMap = result.accountAddressMap;
+                                        isLast = result.last;
+
+                                        for (let orderRegDate of orderRegDateList) {
+                                            if (orderStatus == 'delivery_start') {
+                                                let formDiv = document.createElement('div');
+                                                formDiv.className = 'col-sm-1 align-self-center text-center';
+
+                                                let form = document.createElement('form');
+                                                form.className = 'row justify-content-center d-grid';
+                                                form.action = '/rider/' + orderIdMap[orderRegDate] + '/delivery-completed?_csrf=' + '[[${_csrf.token}]]';
+                                                form.method = 'post';
+                                                form.className = 'row justify-content-center d-grid';
+
+                                                let submitButton = document.createElement('button');
+                                                submitButton.type = 'submit';
+                                                submitButton.className = 'btn btn-outline-success fs-4';
+                                                submitButton.innerText = '완료';
+                                                form.appendChild(submitButton);
+                                                formDiv.appendChild(form);
+                                                orderListDiv.appendChild(formDiv);
+                                            }
+
+                                            let storeNameDiv = document.createElement('div');
+                                            storeNameDiv.className = 'col-sm-2 align-self-center';
+                                            let storeNameFirstSpan = document.createElement('span');
+                                            storeNameFirstSpan.innerText = '가게명'
+                                            storeNameDiv.appendChild(storeNameFirstSpan);
+                                            let br = document.createElement('br');
+                                            storeNameDiv.appendChild(br);
+
+                                            let storeNameSecondSpan = document.createElement('span');
+                                            storeNameSecondSpan.id = orderRegDate + 'store' + 'storename';
+                                            storeNameSecondSpan.innerText = storeNicknameMap[orderRegDate];
+                                            storeNameDiv.appendChild(storeNameSecondSpan);
+                                            orderListDiv.appendChild(storeNameDiv);
+
+                                            // 가게위치
+                                            let storePlaceParentDiv = document.createElement('div');
+                                            storePlaceParentDiv.className = 'col-sm-4 align-middle';
+                                            let placeFirstSpan = document.createElement('span');
+                                            placeFirstSpan.innerText = '가게위치';
+                                            storePlaceParentDiv.appendChild(placeFirstSpan);
+                                            let placeBr1 = document.createElement('br');
+                                            storePlaceParentDiv.appendChild(placeBr1);
+                                            let placeSecondSpan = document.createElement('span');
+                                            placeSecondSpan.id = orderRegDate + 'store' + 'store-road';
+                                            placeSecondSpan.innerText = storeAddressMap[orderRegDate].road;
+                                            storePlaceParentDiv.appendChild(placeSecondSpan);
+                                            let placeThirdSpan = document.createElement('span');
+                                            placeThirdSpan.innerText = ' ' + storeAddressMap[orderRegDate].detail;
+                                            storePlaceParentDiv.appendChild(placeThirdSpan);
+                                            let placeBr2 = document.createElement('br');
+                                            storePlaceParentDiv.appendChild(placeBr2);
+                                            let placeFourthSpan = document.createElement('span');
+                                            placeFourthSpan.className = 'position-relative link-primary';
+                                            placeFourthSpan.id = orderRegDate + 'store';
+                                            placeFourthSpan.setAttribute('onclick', "makeMap(this, 'store')");
+                                            let storeMapLink = document.createElement('a');
+                                            storeMapLink.href = '#';
+                                            storeMapLink.className = 'stretched-link';
+                                            storeMapLink.setAttribute('onclick', 'return false;');
+                                            placeFourthSpan.appendChild(storeMapLink);
+                                            let storeMapIcon = document.createElement('i');
+                                            storeMapIcon.className = 'fas fa-map-marked-alt';
+                                            placeFourthSpan.appendChild(storeMapIcon);
+                                            storePlaceParentDiv.appendChild(placeFourthSpan);
+                                            let storeMapDiv = document.createElement('div');
+                                            storeMapDiv.id = orderRegDate + 'store' + 'storetd';
+                                            storePlaceParentDiv.appendChild(storeMapDiv);
+                                            orderListDiv.appendChild(storePlaceParentDiv);
+
+                                            // 배송지
+                                            let deliveryPlaceParentDiv = document.createElement('div');
+                                            deliveryPlaceParentDiv.className = 'col-sm-4 align-middle';
+                                            let deliveryPlaceFirstSpan = document.createElement('span');
+                                            deliveryPlaceFirstSpan.innerText = '배송지';
+                                            deliveryPlaceParentDiv.appendChild(deliveryPlaceFirstSpan);
+                                            let deliveryPlaceBr1 = document.createElement('br');
+                                            deliveryPlaceParentDiv.appendChild(deliveryPlaceBr1);
+                                            let deliveryPlaceSecondSpan = document.createElement('span');
+                                            deliveryPlaceSecondSpan.id = orderRegDate + 'account' + 'account-road';
+                                            deliveryPlaceSecondSpan.innerText = accountAddressMap[orderRegDate].road;
+                                            deliveryPlaceParentDiv.appendChild(deliveryPlaceSecondSpan);
+                                            let deliveryThirdSpan = document.createElement('span');
+                                            deliveryThirdSpan.innerText = ' ' + accountAddressMap[orderRegDate].detail;
+                                            deliveryPlaceParentDiv.appendChild(deliveryThirdSpan);
+                                            let deliveryPlaceBr2 = document.createElement('br');
+                                            deliveryPlaceParentDiv.appendChild(deliveryPlaceBr2);
+                                            let deliveryPlaceFourthSpan = document.createElement('span');
+                                            deliveryPlaceFourthSpan.className = 'position-relative link-primary';
+                                            deliveryPlaceFourthSpan.id = orderRegDate + 'account';
+                                            deliveryPlaceFourthSpan.setAttribute('onclick', "makeMap(this, 'account')");
+                                            let deliveryMapLink = document.createElement('a');
+                                            deliveryMapLink.href = '#';
+                                            deliveryMapLink.className = 'stretched-link';
+                                            deliveryMapLink.setAttribute('onclick', 'return false;');
+                                            deliveryPlaceFourthSpan.appendChild(deliveryMapLink);
+                                            let deliveryMapIcon = document.createElement('i');
+                                            deliveryMapIcon.className = 'fas fa-map-marked-alt';
+                                            deliveryPlaceFourthSpan.appendChild(deliveryMapIcon);
+                                            deliveryPlaceParentDiv.appendChild(deliveryPlaceFourthSpan);
+                                            let deliveryMapDiv = document.createElement('div');
+                                            deliveryMapDiv.id = orderRegDate + 'account' + 'accounttd';
+                                            deliveryPlaceParentDiv.appendChild(deliveryMapDiv);
+                                            orderListDiv.appendChild(deliveryPlaceParentDiv);
+
+                                            let lastDiv = document.createElement('div');
+                                            lastDiv.className = 'col-sm-1 align-self-center';
+                                            if (orderStatus == 'delivery_start') {
+                                                let naviDiv = document.createElement('div');
+                                                naviDiv.innerText = '길찾기';
+                                                lastDiv.appendChild(naviDiv);
+
+                                                let naviLink = document.createElement('a');
+                                                naviLink.id = orderRegDate + 'account';
+                                                naviLink.href = '#';
+                                                naviLink.setAttribute('onclick', 'navi(this)');
+                                                let naviImg = document.createElement('img');
+                                                naviImg.src = 'https://developers.kakao.com/assets/img/about/buttons/navi/kakaonavi_btn_medium.png';
+                                                naviLink.appendChild(naviImg);
+                                                lastDiv.appendChild(naviLink);
+                                            } else {
+                                                let detailLink = document.createElement('a');
+                                                detailLink.href = '/rider/' + orderIdMap[orderRegDate] + '/detail';
+                                                detailLink.className = 'btn btn-outline-primary fs-5 my-2';
+                                                detailLink.innerText = '상세보기';
+                                                lastDiv.appendChild(detailLink);
+
+                                                let deliveryForm = document.createElement('form');
+                                                deliveryForm.action = '/rider/' + orderIdMap[orderRegDate] + '/delivery-start?_csrf=' + '[[${_csrf.token}]]';
+                                                deliveryForm.method = 'post';
+                                                let submitButton = document.createElement('button');
+                                                submitButton.className = 'btn btn-outline-success fs-5';
+                                                submitButton.innerText = '배달시작';
+                                                deliveryForm.appendChild(submitButton);
+                                                lastDiv.appendChild(deliveryForm);
+
+                                            }
+                                            orderListDiv.appendChild(lastDiv);
+
+                                            let hrDiv = document.createElement('div');
+                                            hrDiv.className = 'col-sm-12';
+                                            let lastHr = document.createElement('hr');
+                                            hrDiv.appendChild(lastHr);
+                                            orderListDiv.appendChild(hrDiv);
+                                        }
+                                    }
+                                    nowPage++;
+                                    ajaxReady = true;
+                                },
+                                error: function () {
+                                    alert('주문 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                                }
+                            });
+                        }
+                    });
+                });
+            </script>
         </div>
     </div>
 </div>

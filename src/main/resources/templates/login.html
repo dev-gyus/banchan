@@ -11,9 +11,13 @@
             <hr>
         </div>
         <div class="col-sm-6 bg-light">
-            <div th:if="${param.error}" class="alert alert-danger">
+            <div th:if="${param.error != null || #request.getAttribute('isFailed') != null}" class="alert alert-danger">
                 <h2 class="text-center">로그인 실패!</h2>
                 <div class="text-center fs-4">아이디 또는 비밀번호를 확인 해 주세요</div>
+            </div>
+            <div th:if="${#request.getAttribute('isLocked') != null}" class="alert alert-danger">
+                <h2 class="text-center">로그인 실패!</h2>
+                <div class="text-center fs-4">계정이 잠겼습니다. 비밀번호 찾기 후 로그인 해 주세요</div>
             </div>
             <form th:action="@{/login}" method="post" th:object="${loginDto}" class="row g-3 justify-content-center needs-validation" novalidate>
                 <div class="form-group">

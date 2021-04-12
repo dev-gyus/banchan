@@ -6,17 +6,20 @@
 <div th:replace="fragments :: commonNav">공통네비</div>
 
 <div class="container-sm bg-light pb-5">
-    <div th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
-        <div th:replace="mypage/mypage-fragments :: mypageNav ('주문조회')"></div>
-    </div>
-    <div th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
-        <div th:replace="mystore/mystore-fragments :: mystoreNav ('내주문조회')"></div>
-    </div>
-    <div th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
-        <div th:replace="rider/rider-fragments :: riderPageNav ('주문조회')"></div>
-    </div>
+    <div class="row justify-content-center">
 
-    <div class="row g-3 justify-content-center">
+        <div class="col-sm-12">
+            <div th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
+                <div th:replace="mypage/mypage-fragments :: mypageNav ('주문조회')"></div>
+            </div>
+            <div th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
+                <div th:replace="mystore/mystore-fragments :: mystoreNav ('내주문조회')"></div>
+            </div>
+            <div th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
+                <div th:replace="rider/rider-fragments :: riderPageNav ('주문조회')"></div>
+            </div>
+        </div>
+
         <div class="col-sm-12">
             <div class="row g-3 justify-content-center">
                 <div class="col-sm-12 text-center fs-1">

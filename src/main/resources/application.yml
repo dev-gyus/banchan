@@ -22,6 +22,8 @@ app:
   host: http://localhost:8080
   uploadFolderPrefix: /Users/devgyu/banchan
 
+spring.jackson.default-property-inclusion: NON_NULL
+
 logging:
   level:
     org:

@@ -23,9 +23,19 @@
 
     <div class="row g-3 justify-content-center">
         <div class="col-sm-12">
-            <div class="row g-3 justify-content-center">
-                <div class="col-sm-12 fs-1 text-center" style="background-color: #e9ecef">
+            <div class="row justify-content-center">
+                <div class="col-sm-12" th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
+                    <div th:replace="mypage/mypage-fragments :: mypageNav ('리뷰조회')"></div>
+                </div>
+                <div class="col-sm-12" th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
+                    <div th:replace="mystore/mystore-fragments :: mystoreNav ('내리뷰조회')"></div>
+                </div>
+                <div class="col-sm-12" th:if="${account.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
+                <div th:replace="rider/rider-fragments :: riderPageNav ('리뷰조회')"></div>
+            </div>
+                <div class="col-sm-12 fs-1 text-center">
                     내리뷰조회
+                    <hr>
                 </div>
                 <div class="col-sm-12 text-start">
                     <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
@@ -35,7 +45,7 @@
                 </div>
                 <div class="col-sm-12 text-center" th:if="${!reviewList.isEmpty()}" >
                     <hr class="mt-1 bg-light">
-                    <div class="row g-3 gx-4 justify-content-center">
+                    <div id="reviewListDiv" class="row g-3 gx-4 justify-content-center">
                         <div class="col-sm-12 fs-3 p-3 m-0 border" th:each="review : ${reviewList}">
                             <div class="row g-3 justify-content-center">
                                 <div class="col-sm-12 text-center">
@@ -63,7 +73,7 @@
         </div>
     </div>
 </div>
-
+<script th:replace="fragments :: normalReviewScrolling"></script>
 <script th:replace="fragments :: summernoteJS"></script>
 <script th:replace="fragments :: form-validate"></script>
 </body>

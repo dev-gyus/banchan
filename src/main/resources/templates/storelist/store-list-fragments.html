@@ -7,4 +7,114 @@
            th:href="@{'/storelist/' + ${categoryName.urlName}}" th:text="${categoryName.name}">김치</a>
     </nav>
 </div>
+
+<script th:fragment="storeListScrollingJs">
+    // 무한 스크롤링
+    let ajaxReady = true;
+    let host = '[[${host}]]';
+    let category = '[[${category}]]';
+    let nowPage = 1;
+    let isLast = false;
+    let storeListDiv = document.getElementById('storeListDiv');
+
+    $(document).ready(function () {
+        $(document).scroll(function() {
+            var maxHeight = $(document).height();
+            var currentScroll = $(window).scrollTop() + $(window).height();
+
+            if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+                ajaxReady = false;
+                $.ajax({
+                    url: '/storelist/api/' + category + '?page=' + nowPage,
+                    type: 'get',
+                    success: function (result) {
+                        let storeList = result.storeList;
+                        isLast = result.last;
+
+                        for (let store of storeList) {
+                            let rowDiv = document.createElement('div');
+                            let hr = document.createElement('hr');
+                            rowDiv.setAttribute('class', 'row g-3 mt-2 fs-1 text-center');
+                            rowDiv.appendChild(hr);
+
+                            if(!store.managerAuthenticated){
+                                makeNoAuthStore(store, rowDiv);
+                            }else{
+                                makeAuthStore(store, rowDiv);
+                            }
+                        }
+                        nowPage++;
+                        ajaxReady = true;
+                    },
+                    error: function (){
+                        alert('가게 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                    }
+                });
+            }
+        });
+    });
+    function makeNoAuthStore(account, rowDiv) {
+        let profileImage;
+        if (account.thumbnail == null || account.thumbnail == '') {
+            profileImage = document.createElement('span');
+            profileImage.setAttribute('class', 'rounded-3');
+            profileImage.style.mixBlendMode = 'luminosity';
+            profileImage.width = '150';
+            profileImage.height = '150';
+            profileImage.innerHTML = jdenticon.toSvg(account.name, 150);
+        } else {
+            profileImage = document.createElement('img');
+            profileImage.setAttribute('class', 'rounded-3');
+            profileImage.style.mixBlendMode = 'luminosity';
+            profileImage.width = '150';
+            profileImage.height = '150';
+            profileImage.src = account.thumbnail;
+        }
+        let imgDiv = document.createElement('div');
+        imgDiv.setAttribute('class', 'col-sm-3');
+        imgDiv.appendChild(profileImage);
+        rowDiv.appendChild(imgDiv);
+
+        let storeWaiting = document.createElement('span');
+        storeWaiting.setAttribute('class', 'p-2 fs-3');
+        storeWaiting.style.backgroundColor = '#dee2e6';
+        storeWaiting.innerText = '가게준비중';
+        let storeWaitingDiv = document.createElement('div');
+        storeWaitingDiv.setAttribute('class', 'col-sm-3 align-self-center');
+        storeWaitingDiv.appendChild(storeWaiting);
+        rowDiv.appendChild(storeWaitingDiv);
+
+        let storeName = document.createElement('div');
+        storeName.setAttribute('class', 'col-sm-6 align-self-center');
+        storeName.innerText = account.name;
+        rowDiv.appendChild(storeName);
+        storeListDiv.appendChild(rowDiv);
+    }
+    function makeAuthStore(store, rowDiv) {
+        let profileImage;
+        if (store.thumbnail == null || store.thumbnail == '') {
+            profileImage = document.createElement('span');
+            profileImage.setAttribute('class', 'rounded-3');
+            profileImage.width = '150';
+            profileImage.height = '150';
+            profileImage.innerHTML = jdenticon.toSvg(store.name, 150);
+        } else {
+            profileImage = document.createElement('img');
+            profileImage.setAttribute('class', 'rounded-3');
+            profileImage.width = '150';
+            profileImage.height = '150';
+            profileImage.src = store.thumbnail;
+        }
+        let imgDiv = document.createElement('div');
+        imgDiv.setAttribute('class', 'col-sm-6');
+        imgDiv.appendChild(profileImage);
+        rowDiv.appendChild(imgDiv);
+
+        let storeName = document.createElement('div');
+        storeName.setAttribute('class', 'col-sm-6 align-self-center');
+        storeName.innerText = store.name;
+        rowDiv.appendChild(storeName);
+        storeListDiv.appendChild(rowDiv);
+    }
+</script>
 </html>

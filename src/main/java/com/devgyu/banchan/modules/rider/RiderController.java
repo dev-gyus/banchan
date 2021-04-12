@@ -26,12 +26,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/rider")
@@ -68,8 +66,14 @@ public class RiderController {
     }
 
     @GetMapping("/order-list")
-    public String main(@CurrentUser Rider rider, @PageableDefault Pageable pageable, Model model) {
+    public String orderList(@CurrentUser Rider rider, @PageableDefault Pageable pageable, Model model) {
         Rider findRider = riderRepository.findById(rider.getId()).get();
+        if(!findRider.isManagerAuthenticated()){
+            model.addAttribute(findRider);
+            model.addAttribute("orderStatus", "ready");
+            return "rider/order-list";
+        }
+
         String road = findRider.getAddress().getRoad();
         String gu = road.split(" ")[1];
         String convertedRoad = "";
@@ -101,6 +105,43 @@ public class RiderController {
         model.addAttribute("storeAddressMap", storeAddressMap);
         return "rider/order-list";
     }
+    // rider/order-list page scroll method
+    @GetMapping("/api/order-list")
+    @ResponseBody
+    public RiderWaitingApiDto api_orderList(@CurrentUser Rider rider, @PageableDefault Pageable pageable) {
+        Rider findRider = riderRepository.findById(rider.getId()).get();
+
+        String road = findRider.getAddress().getRoad();
+        String gu = road.split(" ")[1];
+        String convertedRoad = "";
+
+        if (gu.indexOf('시') != -1) {
+            convertedRoad = gu.split("시")[0] + "시";
+        } else if (gu.indexOf('군') != -1) {
+            convertedRoad = gu.split("군")[0] + "군";
+        } else if (gu.indexOf('구') != -1) {
+            convertedRoad = gu.split("구")[0] + "구";
+        } else {
+            throw new IllegalArgumentException("주문을 확인하던중 에러가 발생하였습니다. 관리자에게 문의 부탁드립니다.");
+        }
+
+        Page<Orders> findOrders = ordersRepository.findAccountItemFetchByStoreRoadIdAndStatus(convertedRoad, OrderStatus.READY, pageable);
+        List<Orders> orderList = findOrders.getContent();
+        Map<Long, RiderAddressDto> storeAddressMap = new HashMap<>();
+        Map<Long, String> storeNicknameMap = new HashMap<>();
+        for (Orders order : orderList) {
+            // 상품 주문할때 항상 동일한 가게의 상품만 주문할 수 있기 때문에 같은 주문이라면 주문한 상품 어떤것이든 동일한 가게가 추출됨
+            StoreOwner storeOwner = order.getOrdersItemList().get(0).getItem().getStoreOwner();
+            Address storeAddress = storeOwner.getAddress();
+
+            storeNicknameMap.put(order.getId(), storeOwner.getNickname());
+
+            RiderAddressDto riderAddressDto = new RiderAddressDto(storeAddress.getRoad(), storeAddress.getDetail());
+            storeAddressMap.put(order.getId(), riderAddressDto);
+        }
+        List<Long> orderIdList = orderList.stream().map(o -> o.getId()).collect(Collectors.toList());
+        return new RiderWaitingApiDto(orderIdList, storeNicknameMap, storeAddressMap, findOrders.isLast());
+    }
 
     @PostMapping("/order-accept/{ordersId}")
     public String addOrders(@CurrentUser Rider rider, @PathVariable Long ordersId) {
@@ -109,12 +150,13 @@ public class RiderController {
     }
 
     @GetMapping("/order-list/{orderStatus}")
-    public String findStatusOrder(@CurrentUser Rider rider, @PathVariable String orderStatus, Pageable pageable, Model model) {
+    public String findStatusOrder(@CurrentUser Rider rider, @PathVariable String orderStatus, @PageableDefault Pageable pageable, Model model) {
+        Rider findRider = riderRepository.findById(rider.getId()).get();
 
         if (orderStatus.equals("delivery_ready")) {
-            deliveryMethod(rider, pageable, OrderStatus.DELIVERY_READY, model);
+            deliveryMethod(findRider, pageable, OrderStatus.DELIVERY_READY, model);
         } else if (orderStatus.equals("delivery_start")) {
-            deliveryMethod(rider, pageable, OrderStatus.DELIVERY_START, model);
+            deliveryMethod(findRider, pageable, OrderStatus.DELIVERY_START, model);
 
         } else if (orderStatus.equals("completed")) {
             Page<RiderOrders> findRiderOrders = riderOrdersRepository.findAccountOrdersItemStoreFetchByRiderIdAndStatus(rider.getId(), OrderStatus.COMPLETED, pageable);
@@ -135,13 +177,12 @@ public class RiderController {
             throw new IllegalArgumentException("잘못된 요청입니다.");
 
         }
-
+        model.addAttribute(findRider);
         model.addAttribute("orderStatus", orderStatus);
         return "rider/order-list-status";
     }
-
-    private void deliveryMethod(@CurrentUser Rider rider, Pageable pageable, OrderStatus orderStatus, Model model) {
-        Page<RiderOrders> findRiderOrders = riderOrdersRepository.findAccountOrdersItemStoreFetchByRiderIdAndStatus(rider.getId(), orderStatus, pageable);
+    private void deliveryMethod(Rider findRider, Pageable pageable, OrderStatus orderStatus, Model model) {
+        Page<RiderOrders> findRiderOrders = riderOrdersRepository.findAccountOrdersItemStoreFetchByRiderIdAndStatus(findRider.getId(), orderStatus, pageable);
         List<Orders> ordersList = findRiderOrders.getContent().stream().map(ro -> ro.getOrders()).collect(Collectors.toList());
 
         Map<LocalDateTime, StoreOwner> storeOwnerMap = new HashMap<>();
@@ -160,6 +201,74 @@ public class RiderController {
         model.addAttribute("storeMap", storeOwnerMap);
         model.addAttribute("accountMap", accountMap);
     }
+
+    // rider/order-list-status page scroll method
+    @GetMapping("/api/order-list/{orderStatus}")
+    @ResponseBody
+    public RiderNotWaitingApiDto api_findStatusOrder(@CurrentUser Rider rider, @PathVariable String orderStatus, @PageableDefault Pageable pageable) {
+        Rider findRider = riderRepository.findById(rider.getId()).get();
+        RiderNotWaitingApiDto riderNotWaitingApiDto;
+        if (orderStatus.equals("delivery_ready")) {
+            riderNotWaitingApiDto = api_deliveryMethod(findRider, pageable, OrderStatus.DELIVERY_READY);
+        } else if (orderStatus.equals("delivery_start")) {
+            riderNotWaitingApiDto = api_deliveryMethod(findRider, pageable, OrderStatus.DELIVERY_START);
+        } else if (orderStatus.equals("completed")) {
+            Page<RiderOrders> findRiderOrders = riderOrdersRepository.findAccountOrdersItemStoreFetchByRiderIdAndStatus(rider.getId(), OrderStatus.COMPLETED, pageable);
+            List<RiderOrders> riderOrdersList = findRiderOrders.getContent();
+
+            List<LocalDateTime> orderRegDateList = riderOrdersList.stream().map(ro -> ro.getOrders().getRegDate()).collect(Collectors.toList());
+            Map<LocalDateTime, RiderAddressDto> storeAddressMap = new HashMap<>();
+            Map<LocalDateTime, String> storeNicknameMap = new HashMap<>();
+            for (RiderOrders riderOrders : riderOrdersList) {
+
+                Orders orders = riderOrders.getOrders();    // RiderOrders -> orders 1:1관계
+
+                StoreOwner storeOwner = orders.getOrdersItemList().get(0).getItem().getStoreOwner(); // 특정 주문의 상품은 모두 같은 가게의 상품임
+                Address storeAddress = storeOwner.getAddress();
+                RiderAddressDto riderAddressDto = new RiderAddressDto(storeAddress.getRoad(), storeAddress.getDetail());
+
+                storeAddressMap.put(orders.getRegDate(), riderAddressDto);
+                storeNicknameMap.put(orders.getRegDate(), storeOwner.getNickname());
+            }
+            riderNotWaitingApiDto = new RiderNotWaitingApiDto(storeNicknameMap, storeAddressMap, orderRegDateList, findRiderOrders.isLast());
+        } else {
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        return riderNotWaitingApiDto;
+    }
+    // api_findStatusOrder subMethod
+    private RiderNotWaitingApiDto api_deliveryMethod(Rider findRider, Pageable pageable, OrderStatus orderStatus) {
+        Page<RiderOrders> findRiderOrders = riderOrdersRepository.findAccountOrdersItemStoreFetchByRiderIdAndStatus(findRider.getId(), orderStatus, pageable);
+        List<Orders> ordersList = findRiderOrders.getContent().stream().map(ro -> ro.getOrders()).collect(Collectors.toList());
+
+        List<LocalDateTime> regDateList = ordersList.stream().map(o -> o.getRegDate()).collect(Collectors.toList());
+        Map<LocalDateTime, Long> ordersIdMap = new HashMap<>();
+        Map<LocalDateTime, String> storeNicknameMap = new HashMap<>();
+        Map<LocalDateTime, RiderAddressDto> storeAddressMap = new HashMap<>();
+        Map<LocalDateTime, RiderAddressDto> customerAddressMap = new HashMap<>();
+
+        for (Orders orders : ordersList) {
+            List<OrdersItem> ordersItemList = orders.getOrdersItemList();
+
+            StoreOwner findStoreOwner = ordersItemList.get(0).getItem().getStoreOwner();
+            Address storeAddress = findStoreOwner.getAddress();
+            RiderAddressDto storeDto = new RiderAddressDto(storeAddress.getRoad(), storeAddress.getDetail());
+
+            Account customer = orders.getAccount();
+            Address customerAddress = customer.getAddress();
+            RiderAddressDto customerDto = new RiderAddressDto(customerAddress.getRoad(), customerAddress.getDetail());
+
+            ordersIdMap.put(orders.getRegDate(), orders.getId());
+            storeNicknameMap.put(orders.getRegDate(), findStoreOwner.getNickname());
+            storeAddressMap.put(orders.getRegDate(), storeDto);
+            customerAddressMap.put(orders.getRegDate(), customerDto);
+        }
+
+        return new RiderNotWaitingApiDto(storeNicknameMap, storeAddressMap, regDateList, customerAddressMap, ordersIdMap, findRiderOrders.isLast());
+    }
+
+
 
     @GetMapping("/{orderId}/detail")
     public String delivery_detail(@CurrentUser Rider rider, @PathVariable Long orderId, Model model) {

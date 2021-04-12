@@ -21,6 +21,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class StoreController {
     private final ItemOptionRepository itemOptionRepository;
 
     @GetMapping({"/{storeId}"})
-    public String store_main(@PathVariable Long storeId, Model model){
+    public String store_main(@PathVariable Long storeId, Model model) {
         List<Category> categoryList = categoryRepository.findAllByStoreOwnerId(storeId);
         StoreOwner findOwner = categoryList.get(0).getStoreCategoryList().get(0).getStoreOwner();
         Address address = findOwner.getAddress();
@@ -59,9 +60,10 @@ public class StoreController {
     }
 
     @GetMapping("/{itemId}/selectoption")
-    public String item_selectoption(@PathVariable Long itemId, @ModelAttribute SelectOptionDto selectOptionDto, Model model){
+    public String item_selectoption(@PathVariable Long itemId, @ModelAttribute SelectOptionDto selectOptionDto, Model model) {
         Item findItem = itemRepository.findItemOptionStoreAuthTrueFetchById(itemId);
-        if(findItem == null || !findItem.getStoreOwner().isManagerAuthenticated()) throw new IllegalArgumentException("상품이 존재하지 않거나, 현재 준비중인 가게 입니다.");
+        if (findItem == null || !findItem.getStoreOwner().isManagerAuthenticated())
+            throw new IllegalArgumentException("상품이 존재하지 않거나, 현재 준비중인 가게 입니다.");
 
         List<SelectOptionListDto> convertedOptionList = findItem.getItemOptionList()
                 .stream().map(io -> new SelectOptionListDto(io.getId(), io.getName(), io.getPrice())).collect(Collectors.toList());
@@ -74,38 +76,51 @@ public class StoreController {
     }
 
     @GetMapping({"/{storeId}/review"})
-    public String store_review(@PathVariable Long storeId, @PageableDefault Pageable pageable, Model model){
+    public String store_review(@PathVariable Long storeId, @PageableDefault Pageable pageable, Model model) {
         Page<Review> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeId, pageable);
         List<Review> reviewList = findReviews.getContent();
         Map<LocalDateTime, Review> storeReviewMap = new HashMap<>();
         Map<LocalDateTime, Account> accountMap = new HashMap<>();
-        Map<LocalDateTime, List<OrdersItem>> ordersItemMap = new HashMap<>();
-        Map<LocalDateTime, Item> itemMap = new HashMap<>();
-        Map<LocalDateTime, List<ItemOption>> itemOptionMap = new HashMap<>();
 
         for (Review review : reviewList) {
-            List<OrdersItem> ordersItemList = review.getOrders().getOrdersItemList();
-            ordersItemMap.put(review.getRegDate(), ordersItemList);
             accountMap.put(review.getRegDate(), review.getAccount());
             storeReviewMap.put(review.getRegDate(), review.getStoreReview());
-
-            for (OrdersItem ordersItem : ordersItemList) {
-                itemMap.put(ordersItem.getAddDate(), ordersItem.getItem());
-
-                List<Long> itemOptionList = ordersItem.getItemOptionList().stream().map(io -> io.getId()).collect(Collectors.toList());
-                List<ItemOption> findItemOptionList = itemOptionRepository.findAllByItemIdAndIdIn(ordersItem.getItem().getId(), itemOptionList);
-                itemOptionMap.put(ordersItem.getAddDate(), findItemOptionList);
-            }
         }
         model.addAttribute("storeId", storeId);
         model.addAttribute("reviewList", reviewList);
         model.addAttribute("storeReviewMap", storeReviewMap);
         model.addAttribute("accountMap", accountMap);
-        model.addAttribute("itemMap", itemMap);
-        model.addAttribute("ordersItemMap", ordersItemMap);
-        model.addAttribute("itemOptionMap", itemOptionMap);
 
         return "store/review";
+    }
+
+    @GetMapping({"/api/{storeId}/review"})
+    @ResponseBody
+    public StoreReviewApiDto api_store_review(@PathVariable Long storeId, @PageableDefault Pageable pageable, Model model) {
+        Page<Review> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeId, pageable);
+        List<Review> reviewList = findReviews.getContent();
+        List<String> regDateList = new ArrayList<>();
+        Map<LocalDateTime, StoreAccountReviewDto> accountReviewMap = new HashMap<>();
+        Map<LocalDateTime, String> accountNicknameMap = new HashMap<>();
+        Map<LocalDateTime, String> accountThumbnailMap = new HashMap<>();
+        Map<LocalDateTime, String> storeReviewContentMap = new HashMap<>();
+
+        for (Review review : reviewList) {
+            // List<LocalDateTime> 타입으로 Jackson을 이용해 json으로 변환하면 LocalDateTime포맷으로 변환함
+            // -> 맨 뒤 의미없는 0이 사라짐, 하지만 Map의 Key로 LocalDateTime을 주면 String형으로 변환되므로 실제 뷰페이지에서 키값이 다름
+            // 결국 같은 키이지만 변환되는 타입이 다르기때문에 뷰페이지에서 undifined나옴. -> 그냥 String으로 변환해서 쓰면 문제없음
+            regDateList.add(review.getRegDate().toString());
+            accountReviewMap.put(review.getRegDate(), new StoreAccountReviewDto(review.getStarPoint(), review.getContent()));
+            accountNicknameMap.put(review.getRegDate(), review.getAccount().getNickname());
+            accountThumbnailMap.put(review.getRegDate(), review.getAccount().getThumbnail());
+            if(review.getStoreReview() != null) {
+                storeReviewContentMap.put(review.getRegDate(), review.getStoreReview().getContent());
+            }
+        }
+
+        StoreReviewApiDto storeReviewApiDto =
+                new StoreReviewApiDto(regDateList, accountReviewMap, accountNicknameMap, accountThumbnailMap, storeReviewContentMap, findReviews.isLast());
+        return storeReviewApiDto;
     }
 
 }

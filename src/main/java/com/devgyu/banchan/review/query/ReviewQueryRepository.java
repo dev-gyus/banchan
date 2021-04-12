@@ -10,5 +10,5 @@ public interface ReviewQueryRepository {
 
     public Page<Review> findAccountOrdersOrderItemItemStoreByStoreId(Long storeId, Pageable pageable);
 
-    Page<Review> findStoreReviewAccountOrdersOrderItemItemStoreByAccountId(Long id, Pageable pageable);
+    Page<Review> findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(Long id, Pageable pageable);
 }

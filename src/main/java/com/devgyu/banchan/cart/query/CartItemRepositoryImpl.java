@@ -1,14 +1,7 @@
 package com.devgyu.banchan.cart.query;
 
-import com.devgyu.banchan.account.QAccount;
 import com.devgyu.banchan.cart.CartItem;
-import com.devgyu.banchan.cart.QCart;
-import com.devgyu.banchan.cart.QCartItem;
-import com.devgyu.banchan.items.QItem;
-import com.devgyu.banchan.items.QItemOption;
-import com.devgyu.banchan.modules.storeowner.QStoreOwner;
 import com.querydsl.core.QueryResults;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

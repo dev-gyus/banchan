@@ -1,9 +1,7 @@
 package com.devgyu.banchan.ordersitem.query;
 
-import com.devgyu.banchan.account.QAccount;
 import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
 import java.util.List;

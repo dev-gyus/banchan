@@ -1,16 +1,7 @@
 package com.devgyu.banchan.modules.rider.query;
 
-import com.devgyu.banchan.account.QAccount;
-import com.devgyu.banchan.items.QItem;
-import com.devgyu.banchan.modules.rider.QRider;
-import com.devgyu.banchan.modules.rider.QRiderOrders;
-import com.devgyu.banchan.modules.rider.Rider;
 import com.devgyu.banchan.modules.rider.RiderOrders;
-import com.devgyu.banchan.modules.storeowner.QStoreOwner;
 import com.devgyu.banchan.orders.OrderStatus;
-import com.devgyu.banchan.orders.Orders;
-import com.devgyu.banchan.orders.QOrders;
-import com.devgyu.banchan.ordersitem.QOrdersItem;
 import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;

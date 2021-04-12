@@ -31,7 +31,7 @@ public class ItemRepositoryImpl implements ItemQueryRepository{
         return queryFactory
                 .selectFrom(item)
                 .join(item.category, category).fetchJoin()
-                .join(item.storeOwner, storeOwner)
+                .join(item.storeOwner, storeOwner).fetchJoin()
                 .where(category.name.eq(categoryName).and(storeOwner.id.eq(storeId)))
                 .fetch();
     }

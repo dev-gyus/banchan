@@ -1,17 +1,39 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragments :: commonHead"></head>
-<head>
-    <script type="text/javascript"
-            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9592e762541282dc4f2596f4108d38d9&libraries=services"></script>
-</head>
 
 <body>
 <div th:replace="fragments :: commonNav">공통네비</div>
 
-<div class="container-sm bg-light p-0 pb-5">
+<div class="container-sm bg-light pb-5">
+    <div class="row justify-content-center" th:if="${rider != null}">
+        <div class="col-sm-12">
+            <div th:replace="rider/rider-fragments :: riderPageNav('배달할주문')"></div>
+        </div>
+        <div class="col-sm-12 fs-2">
+            <div th:replace="rider/rider-fragments :: riderOrderNav (${orderStatus})"></div>
+        </div>
+        <div class="col-sm-12">
+            <div class="text-center" style="font-size: 40px">배달할 주문</div>
+            <hr>
+        </div>
+        <div class="col-sm-12 text-center">
+            <div th:replace="rider/rider-fragments :: riderAuthDiv"></div>
+        </div>
+        <div class="col-sm-12 text-center">
+            <div style="font-size: 50px">앗!..</div>
+        </div>
+        <div class="col-sm-12 text-center fs-2">
+            <span>현재</span>
+            <span th:text="${rider.nickname}">???</span>
+            <span>님은 관리자 승인 대기중입니다.</span>
+            <div>조금만 기다려주시면 곧 정상 이용이 가능하실거에요!</div>
+            <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
+            <hr>
+        </div>
+    </div>
 
-    <div class="row justify-content-center">
+    <div class="row justify-content-center" th:if="${rider == null}">
         <div class="col-sm-12">
             <div th:replace="rider/rider-fragments :: riderPageNav('배달할주문')"></div>
         </div>
@@ -34,7 +56,7 @@
                     <th scope="col" class="col-sm-3">버튼</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="orderListTbody">
                 <tr th:each="order : ${orderList}">
                     <td th:id="${order.id + 'storename'}" th:text="${storeMap.get(order.id).nickname}"></td>
                     <td th:id="${order.id} + 'storetd'">
@@ -53,6 +75,99 @@
                 </tr>
                 </tbody>
             </table>
+            <script>
+                let nowPage = 1;
+                let ajaxReady = true;
+                let isLast = false;
+                let orderListTbody = document.getElementById('orderListTbody');
+
+                $(document).ready(function () {
+                    $(document).scroll(function () {
+                        var maxHeight = $(document).height();
+                        var currentScroll = $(window).scrollTop() + $(window).height();
+
+                        if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+                            ajaxReady = false;
+                            $.ajax({
+                                url: '/rider/api/order-list?page=' + nowPage,
+                                type: 'get',
+                                dataType: 'json',
+                                success: function (result) {
+                                    ajaxReady = false;
+                                    isLast = result.last;
+
+                                    let orderIdList = result.orderIdList;
+                                    let storeNicknameMap = result.storeNicknameMap;
+                                    let storeAddressMap = result.storeAddressMap;
+
+                                    for (let orderId of orderIdList) {
+                                        let storeNickname = storeNicknameMap[orderId];
+                                        let road = storeAddressMap[orderId].road;
+                                        let detail = storeAddressMap[orderId].detail;
+
+                                        let orderTr = document.createElement('tr');
+                                        let storeNicknameTd = document.createElement('td');
+                                        storeNicknameTd.id = orderId + 'storename';
+                                        storeNicknameTd.innerText = storeNickname;
+                                        orderTr.appendChild(storeNicknameTd);
+
+                                        let storeAddressTd = document.createElement('td');
+                                        storeAddressTd.id = orderId + 'storetd';
+
+                                        let roadSpan = document.createElement('span');
+                                        roadSpan.id = orderId + 'store-road';
+                                        roadSpan.innerText = road;
+                                        storeAddressTd.appendChild(roadSpan);
+
+                                        let detailSpan = document.createElement('span');
+                                        detailSpan.innerText = detail;
+                                        storeAddressTd.appendChild(detailSpan);
+                                        let br = document.createElement('br');
+                                        storeAddressTd.appendChild(br);
+
+                                        let mapSpan = document.createElement('span');
+                                        mapSpan.id = orderId;
+                                        mapSpan.className = 'position-relative link-primary';
+                                        mapSpan.addEventListener('click', function(){makeMap(this);});
+
+                                        let mapLink = document.createElement('a');
+                                        mapLink.href = '#';
+                                        mapLink.className = 'stretched-link';
+                                        mapLink.setAttribute('onclick', 'return false');
+                                        mapSpan.appendChild(mapLink);
+
+                                        let mapIcon = document.createElement('i');
+                                        mapIcon.className = 'fas fa-map-marked-alt';
+                                        mapSpan.appendChild(mapIcon);
+                                        storeAddressTd.appendChild(mapSpan);
+                                        orderTr.appendChild(storeAddressTd);
+
+                                        let formTd = document.createElement('td');
+                                        let form = document.createElement('form');
+                                        form.action = '/rider/order-accept/' + orderId + '?_csrf=' + '[[${_csrf.token}]]';
+                                        form.method = 'post';
+                                        form.className = 'd-grid';
+
+                                        let submitButton = document.createElement('button');
+                                        submitButton.type = 'submit';
+                                        submitButton.className = 'btn btn-outline-success fs-4';
+                                        submitButton.innerText = '배달시작';
+                                        form.appendChild(submitButton);
+                                        formTd.appendChild(form);
+                                        orderTr.appendChild(formTd);
+                                        orderListTbody.appendChild(orderTr);
+                                    }
+                                    nowPage++;
+                                    ajaxReady = true;
+                                },
+                                error: function () {
+                                    alert('주문 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                                }
+                            });
+                        }
+                    });
+                });
+            </script>
             <script th:replace="rider/rider-fragments :: riderMapJs"></script>
         </div>
     </div>

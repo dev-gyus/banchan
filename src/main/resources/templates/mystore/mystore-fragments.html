@@ -78,4 +78,367 @@
         }
     }
 </script>
+
+<script th:fragment="waitingOrderScrolling">
+    // 무한 스크롤링
+    let ajaxReady = true;
+    let nowPage = 1;
+    let isLast = false;
+    let orderListDiv = document.getElementById('orderListDiv');
+    let orderStatus = '[[${orderStatus}]]';
+    let token = $('meta[name="_csrf"]').attr('content');
+
+    $(document).ready(function () {
+        $(document).scroll(function () {
+            var maxHeight = $(document).height();
+            var currentScroll = $(window).scrollTop() + $(window).height();
+
+            if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+                ajaxReady = false;
+                $.ajax({
+                    url: '/orders/api/' + orderStatus + '?page=' + nowPage,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        ajaxReady = false;
+                        isLast = result.last;
+                        let mystoreOrdersDtoList = result.mystoreOrdersDtoList;
+                        let mystoreAccountDtoMap = result.mystoreAccountDtoMap;
+                        let mystoreOrderItemDtoMap = result.mystoreOrderItemDtoMap;
+                        let mystoreItemOptionDtoMap = result.mystoreItemOptionDtoMap;
+                        console.log(mystoreOrdersDtoList);
+                        console.log(mystoreAccountDtoMap);
+                        console.log(mystoreOrderItemDtoMap);
+                        console.log(mystoreItemOptionDtoMap);
+                        for (let mystoreOrdersDto of mystoreOrdersDtoList) {
+                            let orderId = mystoreOrdersDto.id;
+                            let totalPrice = mystoreOrdersDto.totalPrice;
+                            let orderContainerDiv = document.createElement('div');
+                            orderContainerDiv.className = 'col-sm-12 text-center';
+                            let orderRowDiv = document.createElement('div');
+                            orderRowDiv.className = 'row g-1 justify-content-center';
+
+                            let accountNicknameDiv = document.createElement('div');
+                            accountNicknameDiv.className = 'col-sm-12 fs-4';
+                            accountNicknameDiv.innerText = '주문자: ' + mystoreAccountDtoMap[orderId].nickname;
+                            orderRowDiv.appendChild(accountNicknameDiv);
+
+                            let firstDeliveryDiv = document.createElement('div');
+                            firstDeliveryDiv.className = 'col-sm-12 fs-4';
+                            firstDeliveryDiv.innerText = '-배송지-';
+                            orderRowDiv.appendChild(firstDeliveryDiv);
+
+                            let secondDeliveryDiv = document.createElement('div');
+                            secondDeliveryDiv.className = 'col-sm-12 fs-4';
+                            secondDeliveryDiv.innerText = mystoreAccountDtoMap[orderId].road;
+                            orderRowDiv.appendChild(secondDeliveryDiv);
+
+                            let thirdDeliverDiv = document.createElement('div');
+                            let mystoreAccountDto = mystoreAccountDtoMap[orderId];
+                            thirdDeliverDiv.className = 'col-sm-12 fs-4';
+                            if(mystoreAccountDto.extra != null) {
+                                thirdDeliverDiv.innerText =
+                                    mystoreAccountDto.detail + mystoreAccountDto.extra;
+                            }else{
+                                thirdDeliverDiv.innerText = mystoreAccountDto.detail;
+                            }
+                            orderRowDiv.appendChild(thirdDeliverDiv);
+
+                            let tableParentDiv = document.createElement('div');
+                            tableParentDiv.className = 'col-sm-12';
+                            let table = document.createElement('table');
+                            table.className = 'table table-hover g-1';
+                            let thead = document.createElement('thead');
+
+                            let theadTr = document.createElement('tr');
+
+                            let firstTh = document.createElement('th');
+                            let secondTh = document.createElement('th');
+                            let thirdTh = document.createElement('th');
+                            let fourthTh = document.createElement('th');
+                            firstTh.scope = 'col';
+                            firstTh.className = 'col-sm-4';
+                            firstTh.innerText = '상품명';
+                            theadTr.appendChild(firstTh);
+
+                            secondTh.scope = 'col';
+                            secondTh.className = 'col-sm-4';
+                            secondTh.innerText = '상품옵션';
+                            theadTr.appendChild(secondTh);
+
+                            thirdTh.scope = 'col';
+                            thirdTh.className = 'col-sm-2';
+                            thirdTh.innerText = '구매수량';
+                            theadTr.appendChild(thirdTh);
+
+                            fourthTh.scope = 'col';
+                            fourthTh.className = 'col-sm-2';
+                            fourthTh.innerText = '상품가격';
+                            theadTr.appendChild(fourthTh);
+                            thead.appendChild(theadTr);
+                            table.appendChild(thead);
+
+                            let tbody = document.createElement('tbody');
+                            let orderItemList = mystoreOrderItemDtoMap[orderId];
+                            let itemOptionList = mystoreItemOptionDtoMap[orderId];
+                            for (let orderItem of orderItemList) {
+                                let tbodyTr = document.createElement('tr');
+
+                                let firstTd = document.createElement('td');
+                                firstTd.className = 'align-middle';
+                                let itemNameSpan = document.createElement('span');
+                                itemNameSpan.innerText = orderItem.itemName;
+                                firstTd.appendChild(itemNameSpan);
+                                let itemPriceSpan = document.createElement('span');
+                                itemPriceSpan.innerText = orderItem.itemPrice;
+                                firstTd.appendChild(itemPriceSpan);
+                                tbodyTr.appendChild(firstTd);
+
+                                let secondTd = document.createElement('td');
+                                secondTd.className = 'align-middle';
+                                if(itemOptionList == null){
+                                    secondTd.innerText = '-';
+                                }else{
+                                    for (let itemOption of itemOptionList) {
+                                        let itemOptionDiv = document.createElement('div');
+                                        itemOptionDiv.className = 'align-self-center';
+                                        let itemOptionNameSpan = document.createElement('span');
+                                        itemOptionNameSpan.innerText = itemOption.name + ': ';
+                                        secondTd.appendChild(itemOptionNameSpan);
+                                        let itemOptionPrice = document.createElement('span');
+                                        itemOptionPrice.innerText = '+' + itemOption.price + '₩';
+                                        secondTd.appendChild(itemOptionPrice);
+                                    }
+                                }
+                                tbodyTr.appendChild(secondTd);
+
+                                let thirdTd = document.createElement('td');
+                                thirdTd.className = 'align-middle';
+                                thirdTd.innerText = orderItem.count;
+                                tbodyTr.appendChild(thirdTd);
+
+                                let fourthTd = document.createElement('td');
+                                fourthTd.className = 'align-middle';
+                                fourthTd.innerText = orderItem.price;
+                                tbodyTr.appendChild(fourthTd);
+
+                                tbody.appendChild(tbodyTr);
+                            }
+                            table.appendChild(tbody);
+                            tableParentDiv.appendChild(table);
+                            orderRowDiv.appendChild(tableParentDiv);
+
+
+                            let orderAcceptRejectDiv = document.createElement('div');
+                            orderAcceptRejectDiv.className = 'col-sm-7';
+                            let acceptDiv = document.createElement('div');
+                            acceptDiv.className = 'mb-3';
+                            let acceptForm = document.createElement('form');
+                            acceptForm.action = '/orders/' + orderId + '/accept?_csrf=' + token;
+                            acceptForm.className = 'd-grid';
+                            acceptForm.method = 'post';
+                            let acceptButton = document.createElement('button');
+                            acceptButton.type = 'submit';
+                            acceptButton.className = 'btn btn-outline-success fs-4';
+                            acceptButton.innerHTML = '주문수락';
+                            acceptForm.appendChild(acceptButton);
+                            acceptDiv.appendChild(acceptForm);
+                            orderAcceptRejectDiv.appendChild(acceptDiv);
+
+                            let rejectDiv = document.createElement('div');
+                            acceptDiv.className = 'mb-3';
+                            let rejectForm = document.createElement('form');
+                            rejectForm.action = '/orders/' + orderId + '/reject?_csrf=' + token;
+                            rejectForm.className = 'd-grid';
+                            rejectForm.method = 'post';
+                            let rejectButton = document.createElement('button');
+                            rejectButton.type = 'submit';
+                            rejectButton.className = 'btn btn-outline-danger fs-4';
+                            rejectButton.innerHTML = '주문거절';
+                            rejectForm.appendChild(rejectButton);
+                            rejectDiv.appendChild(rejectForm);
+                            orderAcceptRejectDiv.appendChild(rejectDiv);
+                            orderRowDiv.appendChild(orderAcceptRejectDiv);
+
+                            let mainhr = document.createElement('hr');
+                            orderRowDiv.appendChild(mainhr);
+                            orderContainerDiv.appendChild(orderRowDiv);
+                            orderListDiv.appendChild(orderContainerDiv);
+                        }
+
+                        nowPage++;
+                        ajaxReady = true;
+                    },
+                    error: function () {
+                        alert('주문 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<script th:fragment="notWaitingOrderScrolling(orderStatus)">
+    // 무한 스크롤링
+    let ajaxReady = true;
+    let nowPage = 1;
+    let isLast = false;
+    let orderListDiv = document.getElementById('orderListDiv');
+    let orderStatus = '[[${orderStatus}]]';
+    let token = $('meta[name="_csrf"]').attr('content');
+
+    $(document).ready(function () {
+        $(document).scroll(function () {
+            var maxHeight = $(document).height();
+            var currentScroll = $(window).scrollTop() + $(window).height();
+
+            if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+                ajaxReady = false;
+                $.ajax({
+                    url: '/orders/api/' + orderStatus + '?page=' + nowPage,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        ajaxReady = false;
+                        isLast = result.last;
+                        let mystoreOrdersDtoList = result.mystoreOrdersDtoList;
+                        let mystoreAccountDtoMap = result.mystoreAccountDtoMap;
+                        let mystoreOrderItemDtoMap = result.mystoreOrderItemDtoMap;
+                        let mystoreItemOptionDtoMap = result.mystoreItemOptionDtoMap;
+                        console.log(mystoreOrdersDtoList);
+                        console.log(mystoreAccountDtoMap);
+                        console.log(mystoreOrderItemDtoMap);
+                        console.log(mystoreItemOptionDtoMap);
+                        for (let mystoreOrdersDto of mystoreOrdersDtoList) {
+                            let orderId = mystoreOrdersDto.id;
+                            let totalPrice = mystoreOrdersDto.totalPrice;
+                            let orderContainerDiv = document.createElement('div');
+                            orderContainerDiv.className = 'col-sm-12 text-center';
+                            let orderRowDiv = document.createElement('div');
+                            orderRowDiv.className = 'row g-1 justify-content-center';
+
+                            let accountNicknameDiv = document.createElement('div');
+                            accountNicknameDiv.className = 'col-sm-12 fs-4';
+                            accountNicknameDiv.innerText = '주문자: ' + mystoreAccountDtoMap[orderId].nickname;
+                            orderRowDiv.appendChild(accountNicknameDiv);
+
+                            let firstDeliveryDiv = document.createElement('div');
+                            firstDeliveryDiv.className = 'col-sm-12 fs-4';
+                            firstDeliveryDiv.innerText = '-배송지-';
+                            orderRowDiv.appendChild(firstDeliveryDiv);
+
+                            let secondDeliveryDiv = document.createElement('div');
+                            secondDeliveryDiv.className = 'col-sm-12 fs-4';
+                            secondDeliveryDiv.innerText = mystoreAccountDtoMap[orderId].road;
+                            orderRowDiv.appendChild(secondDeliveryDiv);
+
+                            let thirdDeliverDiv = document.createElement('div');
+                            let mystoreAccountDto = mystoreAccountDtoMap[orderId];
+                            thirdDeliverDiv.className = 'col-sm-12 fs-4';
+                            if(mystoreAccountDto.extra != null) {
+                                thirdDeliverDiv.innerText =
+                                    mystoreAccountDto.detail + mystoreAccountDto.extra;
+                            }else{
+                                thirdDeliverDiv.innerText = mystoreAccountDto.detail;
+                            }
+                            orderRowDiv.appendChild(thirdDeliverDiv);
+
+                            let tableParentDiv = document.createElement('div');
+                            tableParentDiv.className = 'col-sm-12';
+                            let table = document.createElement('table');
+                            table.className = 'table table-hover g-1';
+                            let thead = document.createElement('thead');
+
+                            let theadTr = document.createElement('tr');
+
+                            let firstTh = document.createElement('th');
+                            let secondTh = document.createElement('th');
+                            let thirdTh = document.createElement('th');
+                            let fourthTh = document.createElement('th');
+                            firstTh.scope = 'col';
+                            firstTh.className = 'col-sm-4';
+                            firstTh.innerText = '상품명';
+                            theadTr.appendChild(firstTh);
+
+                            secondTh.scope = 'col';
+                            secondTh.className = 'col-sm-4';
+                            secondTh.innerText = '상품옵션';
+                            theadTr.appendChild(secondTh);
+
+                            thirdTh.scope = 'col';
+                            thirdTh.className = 'col-sm-2';
+                            thirdTh.innerText = '구매수량';
+                            theadTr.appendChild(thirdTh);
+
+                            fourthTh.scope = 'col';
+                            fourthTh.className = 'col-sm-2';
+                            fourthTh.innerText = '상품가격';
+                            theadTr.appendChild(fourthTh);
+                            thead.appendChild(theadTr);
+                            table.appendChild(thead);
+
+                            let tbody = document.createElement('tbody');
+                            let orderItemList = mystoreOrderItemDtoMap[orderId];
+                            let itemOptionList = mystoreItemOptionDtoMap[orderId];
+                            for (let orderItem of orderItemList) {
+                                let tbodyTr = document.createElement('tr');
+
+                                let firstTd = document.createElement('td');
+                                firstTd.className = 'align-middle';
+                                let itemNameSpan = document.createElement('span');
+                                itemNameSpan.innerText = orderItem.itemName;
+                                firstTd.appendChild(itemNameSpan);
+                                let itemPriceSpan = document.createElement('span');
+                                itemPriceSpan.innerText = orderItem.itemPrice;
+                                firstTd.appendChild(itemPriceSpan);
+                                tbodyTr.appendChild(firstTd);
+
+                                let secondTd = document.createElement('td');
+                                secondTd.className = 'align-middle';
+                                if(itemOptionList == null){
+                                    secondTd.innerText = '-';
+                                }else{
+                                    for (let itemOption of itemOptionList) {
+                                        let itemOptionDiv = document.createElement('div');
+                                        itemOptionDiv.className = 'align-self-center';
+                                        let itemOptionNameSpan = document.createElement('span');
+                                        itemOptionNameSpan.innerText = itemOption.name + ': ';
+                                        secondTd.appendChild(itemOptionNameSpan);
+                                        let itemOptionPrice = document.createElement('span');
+                                        itemOptionPrice.innerText = '+' + itemOption.price + '₩';
+                                        secondTd.appendChild(itemOptionPrice);
+                                    }
+                                }
+                                tbodyTr.appendChild(secondTd);
+
+                                let thirdTd = document.createElement('td');
+                                thirdTd.className = 'align-middle';
+                                thirdTd.innerText = orderItem.count;
+                                tbodyTr.appendChild(thirdTd);
+
+                                let fourthTd = document.createElement('td');
+                                fourthTd.className = 'align-middle';
+                                fourthTd.innerText = orderItem.price;
+                                tbodyTr.appendChild(fourthTd);
+
+                                tbody.appendChild(tbodyTr);
+                            }
+                            table.appendChild(tbody);
+                            tableParentDiv.appendChild(table);
+                            orderRowDiv.appendChild(tableParentDiv);
+                            orderContainerDiv.appendChild(orderRowDiv);
+                            orderListDiv.appendChild(orderContainerDiv);
+                        }
+
+                        nowPage++;
+                        ajaxReady = true;
+                    },
+                    error: function () {
+                        alert('주문 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                    }
+                });
+            }
+        });
+    });
+</script>
 </html>

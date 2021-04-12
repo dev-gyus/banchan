@@ -18,8 +18,8 @@ public class Cart {
     @Column(name = "cart_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "cart")
+    @JsonIgnore
     private Account account;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)

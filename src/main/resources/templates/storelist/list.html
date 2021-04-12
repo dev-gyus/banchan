@@ -37,9 +37,9 @@
             <button type="button" class="btn btn-outline-success fs-3" onclick="history.back()">이전화면</button>
         </div>
 
-        <div class="col-sm-12 position-relative" th:each="store : ${storeList}">
-            <hr>
-            <div class="row g-3 mt-2 fs-1">
+        <div id="storeListDiv" class="col-sm-12 position-relative">
+            <div class="row g-3 mt-2 fs-1 text-center" th:each="store : ${storeList}">
+                <hr>
                 <div th:if="${store.managerAuthenticated}" class="col-sm-3 text-center">
                     <div th:replace="fragments :: accountThumbnail (${store}, 150, false)"></div>
                 </div>
@@ -62,6 +62,6 @@
         </div>
     </div>
 </div>
-</div>
+<script th:replace="storelist/store-list-fragments :: storeListScrollingJs"></script>
 </body>
 </html>

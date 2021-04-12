@@ -2,6 +2,7 @@ package com.devgyu.banchan.orders;
 
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.AccountRepository;
+import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.CurrentUser;
 import com.devgyu.banchan.account.customer.Customer;
 import com.devgyu.banchan.cart.CartItem;
@@ -9,6 +10,7 @@ import com.devgyu.banchan.cart.CartItemRepository;
 import com.devgyu.banchan.items.*;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.storeowner.StoreOwnerRepository;
+import com.devgyu.banchan.mystore.*;
 import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.devgyu.banchan.ordersitem.OrdersItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class OrdersController {
     private final OrdersRepository ordersRepository;
     private final OrdersItemRepository ordersItemRepository;
     private final StoreOwnerRepository storeOwnerRepository;
+
     @GetMapping({"", "/"})
     public String orders_main(@CurrentUser Account account, @PageableDefault Pageable pageable, Model model) {
         // 현재 주문내역 가져오기 ( 쿼리 2 + 카운트쿼리 2 + item의 option선택한 order의 갯수(최대 order페이징수만큼 ))
@@ -82,7 +85,7 @@ public class OrdersController {
                 // Order를 조회하는 이유 = 여러개의 Order를 페이징 처리해서 가져오기위함
                 List<OrdersItem> findOrdersItem = ordersItemRepository.findItemOptionFetchByIdIn(ordersItemIdList);
                 findOrdersItem.forEach(oi -> itemOptionMap.put(oi.getId(), oi.getItemOptionList()));
-            }else{
+            } else {
                 // 하나의 주문은 하나의 가게에서만 할수있음
                 // 따라서 주문 상품목록의 상품들의 가게는 어떤걸 가져와도 똑같음
                 storeOwnerMap.put(orders.getId(), orders.getOrdersItemList().get(0).getItem().getStoreOwner());
@@ -114,38 +117,38 @@ public class OrdersController {
     }
 
     @PostMapping("/cart-order")
-    public String cart_order(@CurrentUser Account account){
+    public String cart_order(@CurrentUser Account account) {
         ordersService.addCartOrder(account.getId());
         return "redirect:/orders";
     }
 
     @PostMapping("/{orderId}/cancel")
-    public String order_cancel(@PathVariable Long orderId){
+    public String order_cancel(@PathVariable Long orderId) {
         ordersService.cancelOrder(orderId);
         return "redirect:/orders";
     }
 
     @GetMapping("/order-list/{orderStatus}")
     public String order_list(@CurrentUser StoreOwner storeOwner, @PathVariable String orderStatus,
-                             @PageableDefault Pageable pageable,Model model){
+                             @PageableDefault Pageable pageable, Model model) {
         Page<Orders> orders;
         StoreOwner findStoreOwner;
-        if(orderStatus.equals("waiting")) {
+        if (orderStatus.equals("waiting")) {
             orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
                     pageable, OrderStatus.WAITING, null, null);
-        }else if(orderStatus.equals("ready")){
+        } else if (orderStatus.equals("ready")) {
             orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
                     pageable, OrderStatus.READY, null, null);
-        }else if(orderStatus.equals("delivery")){
+        } else if (orderStatus.equals("delivery")) {
             orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
                     pageable, OrderStatus.DELIVERY_START, null, null);
-        }else if(orderStatus.equals("completed")){
+        } else if (orderStatus.equals("completed")) {
             orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
                     pageable, OrderStatus.COMPLETED, null, null);
-        }else{
+        } else {
             throw new IllegalArgumentException("잘못된 요청입니다.");
         }
-        if(!orders.isEmpty()) {
+        if (!orders.isEmpty()) {
             List<Orders> orderList = orders.getContent();
             Map<Long, Account> orderAccountMap = new HashMap<>();
             Map<Long, List<OrdersItem>> ordersItemMap = new HashMap<>();
@@ -157,7 +160,7 @@ public class OrdersController {
                 orderAccountMap.put(findOrders.getId(), findOrders.getAccount());
                 for (OrdersItem ordersItem : ordersItemList) {
                     itemMap.put(ordersItem.getAddDate(), ordersItem.getItem());
-                        itemOptionMap.put(ordersItem.getAddDate(), ordersItem.getItemOptionList());
+                    itemOptionMap.put(ordersItem.getAddDate(), ordersItem.getItemOptionList());
                 }
             }
             // 주문 가져올때 특정 가게의 Id를 갖고 가져왔고, 하나의 주문은 모두 같은 가게의 상품만 주문 가능하기 때문에 어떤 주문의 아이템을 가져오더라도 같은 가게를 추출함
@@ -170,21 +173,73 @@ public class OrdersController {
             model.addAttribute("itemMap", itemMap);
             model.addAttribute("itemOptionMap", itemOptionMap);
             model.addAttribute("orderStatus", orderStatus);
-        }else{
+        } else {
             findStoreOwner = storeOwnerRepository.findById(storeOwner.getId()).get();
         }
         model.addAttribute("storeOwner", findStoreOwner);
 
         return "mystore/order-list";
     }
+
+    @GetMapping("/api/{orderStatus}")
+    @ResponseBody
+    public MystoreApiDto order_list_api(@CurrentUser StoreOwner storeOwner, @PathVariable String orderStatus,
+                                        @PageableDefault Pageable pageable) {
+        Page<Orders> orders;
+        MystoreApiDto mystoreApiDto;
+
+        if (orderStatus.equals("waiting")) {
+            orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
+                    pageable, OrderStatus.WAITING, null, null);
+        } else if (orderStatus.equals("ready")) {
+            orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
+                    pageable, OrderStatus.READY, null, null);
+        } else if (orderStatus.equals("delivery")) {
+            orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
+                    pageable, OrderStatus.DELIVERY_START, null, null);
+        } else if (orderStatus.equals("completed")) {
+            orders = ordersRepository.findAccountItemFetchByStoreIdAndStatus(storeOwner.getId(),
+                    pageable, OrderStatus.COMPLETED, null, null);
+        } else {
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        List<Orders> orderList = orders.getContent();
+        List<MystoreOrdersDto> mystoreOrdersDtoList = orderList.stream().map(o -> new MystoreOrdersDto(o.getId(), o.getTotalPrice())).collect(Collectors.toList());
+        Map<Long, MystoreAccountDto> mystoreAccountDtoMap = new HashMap<>();
+        Map<Long, List<MystoreOrderItemDto>> mystoreOrderItemDtoMap = new HashMap<>();
+        Map<LocalDateTime, List<MystoreItemOptionDto>> MystoreItemOptionDtoMap = new HashMap<>(); // 동일한 아이템옵션 Key 중복방지
+        for (Orders findOrders : orderList) {
+            List<OrdersItem> ordersItemList = findOrders.getOrdersItemList();
+
+            List<MystoreOrderItemDto> mystoreOrderItemDtoList = ordersItemList
+                    .stream().map(oi -> new MystoreOrderItemDto(oi.getAddDate(), oi.getItem().getName(), oi.getItem().getPrice(), oi.getCount(), oi.getPrice())).collect(Collectors.toList());
+            mystoreOrderItemDtoMap.put(findOrders.getId(), mystoreOrderItemDtoList);
+
+            Address accountAddress = findOrders.getAccount().getAddress();
+            MystoreAccountDto mystoreAccountDto = new MystoreAccountDto(accountAddress.getJibun(), accountAddress.getRoad(), accountAddress.getDetail()
+                    , accountAddress.getExtra(), findOrders.getAccount().getNickname());
+            mystoreAccountDtoMap.put(findOrders.getId(), mystoreAccountDto);
+            for (OrdersItem ordersItem : ordersItemList) {
+                List<MystoreItemOptionDto> mystoreItemOptionDtoList = ordersItem.getItemOptionList()
+                        .stream().map(io -> new MystoreItemOptionDto(io.getName(), io.getPrice())).collect(Collectors.toList());
+                MystoreItemOptionDtoMap.put(ordersItem.getAddDate(), mystoreItemOptionDtoList);
+            }
+        }
+        // 주문 가져올때 특정 가게의 Id를 갖고 가져왔고, 하나의 주문은 모두 같은 가게의 상품만 주문 가능하기 때문에 어떤 주문의 아이템을 가져오더라도 같은 가게를 추출함
+        mystoreApiDto = new MystoreApiDto(mystoreOrdersDtoList, mystoreAccountDtoMap, mystoreOrderItemDtoMap, MystoreItemOptionDtoMap, orders.isLast());
+
+        return mystoreApiDto;
+    }
+
     @PostMapping("/{ordersId}/accept")
-    public String orders_accept(@PathVariable Long ordersId){
+    public String orders_accept(@PathVariable Long ordersId) {
         ordersService.acceptOrder(ordersId);
         return "redirect:/orders/order-list/waiting";
     }
 
     @PostMapping("/{ordersId}/reject")
-    public String orders_reject(@PathVariable Long ordersId){
+    public String orders_reject(@PathVariable Long ordersId) {
         ordersService.rejectOrder(ordersId);
         return "redirect:/orders/order-list/waiting";
     }

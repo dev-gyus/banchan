@@ -2,6 +2,8 @@ package com.devgyu.banchan.config;
 
 import com.devgyu.banchan.account.AccountService;
 import com.devgyu.banchan.account.LoginService;
+import com.devgyu.banchan.config.handler.AccountLoginFailureHandler;
+import com.devgyu.banchan.config.handler.AccountLoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +27,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final LoginService loginService;
     private final DataSource dataSource;
     private final PasswordEncoder passwordEncoder;
+    private final AccountLoginSuccessHandler accountLoginSuccessHandler;
+    private final AccountLoginFailureHandler accountLoginFailureHandler;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
@@ -48,7 +53,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .usernameParameter("email")
                 .passwordParameter("password")
                 .loginProcessingUrl("/login")
-                .loginPage("/login");
+                .loginPage("/login")
+                .successHandler(accountLoginSuccessHandler)
+                .failureHandler(accountLoginFailureHandler);
 
         http
                 .logout()

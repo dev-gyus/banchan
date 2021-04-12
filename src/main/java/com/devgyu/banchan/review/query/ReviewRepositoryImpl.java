@@ -1,10 +1,5 @@
 package com.devgyu.banchan.review.query;
 
-import com.devgyu.banchan.account.QAccount;
-import com.devgyu.banchan.items.QItem;
-import com.devgyu.banchan.modules.storeowner.QStoreOwner;
-import com.devgyu.banchan.orders.QOrders;
-import com.devgyu.banchan.ordersitem.QOrdersItem;
 import com.devgyu.banchan.review.QReview;
 import com.devgyu.banchan.review.Review;
 import com.querydsl.core.QueryResults;
@@ -14,7 +9,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
-import java.util.List;
 
 import static com.devgyu.banchan.account.QAccount.account;
 import static com.devgyu.banchan.items.QItem.item;
@@ -33,11 +27,11 @@ public class ReviewRepositoryImpl implements ReviewQueryRepository{
     }
 
     @Override
-    public Page<Review> findStoreReviewAccountOrdersOrderItemItemStoreByAccountId(Long accountId, Pageable pageable){
+    public Page<Review> findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(Long accountId, Pageable pageable){
         QReview storeReview = new QReview("storeReview");
         QueryResults<Review> results = queryFactory
                 .selectFrom(review)
-                .join(review.storeReview, storeReview).fetchJoin()
+                .leftJoin(review.storeReview, storeReview).fetchJoin()
                 .join(review.account, account).fetchJoin()
                 .join(review.orders, orders).fetchJoin()
                 .join(orders.ordersItemList, ordersItem).fetchJoin()

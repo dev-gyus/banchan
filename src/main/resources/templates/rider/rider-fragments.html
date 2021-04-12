@@ -18,6 +18,13 @@
         <a class="nav-link border" th:href="@{/rider/order-list/completed}" th:classappend="${nowPage == 'completed'} ? 'active'">배달완료 주문</a>
     </nav>
 </div>
+
+<div th:fragment="riderAuthDiv">
+    <span class="fs-3 p-2" style="background-color: #dee2e6">관리자 승인 대기 중</span><br>
+    <small class="form-text fs-4">관리자 승인 대기중 상태에선 배달할 주문 확인이 불가하니 참고하시기 바랍니다.</small>
+    <hr>
+</div>
+
 <div th:fragment="riderMapJs">
     <script type="text/javascript"
             src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9592e762541282dc4f2596f4108d38d9&libraries=services"></script>
@@ -61,6 +68,10 @@
             };
 
             var map = new kakao.maps.Map(container, options); //지도 생성 및 객체 리턴
+
+            // 우측에 확대 슬라이드 바 생성
+            var zoomControl = new kakao.maps.ZoomControl();
+            map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
             // 주소-좌표 변환 객체를 생성합니다
             var geocoder = new kakao.maps.services.Geocoder();

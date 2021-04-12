@@ -2,7 +2,6 @@ package com.devgyu.banchan.config;
 
 import com.devgyu.banchan.AppProperties;
 import com.devgyu.banchan.interceptor.MypageInterceptor;
-import com.devgyu.banchan.interceptor.RiderAuthInterceptor;
 import com.devgyu.banchan.interceptor.ThumbnailInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +16,6 @@ public class WebConfig implements WebMvcConfigurer {
     private final AppProperties appProperties;
     private final ThumbnailInterceptor thumbnailInterceptor;
     private final MypageInterceptor mypageInterceptor;
-    private final RiderAuthInterceptor riderAuthInterceptor;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -37,7 +35,5 @@ public class WebConfig implements WebMvcConfigurer {
         .excludePathPatterns("/api/**");
         InterceptorRegistration ir2 = registry.addInterceptor(mypageInterceptor);
         ir2.addPathPatterns("/mypage/**");
-        InterceptorRegistration ir3 = registry.addInterceptor(riderAuthInterceptor);
-        ir3.addPathPatterns("/rider/order-list", "/rider/order-accept/**");
     }
 }

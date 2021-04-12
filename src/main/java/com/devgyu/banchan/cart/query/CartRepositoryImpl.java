@@ -1,8 +1,6 @@
 package com.devgyu.banchan.cart.query;
 
-import com.devgyu.banchan.account.QAccount;
 import com.devgyu.banchan.cart.Cart;
-import com.devgyu.banchan.cart.QCart;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import javax.persistence.EntityManager;

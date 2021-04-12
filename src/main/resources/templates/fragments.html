@@ -24,6 +24,11 @@
     <script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
     <link rel="stylesheet" href="/node_modules/summernote/dist/summernote-lite.min.css">
     <script src="/node_modules/summernote/dist/summernote-lite.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            jdenticon();
+        })
+    </script>
     <style>
         body {
             font-family: 'Jua', sans-serif;
@@ -316,6 +321,7 @@
 </script>
 
 <span th:fragment="accountThumbnail (accountObject, size, isRounded)">
+
     <svg th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:id="current-profile-image" th:if="${accountObject.thumbnail == null}"
          th:data-jdenticon-value="${accountObject.name}" th:width="${size}" th:height="${size}">
         Fallback text or image for browsers not supporting inline svg.
@@ -378,7 +384,6 @@
                 xhr.setRequestHeader(header, token);
             },
             success : function(url) {
-                console.log(url);
                 //항상 업로드된 파일의 url이 있어야 한다.
                 $(editor).summernote('insertImage', url);
             },
@@ -387,6 +392,254 @@
             }
         });
     }
+</script>
+
+<script th:fragment="normalReviewScrolling">
+    // 무한 스크롤링
+    let ajaxReady = true;
+    let nowPage = 1;
+    let isLast = false;
+    let reviewListDiv = document.getElementById('reviewListDiv');
+    let storeId = '[[${storeId}]]';
+
+    $(document).ready(function () {
+        $(document).scroll(function() {
+            var maxHeight = $(document).height();
+            var currentScroll = $(window).scrollTop() + $(window).height();
+
+            if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+                ajaxReady = false;
+                $.ajax({
+                    url: '/store/api/' + storeId + '/review?page=' + nowPage,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        let accountReviewMap = result.accountReviewMap;
+                        let regDateList = result.regDateList;
+                        let accountNicknameMap = result.accountNicknameMap;
+                        let accountThumbnailMap = result.accountThumbnailMap;
+                        let storeReviewMap = result.storeReviewMap;
+                        isLast = result.last;
+
+                        for (let regDate of regDateList) {
+                            let accountReview = accountReviewMap[regDate];
+                            let accountNickname = accountNicknameMap[regDate];
+                            let accountThumbnailName = accountThumbnailMap[regDate];
+                            let storeReview = storeReviewMap[regDate];
+                            let starPoint = accountReview.starPoint;
+
+                            let reviewParentDiv = document.createElement('div');
+                            reviewParentDiv.setAttribute('class', 'col-sm-12 fs-3 p-3 m-0 border');
+                            let reviewRowDiv = document.createElement('div')
+                            reviewRowDiv.setAttribute('class', 'row g-3 justify-content-center');
+
+                            let storeNameDiv = document.createElement('div');
+                            storeNameDiv.id = accountNickname;
+                            storeNameDiv.setAttribute('class', 'text-center');
+                            let storeThumbnail = document.createElement('img');
+                            storeThumbnail.src = accountThumbnailName;
+                            storeThumbnail.width = '70';
+                            storeNameDiv.appendChild(storeThumbnail);
+                            let storeNameSpan = document.createElement('span');
+                            storeNameSpan.innerText = '작성자: ' + accountNickname;
+                            storeNameDiv.appendChild(storeNameSpan);
+                            reviewRowDiv.appendChild(storeNameDiv);
+
+                            let starPointDiv = document.createElement('div');
+                            starPointDiv.setAttribute('class', 'col-sm-12');
+                            let starPointP = document.createElement('p');
+                            starPointP.id = 'star';
+                            starPointP.setAttribute('class', 'fs-2');
+
+                            // 별점
+                            for (let a = 1; a <= 5; a++) {
+                                let starPointSpan = document.createElement('span');
+
+                                if (a <= starPoint) {
+                                    starPointSpan.setAttribute('class', 'on');
+                                }
+
+                                starPointSpan.innerText = '★';
+                                starPointP.appendChild(starPointSpan);
+                            }
+                            starPointDiv.appendChild(starPointP);
+                            let hr = document.createElement('hr');
+                            starPointDiv.appendChild(hr);
+                            reviewRowDiv.appendChild(starPointDiv);
+
+                            let reviewContentDiv = document.createElement('div');
+                            reviewContentDiv.setAttribute('class', 'col-sm-12');
+                            reviewContentDiv.innerHTML = accountReview.content;
+                            reviewRowDiv.appendChild(reviewContentDiv);
+
+                            // 사장님리뷰
+                            let storeReviewContainerDiv = document.createElement('div');
+                            storeReviewContainerDiv.setAttribute('class', 'col-sm-6');
+                            let ownerIconDiv = document.createElement('div');
+                            ownerIconDiv.setAttribute('class', 'text-start');
+                            ownerIconDiv.style.backgroundColor = '#dee2e6';
+                            let ownerIcon = document.createElement('i');
+                            ownerIcon.setAttribute('class', 'fas fa-reply fa-rotate-180');
+                            ownerIconDiv.appendChild(ownerIcon);
+                            let ownerSpan = document.createElement('span');
+                            ownerSpan.innerText = '사장님 :';
+                            ownerIconDiv.appendChild(ownerSpan);
+                            storeReviewContainerDiv.appendChild(ownerIconDiv);
+
+                            if (storeReview != null) {
+                                // 가게답글있을때
+                                let ownerReviewDiv = document.createElement('div');
+                                ownerReviewDiv.style.backgroundColor = '#e9ecef';
+                                ownerReviewDiv.innerText = storeReview;
+                                storeReviewContainerDiv.appendChild(ownerReviewDiv);
+                                reviewRowDiv.appendChild(storeReviewContainerDiv);
+                            }
+                            reviewParentDiv.appendChild(reviewRowDiv);
+                            reviewListDiv.appendChild(reviewParentDiv);
+                        }
+                        nowPage++;
+                        ajaxReady = true;
+                    },
+                    error: function (){
+                        alert('가게 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<script th:fragment="myStoreScrolling">
+    // 무한 스크롤링
+    let ajaxReady = true;
+    let nowPage = 1;
+    let isLast = false;
+    let reviewListDiv = document.getElementById('reviewListDiv');
+
+    $(document).ready(function () {
+        $(document).scroll(function() {
+            var maxHeight = $(document).height();
+            var currentScroll = $(window).scrollTop() + $(window).height();
+
+            if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+                ajaxReady = false;
+                $.ajax({
+                    url: '/review/api?page=' + nowPage,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        let reviewList = result.reviewList;
+                        let storeNameMap = result.storeNameMap;
+                        let storeThumbnailMap = result.storeThumbnailMap;
+                        let storeReviewMap = result.storeReviewMap;
+                        isLast = result.last;
+
+                        for (let review of reviewList) {
+                            let reviewId = review.id;
+                            let storeName = storeNameMap[reviewId];
+                            let storeThumbnailName = storeThumbnailMap[reviewId];
+                            let storeReview = storeReviewMap[reviewId];
+                            let starPoint = review.starPoint;
+
+                            let reviewParentDiv = document.createElement('div');
+                            reviewParentDiv.setAttribute('class', 'col-sm-12 fs-3 p-3 m-0 border');
+                            let reviewRowDiv = document.createElement('div')
+                            reviewRowDiv.setAttribute('class', 'row g-3 justify-content-center');
+
+                            // 상호썸네일, 상호명
+                            let storeNameDiv = document.createElement('div');
+                            storeNameDiv.setAttribute('class', 'text-center');
+                            let storeThumbnail = document.createElement('img');
+                            storeThumbnail.src = storeThumbnailName;
+                            storeThumbnail.width = '70';
+                            storeNameDiv.appendChild(storeThumbnail);
+                            let storeNameSpan = document.createElement('span');
+                            storeNameSpan.innerText = '상호명: ' + storeName;
+                            storeNameDiv.appendChild(storeNameSpan);
+                            reviewRowDiv.appendChild(storeNameDiv);
+
+                            let starPointDiv = document.createElement('div');
+                            starPointDiv.setAttribute('class', 'col-sm-12');
+                            let starPointP = document.createElement('p');
+                            starPointP.id = 'star';
+                            starPointP.setAttribute('class', 'fs-2');
+
+                            // 별점
+                            for(let a=1; a <= 5; a++){
+                                let starPointSpan = document.createElement('span');
+
+                                if(a <= starPoint){
+                                    starPointSpan.setAttribute('class','on');
+                                }
+
+                                starPointSpan.innerText = '★';
+                                starPointP.appendChild(starPointSpan);
+                            }
+                            starPointDiv.appendChild(starPointP);
+                            let hr = document.createElement('hr');
+                            starPointDiv.appendChild(hr);
+                            reviewRowDiv.appendChild(starPointDiv);
+
+                            let reviewContentDiv = document.createElement('div');
+                            reviewContentDiv.setAttribute('class', 'col-sm-12');
+                            reviewContentDiv.innerHTML = review.content;
+                            reviewRowDiv.appendChild(reviewContentDiv);
+
+                            // 사장님리뷰
+                            let storeReviewContainerDiv = document.createElement('div');
+                            storeReviewContainerDiv.setAttribute('class', 'col-sm-6');
+                            let ownerIconDiv = document.createElement('div');
+                            ownerIconDiv.setAttribute('class', 'text-start');
+                            ownerIconDiv.style.backgroundColor = '#dee2e6';
+                            let ownerIcon = document.createElement('i');
+                            ownerIcon.setAttribute('class', 'fas fa-reply fa-rotate-180');
+                            ownerIconDiv.appendChild(ownerIcon);
+                            let ownerSpan = document.createElement('span');
+                            ownerSpan.innerText = '사장님 :';
+                            ownerIconDiv.appendChild(ownerSpan);
+                            storeReviewContainerDiv.appendChild(ownerIconDiv);
+
+                            if(storeReview != null){
+                                // 가게답글있을때
+                                let ownerReviewDiv = document.createElement('div');
+                                ownerReviewDiv.style.backgroundColor = '#e9ecef';
+                                ownerReviewDiv.innerText = storeReview.content;
+                                storeReviewContainerDiv.appendChild(ownerReviewDiv);
+                                reviewRowDiv.appendChild(storeReviewContainerDiv);
+                            }else{
+                                // 가게 답글 없을떄
+                                let replyButtonDiv = document.createElement('div');
+                                replyButtonDiv.id = review.id;
+                                replyButtonDiv.setAttribute('class', 'col-sm-6 d-grid');
+
+                                let replyButton = document.createElement('button');
+                                replyButton.id = review.id;
+                                replyButton.type = 'button';
+                                replyButton.setAttribute('class', 'btn btn-outline-success fs-4');
+                                replyButton.setAttribute('onclick', 'makeReply(this)');
+                                replyButton.innerHTML = '답글달기';
+                                replyButtonDiv.appendChild(replyButton);
+
+                                let replyFormDiv = document.createElement('div');
+                                replyFormDiv.id = review.id + 'formDiv';
+                                replyFormDiv.setAttribute('class', 'form-floating col-sm-12 d-grid');
+                                replyButtonDiv.appendChild(replyFormDiv);
+
+                                reviewRowDiv.appendChild(replyButtonDiv);
+                            }
+                            reviewParentDiv.appendChild(reviewRowDiv);
+                            reviewListDiv.appendChild(reviewParentDiv);
+                        }
+                        nowPage++;
+                        ajaxReady = true;
+                    },
+                    error: function (){
+                        alert('가게 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                    }
+                });
+            }
+        });
+    });
 </script>
 
 </html>

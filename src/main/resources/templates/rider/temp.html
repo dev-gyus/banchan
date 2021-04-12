@@ -1,0 +1,36 @@
+<div class="col-sm-12 text-center">
+    <div class="col-sm-12" th:if="${orderStatus == 'completed' && !rider.managerAuthenticated}">
+        <div th:replace="rider/rider-fragments :: riderAuthDiv"></div>
+    </div>
+</div>
+<div class="col-sm-12 fs-2 text-center" th:if="${orderStatus == 'completed' && riderOrdersList.isEmpty()}">
+    현재 배달 완료한 주문이 아직 없으시네요!
+</div>
+<div class="col-sm-12 fs-4 text-center" th:if="${orderStatus == 'completed' && !riderOrdersList.isEmpty()}">
+    <table class="table table-hover text-center">
+        <thead class="fs-2">
+        <tr>
+            <th scope="col" class="col-sm-6">가게명</th>
+            <th scope="col" class="col-sm-6">가게위치</th>
+        </tr>
+        </thead>
+        <tbody id="completedTbody">
+        <tr th:each="riderOrders : ${riderOrdersList}">
+            <td class="align-middle fs-3">
+                        <span th:id="${riderOrders.id + 'store' + 'storename'}"
+                              th:text="${storeMap.get(riderOrders.id).nickname}"></span>
+            </td>
+            <td th:id="${riderOrders.id + 'store' + 'storetd'}">
+                        <span th:id="${riderOrders.id + 'store' + 'store-road'}"
+                              th:text="${storeMap.get(riderOrders.id).address.road}"></span>
+                <span th:text="${storeMap.get(riderOrders.id).address.detail}"></span><br>
+                <span class="position-relative link-primary" th:id="${riderOrders.id + 'store'}"
+                      onclick="makeMap(this, 'store')">
+                            <a href="#" class="stretched-link" onclick="return false;"></a>
+                            <i class="fas fa-map-marked-alt"></i>
+                        </span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
