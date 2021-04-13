@@ -138,4 +138,9 @@ public class ItemService {
             }
         }
     }
+
+    public void deleteItem(Long itemId) {
+        Item findItem = itemRepository.findItemOptionFetchById(itemId);
+        findItem.setItemStatus(ItemStatus.DELETED);
+    }
 }

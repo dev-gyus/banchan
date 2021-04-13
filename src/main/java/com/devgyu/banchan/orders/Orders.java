@@ -29,8 +29,8 @@ public class Orders {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "orders", cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
-    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinColumn(name = "rider_orders_id")
     private RiderOrders riderOrders;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

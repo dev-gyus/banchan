@@ -1,6 +1,7 @@
 package com.devgyu.banchan.modules.rider;
 
 import com.devgyu.banchan.orders.Orders;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,8 +20,8 @@ public class RiderOrders {
     @JoinColumn(name = "account_id")
     private Rider rider;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "orders_id")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "riderOrders")
+    @JsonIgnore
     private Orders orders;
 
     private LocalDateTime regDate = LocalDateTime.now();

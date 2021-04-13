@@ -100,4 +100,9 @@ public class ItemController {
         itemService.modifyItem(addItemDto, itemId);
         return "redirect:/items";
     }
+    @PostMapping("/{itemId}/delete")
+    public String delete_item_do(@PathVariable Long itemId){
+        itemService.deleteItem(itemId);
+        return "redirect:/items";
+    }
 }

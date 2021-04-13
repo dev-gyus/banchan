@@ -1,6 +1,7 @@
 package com.devgyu.banchan.items.query;
 
 import com.devgyu.banchan.items.Item;
+import com.devgyu.banchan.items.ItemStatus;
 import com.devgyu.banchan.items.QItem;
 import com.devgyu.banchan.items.QItemOption;
 import com.devgyu.banchan.modules.category.QCategory;
@@ -32,7 +33,7 @@ public class ItemRepositoryImpl implements ItemQueryRepository{
                 .selectFrom(item)
                 .join(item.category, category).fetchJoin()
                 .join(item.storeOwner, storeOwner).fetchJoin()
-                .where(category.name.eq(categoryName).and(storeOwner.id.eq(storeId)))
+                .where(category.name.eq(categoryName).and(storeOwner.id.eq(storeId)).and(item.itemStatus.eq(ItemStatus.NORMAL)))
                 .fetch();
     }
 

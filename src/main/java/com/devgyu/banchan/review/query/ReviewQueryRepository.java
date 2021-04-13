@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ReviewQueryRepository {
 
-    public Page<Review> findAccountOrdersOrderItemItemStoreByStoreId(Long storeId, Pageable pageable);
+    Page<Review> findAccountOrdersOrderItemItemStoreByStoreId(Long storeId, Pageable pageable);
 
     Page<Review> findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(Long id, Pageable pageable);
 }

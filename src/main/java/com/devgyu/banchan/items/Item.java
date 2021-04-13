@@ -36,13 +36,16 @@ public class Item {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ItemOption> itemOptionList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<OrdersItem> ordersItemList;
+
+    @Enumerated(EnumType.STRING)
+    private ItemStatus itemStatus = ItemStatus.NORMAL;
 
     public Item(String name, int price, String itemIntroduce,
                 StoreOwner storeOwner, Category category, List<ItemOption> itemOptionList) {

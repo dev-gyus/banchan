@@ -30,6 +30,8 @@ public class QItem extends EntityPathBase<Item> {
 
     public final ListPath<ItemOption, QItemOption> itemOptionList = this.<ItemOption, QItemOption>createList("itemOptionList", ItemOption.class, QItemOption.class, PathInits.DIRECT2);
 
+    public final EnumPath<ItemStatus> itemStatus = createEnum("itemStatus", ItemStatus.class);
+
     public final StringPath name = createString("name");
 
     public final ListPath<com.devgyu.banchan.ordersitem.OrdersItem, com.devgyu.banchan.ordersitem.QOrdersItem> ordersItemList = this.<com.devgyu.banchan.ordersitem.OrdersItem, com.devgyu.banchan.ordersitem.QOrdersItem>createList("ordersItemList", com.devgyu.banchan.ordersitem.OrdersItem.class, com.devgyu.banchan.ordersitem.QOrdersItem.class, PathInits.DIRECT2);
