@@ -28,7 +28,16 @@ public class QStoreOwner extends EntityPathBase<StoreOwner> {
     public final com.devgyu.banchan.account.QAddress address;
 
     //inherited
+    public final NumberPath<Integer> blockCount;
+
+    //inherited
     public final BooleanPath blocked;
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> blockedDate;
+
+    //inherited
+    public final StringPath blockReason;
 
     // inherited
     public final com.devgyu.banchan.cart.QCart cart;
@@ -79,6 +88,9 @@ public class QStoreOwner extends EntityPathBase<StoreOwner> {
     //inherited
     public final StringPath thumbnail;
 
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> unblockedDate;
+
     public QStoreOwner(String variable) {
         this(StoreOwner.class, forVariable(variable), INITS);
     }
@@ -99,7 +111,10 @@ public class QStoreOwner extends EntityPathBase<StoreOwner> {
         super(type, metadata, inits);
         this._super = new com.devgyu.banchan.account.QAccount(type, metadata, inits);
         this.address = _super.address;
+        this.blockCount = _super.blockCount;
         this.blocked = _super.blocked;
+        this.blockedDate = _super.blockedDate;
+        this.blockReason = _super.blockReason;
         this.cart = _super.cart;
         this.email = _super.email;
         this.emailToken = _super.emailToken;
@@ -113,6 +128,7 @@ public class QStoreOwner extends EntityPathBase<StoreOwner> {
         this.reviewList = _super.reviewList;
         this.role = _super.role;
         this.thumbnail = _super.thumbnail;
+        this.unblockedDate = _super.unblockedDate;
     }
 
 }

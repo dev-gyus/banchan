@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 @AuthenticationPrincipal(expression =
-        "#this == 'anonymousUser' ? null : #this.customer != null ? customer : #this.storeOwner != null ? storeOwner : #this.rider != null ? rider : null")
+        "#this == 'anonymousUser' ? null : #this.customer != null ? customer : #this.storeOwner != null ? storeOwner : " +
+                "#this.rider != null ? rider : #this.admin != null ? admin : null")
 public @interface CurrentUser {
 }

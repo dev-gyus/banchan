@@ -36,15 +36,15 @@ public class AccountLoginFailureHandler implements AuthenticationFailureHandler 
                 throw new IllegalArgumentException("잘못된 요청입니다.");
             }
 
-            findAccount.addFailCount();
-
             if (findAccount.getFailCount() >= 5) {
                 request.setAttribute("isLocked", true);
             } else {
+                findAccount.addFailCount();
                 request.setAttribute("isFailed", true);
             }
         }else if(exception instanceof LockedException){ // LoginSuccessHandler에서 잠김확인시 넘어옴
             request.setAttribute("isLocked", true);
+            request.setAttribute("exceptionMessage", exception.getMessage());
         }
 
         RequestDispatcher requestDispatcher = request.getRequestDispatcher("/login");

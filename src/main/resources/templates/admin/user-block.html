@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+<div class="container-sm bg-light pb-5 fs-4">
+    <div class="row g-3 justify-content-center">
+        <div class="col-sm-2">
+            <div th:replace="admin/admin-fragments :: adminNav('회원정지')"></div>
+        </div>
+        <div class="col-sm-10 text-center">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12 text-start">
+                    <h2>회원정지</h2>
+                    <hr>
+                </div>
+                <div class="col-sm-12">
+                    <form th:action="@{/admin/user-block/search}" method="post" class="needs-validation row g-1 justify-content-end" novalidate>
+                        <div class="form-group col-sm-1">
+                            <label for="firstCondition" class="form-label">검색조건</label>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <select id="firstCondition" name="firstCondition" class="form-select">
+                                <option value="nickname" th:selected="${firstCondition == 'nickname'}">닉네임</option>
+                                <option value="email" th:selected="${firstCondition == 'email'}">이메일</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <input type="text" name="secondCondition" th:value="${secondCondition}"
+                                   class="form-control text-end" required/>
+                            <small class="invalid-feedback">필수 항목입니다</small>
+                        </div>
+                        <div class="form-group col-sm-1 d-grid">
+                            <button type="submit" class="btn btn-outline-success fs-5">검색</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-sm-12" th:if="${firstCondition == null || secondCondition == null}">
+                    <h1>검색할 닉네임을 입력 해 주세요</h1>
+                    <small class="form-text">정지 횟수는 로그인 실패로 인한 횟수는 포함되지 않습니다.</small>
+                </div>
+                <div class="col-sm-12" th:if="${firstCondition != null && secondCondition != null}">
+                    <span th:text="${secondCondition + '으로 검색한 유저 리스트입니다' }"></span><br>
+                    <small class="form-text">검색결과가 없을 경우 닉네임 혹은 유저 아이디를 정확히 입력해주세요.</small><br>
+                    <small class="form-text">정지 횟수는 로그인 실패로 인한 횟수는 포함되지 않습니다.</small>
+                </div>
+                <div class="col-sm-12" th:if="${firstCondition != null && secondCondition != null}">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="col-sm-2">닉네임</th>
+                            <th scope="col" class="col-sm-2">정지일</th>
+                            <th scope="col" class="col-sm-2">해제일</th>
+                            <th scope="col" class="col-sm-2">정지횟수</th>
+                            <th scope="col" class="col-sm-2">정지사유</th>
+                            <th scope="col" class="col-sm-2">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${account != null}">
+                            <td>
+                                <span th:text="${account.nickname}"></span>
+                            </td>
+                            <td>
+                                <span th:text="${#temporals.format(account.blockDate, 'yyyy-MM-dd')}"></span>
+                            </td>
+                            <td>
+                                <span th:text="${#temporals.format(account.unblockDate, 'yyyy-MM-dd')}"></span>
+                            </td>
+                            <td>
+                                <span th:text="${account.blockCount}"></span>
+                            </td>
+                            <td>
+                                <span th:if="${account.blockReason != null || account.blockReason != ''}" th:text="${account.blockReason}"></span>
+                                <span th:if="${account.blockReason == null || account.blockReason == ''}">
+                                    -
+                                </span>
+                            </td>
+                            <td th:if="${!account.blocked}">
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal">정지
+                                </button>
+                            </td>
+                            <td th:if="${account.blocked}">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal">정지해제
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:if="${account != null}" class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">계정 정지</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:if="${!account.blocked}"
+                      th:action="@{'/admin/user-block/' + ${account.id} + '?firstCondition=' + ${firstCondition} + '&secondCondition=' + ${secondCondition}}"
+                      method="post">
+                    <div class="form-group" th:text="${account.nickname + '님의 계정을 정지하시겠습니까?'}"></div>
+                    <div class="form-group mb-3">
+                        <label for="blockReason" class="col-form-label">정지사유:</label>
+                        <input type="text" class="form-control" id="blockReason" name="blockReason">
+                    </div>
+                    <div class="form-group text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-outline-danger">정지</button>
+                    </div>
+                </form>
+                <form th:if="${account.blocked}"
+                      th:action="@{'/admin/user-unblock/' + ${account.id} + '?firstCondition=' + ${firstCondition} + '&secondCondition=' + ${secondCondition}}"
+                      method="post">
+                    <div class="form-group" th:text="${account.nickname + '님의 계정을 정지하시겠습니까?'}"></div>
+                    <div class="form-group text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-outline-danger">정지해제</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

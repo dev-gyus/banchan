@@ -1,4 +1,4 @@
-package com.devgyu.banchan.modules.rider;
+package com.devgyu.banchan.admin;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -11,16 +11,16 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QRider is a Querydsl query type for Rider
+ * QAdmin is a Querydsl query type for Admin
  */
 @Generated("com.querydsl.codegen.EntitySerializer")
-public class QRider extends EntityPathBase<Rider> {
+public class QAdmin extends EntityPathBase<Admin> {
 
-    private static final long serialVersionUID = -1745185889L;
+    private static final long serialVersionUID = -1960948368L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QRider rider = new QRider("rider");
+    public static final QAdmin admin = new QAdmin("admin");
 
     public final com.devgyu.banchan.account.QAccount _super;
 
@@ -42,8 +42,6 @@ public class QRider extends EntityPathBase<Rider> {
     // inherited
     public final com.devgyu.banchan.cart.QCart cart;
 
-    public final StringPath driverLicense = createString("driverLicense");
-
     //inherited
     public final StringPath email;
 
@@ -55,8 +53,6 @@ public class QRider extends EntityPathBase<Rider> {
 
     //inherited
     public final NumberPath<Long> id;
-
-    public final BooleanPath managerAuthenticated = createBoolean("managerAuthenticated");
 
     //inherited
     public final StringPath name;
@@ -76,8 +72,6 @@ public class QRider extends EntityPathBase<Rider> {
     //inherited
     public final ListPath<com.devgyu.banchan.review.Review, com.devgyu.banchan.review.QReview> reviewList;
 
-    public final ListPath<RiderOrders, QRiderOrders> riderOrdersList = this.<RiderOrders, QRiderOrders>createList("riderOrdersList", RiderOrders.class, QRiderOrders.class, PathInits.DIRECT2);
-
     //inherited
     public final EnumPath<com.devgyu.banchan.account.Roles> role;
 
@@ -87,23 +81,23 @@ public class QRider extends EntityPathBase<Rider> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> unblockedDate;
 
-    public QRider(String variable) {
-        this(Rider.class, forVariable(variable), INITS);
+    public QAdmin(String variable) {
+        this(Admin.class, forVariable(variable), INITS);
     }
 
-    public QRider(Path<? extends Rider> path) {
+    public QAdmin(Path<? extends Admin> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
-    public QRider(PathMetadata metadata) {
+    public QAdmin(PathMetadata metadata) {
         this(metadata, PathInits.getFor(metadata, INITS));
     }
 
-    public QRider(PathMetadata metadata, PathInits inits) {
-        this(Rider.class, metadata, inits);
+    public QAdmin(PathMetadata metadata, PathInits inits) {
+        this(Admin.class, metadata, inits);
     }
 
-    public QRider(Class<? extends Rider> type, PathMetadata metadata, PathInits inits) {
+    public QAdmin(Class<? extends Admin> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this._super = new com.devgyu.banchan.account.QAccount(type, metadata, inits);
         this.address = _super.address;

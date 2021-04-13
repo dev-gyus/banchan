@@ -37,13 +37,18 @@ public class AccountLoginSuccessHandler implements AuthenticationSuccessHandler 
             account = principal.getStoreOwner();
         }else if(principal.getRider() != null){
             account = principal.getRider();
-        }else{
+        }else if(principal.getAdmin() != null){
+            account = principal.getAdmin();
+        }else {
             return;
         }
+
         Account findAccount = accountRepository.findById(account.getId()).get();
         if(findAccount.getFailCount() >= 5){
             throw new LockedException("계정이 잠겼습니다. 비밀번호 찾기 후 로그인 해 주세요");
-        }else{
+        }else if(findAccount.isBlocked()){
+            throw new LockedException("계정이 잠겼습니다. 정지사유:" + findAccount.getBlockReason());
+        } else{
             findAccount.setFailCount(0);
         }
 

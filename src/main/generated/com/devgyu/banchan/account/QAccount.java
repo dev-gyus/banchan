@@ -24,7 +24,13 @@ public class QAccount extends EntityPathBase<Account> {
 
     public final QAddress address;
 
+    public final NumberPath<Integer> blockCount = createNumber("blockCount", Integer.class);
+
     public final BooleanPath blocked = createBoolean("blocked");
+
+    public final DateTimePath<java.time.LocalDateTime> blockedDate = createDateTime("blockedDate", java.time.LocalDateTime.class);
+
+    public final StringPath blockReason = createString("blockReason");
 
     public final com.devgyu.banchan.cart.QCart cart;
 
@@ -51,6 +57,8 @@ public class QAccount extends EntityPathBase<Account> {
     public final EnumPath<Roles> role = createEnum("role", Roles.class);
 
     public final StringPath thumbnail = createString("thumbnail");
+
+    public final DateTimePath<java.time.LocalDateTime> unblockedDate = createDateTime("unblockedDate", java.time.LocalDateTime.class);
 
     public QAccount(String variable) {
         this(Account.class, forVariable(variable), INITS);

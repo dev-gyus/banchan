@@ -5,6 +5,7 @@ import com.devgyu.banchan.account.LoginService;
 import com.devgyu.banchan.config.handler.AccountLoginFailureHandler;
 import com.devgyu.banchan.config.handler.AccountLoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -12,11 +13,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import javax.sql.DataSource;
 
@@ -45,7 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/forgot/**", "/storelist/**", "/storelist","/store/*").permitAll()
                 .mvcMatchers("/mypage/**").hasRole("USER")
                 .mvcMatchers("/mystore/**", "/items/**", "/items").hasRole("OWNER")
-                .mvcMatchers("/prepare/**").permitAll()
+                .mvcMatchers("/prepare/**", "/admin/**").hasRole("ADMIN")
+                .mvcMatchers("/temp/**").permitAll()
                 .anyRequest().authenticated();
 
         http
@@ -69,7 +74,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .changeSessionId()
                 .maximumSessions(1)
                 .maxSessionsPreventsLogin(false)
-                .expiredUrl("/");
+                .expiredUrl("/")
+                .sessionRegistry(sessionRegistry());
 
         http
                 .rememberMe()
@@ -93,5 +99,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
         jdbcTokenRepository.setDataSource(dataSource);
         return jdbcTokenRepository;
+    }
+    // 세션 레지스트리 빈을 주입받아 사용하기 위해 설정
+    @Bean
+    public SessionRegistry sessionRegistry(){
+        return new SessionRegistryImpl();
+    }
+    // 세션이 만료될시 SpringSecurity가 이를 감지할 수 있도록 리스너 빈을 설정해줌
+    @Bean
+    public static ServletListenerRegistrationBean httpSessionEventPublisher(){
+        return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
     }
 }

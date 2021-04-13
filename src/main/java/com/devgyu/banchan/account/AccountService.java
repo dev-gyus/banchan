@@ -62,7 +62,6 @@ public class AccountService{
         return convertedEmail;
     }
 
-    @Transactional(readOnly = true)
     public void forgotPassword(ForgotDto forgotDto, BindingResult result) {
         Account findAccount = accountRepository.findByEmail(forgotDto.getEmail());
         if(findAccount == null){
@@ -74,22 +73,7 @@ public class AccountService{
         mailMessage.setTo(findAccount.getEmail());
         mailMessage.setText(url);
         mailService.send(mailMessage);
-    }
 
-    /*
-    public void saveImageFile(Account targetAccount, MultipartFile thumbnailFile, String path) throws IOException {
-        String uploadFolderPrefix = appProperties.getUploadFolderPrefix();
-        File folder = new File(uploadFolderPrefix + "/" + path + "/");
-        if(!folder.exists()){
-            folder.mkdirs();
-        }
-        String extensionName = StringUtils.getFilenameExtension(thumbnailFile.getOriginalFilename());
-        String fileName = UUID.randomUUID() + "_" + LocalDateTime.now() + "." + extensionName;
-        File fileProperty = new File(folder, fileName);
-        thumbnailFile.transferTo(fileProperty);
-
-        targetAccount.setThumbnail(fileName);
-        targetAccount.setOriginThumbnailName(thumbnailFile.getOriginalFilename());
+        findAccount.setFailCount(0); // 로그인 실패 카운트 0으로 변경
     }
-     */
 }

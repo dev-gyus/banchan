@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+  <div class="text-center" th:fragment="adminNav(nowPage)">
+    <a th:href="@{/admin}" class="list-group-item list-group-item-action" th:classappend="${nowPage == '대시보드'} ? 'active'">대시보드</a>
+    <a th:href="@{/admin/user-block}" class="list-group-item list-group-item-action" th:classappend="${nowPage == '회원정지'} ? 'active'">회원정지</a>
+  </div>
+</html>

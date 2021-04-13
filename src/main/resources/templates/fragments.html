@@ -85,13 +85,17 @@
                     <div th:replace="fragments :: profileNickname ('/rider/rider-page')"></div>
                 </div>
 
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="주문확인">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="관리페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}">
+                    <a th:href="@{/admin}" class="btn btn-outline-primary me-1">관리페이지</a>
+                </div>
+
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="주문확인">
                     <span class="position-relative me-2" >
                         <a th:href="@{/orders}" class="stretched-link"></a>
                         <i class="fas fa-clipboard-list fa-2x"></i>
                     </span>
                 </div>
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()')}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="장바구니">
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="장바구니">
                     <span class="position-relative me-2" >
                         <a th:href="@{/cart}" class="stretched-link"></a>
                         <i class="fas fa-shopping-cart fa-2x"></i>

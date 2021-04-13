@@ -3,6 +3,8 @@ package com.devgyu.banchan.interceptor;
 import com.devgyu.banchan.account.UserAccount;
 import com.devgyu.banchan.account.customer.Customer;
 import com.devgyu.banchan.account.customer.CustomerRepository;
+import com.devgyu.banchan.admin.Admin;
+import com.devgyu.banchan.admin.AdminRepository;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.storeowner.StoreOwnerRepository;
 import com.devgyu.banchan.modules.rider.Rider;
@@ -24,6 +26,7 @@ public class ThumbnailInterceptor implements HandlerInterceptor {
     private final CustomerRepository customerRepository;
     private final StoreOwnerRepository storeOwnerRepository;
     private final RiderRepository riderRepository;
+    private final AdminRepository adminRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -44,6 +47,10 @@ public class ThumbnailInterceptor implements HandlerInterceptor {
                 id = userAccount.getRider().getId();
                 Rider account = riderRepository.findById(id).get();
                 request.setAttribute("navAccount", account);
+            }else if(userAccount.getAdmin() != null){
+                id = userAccount.getId();
+                Admin admin = adminRepository.findById(id).get();
+                request.setAttribute("navAccount", admin);
             }
         }
         return true;

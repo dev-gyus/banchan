@@ -1,5 +1,6 @@
 package com.devgyu.banchan.account;
 
+import com.devgyu.banchan.admin.Admin;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.rider.Rider;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +27,11 @@ public class LoginService implements UserDetailsService {
         if(findAccount instanceof com.devgyu.banchan.account.customer.Customer){
             return new UserAccount(findAccount.getEmail(), findAccount.getPassword(), Arrays.asList(new SimpleGrantedAuthority(findAccount.getRole().toString())), findAccount.getId(), (com.devgyu.banchan.account.customer.Customer) findAccount);
         }else if(findAccount instanceof StoreOwner){
-            List<SimpleGrantedAuthority> simpleGrantedAuthorities = Arrays.asList(new SimpleGrantedAuthority(findAccount.getRole().toString()));
             return new UserAccount(findAccount.getEmail(), findAccount.getPassword(), Arrays.asList(new SimpleGrantedAuthority(findAccount.getRole().toString())), findAccount.getId(), (StoreOwner) findAccount);
         }else if(findAccount instanceof Rider){
             return new UserAccount(findAccount.getEmail(), findAccount.getPassword(), Arrays.asList(new SimpleGrantedAuthority(findAccount.getRole().toString())), findAccount.getId(), (Rider) findAccount);
+        }else if(findAccount instanceof Admin){
+            return new UserAccount(findAccount.getEmail(), findAccount.getPassword(), Arrays.asList(new SimpleGrantedAuthority(findAccount.getRole().toString())), findAccount.getId(), (Admin) findAccount);
         }
         return null;
     }

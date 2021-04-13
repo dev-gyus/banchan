@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +61,11 @@ public abstract class Account {
     private boolean blocked;
     private int failCount;
 
+    private Integer blockCount = 0;
+    private LocalDateTime blockedDate;
+    private LocalDateTime unblockedDate;
+    private String blockReason;
+
     public Account(String email, String nickname, String password, String name, String phone, Roles role, Address address, String emailToken) {
         this.email = email;
         this.nickname = nickname;
@@ -83,5 +89,9 @@ public abstract class Account {
 
     public void addFailCount(){
         this.failCount++;
+    }
+
+    public void addBlockCount(){
+        this.blockCount++;
     }
 }
