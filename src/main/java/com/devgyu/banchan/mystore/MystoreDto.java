@@ -12,6 +12,7 @@ import javax.persistence.Lob;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -41,8 +42,8 @@ public class MystoreDto {
     @NotBlank
     private String detail;
     private String thumbnail;
-    private List<String> categories;
-    private List<StoreCategory> storeCategoryList;
+    private List<String> categories = new ArrayList<>();
+    private List<StoreCategory> storeCategoryList = new ArrayList<>();
     @Length(max = 50)
     private String storeIntroduce;
 

@@ -26,7 +26,7 @@ public class Category {
         this.urlName = urlName;
     }
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = {CascadeType.REFRESH, CascadeType.REMOVE}, orphanRemoval = true)
     @JsonIgnore
     private List<StoreCategory> storeCategoryList = new ArrayList<>();
 

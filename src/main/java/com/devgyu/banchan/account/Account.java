@@ -46,7 +46,7 @@ public abstract class Account {
     @Lob @Basic(fetch = FetchType.EAGER)
     private String thumbnail;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Orders> ordersList = new ArrayList<>();
 
@@ -54,7 +54,7 @@ public abstract class Account {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
     @JsonIgnore
     private List<Review> reviewList = new ArrayList<>();
 

@@ -124,7 +124,7 @@ public class StoreOwnerController {
     public String modifyPassword_do(@CurrentUser StoreOwner storeOwner, @Valid @ModelAttribute ModifyPasswordDto modifyPasswordDto,
                                   BindingResult result, Model model){
         StoreOwner findOwner = ownerRepository.findById(storeOwner.getId()).get();
-        if(modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), findOwner.getPassword())){
+        if(modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), storeOwner.getPassword())){
             result.rejectValue("password", null, "인증에 실패 하였습니다.");
             return "mystore/change-password";
         }

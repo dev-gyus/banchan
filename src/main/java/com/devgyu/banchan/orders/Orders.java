@@ -33,11 +33,11 @@ public class Orders {
     @JoinColumn(name = "rider_orders_id")
     private RiderOrders riderOrders;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<OrdersItem> ordersItemList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "orders")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "orders")
     @JsonIgnore
     private List<Review> reviewList = new ArrayList<>();
 
