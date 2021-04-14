@@ -32,10 +32,10 @@
                 <div th:replace="rider/rider-fragments :: riderAuthDiv"></div>
             </div>
         </div>
-        <div class="col-sm-12 fs-2 text-center" th:if="${orderStatus == 'completed' && riderOrdersList.isEmpty()}">
+        <div class="col-sm-12 fs-2 text-center" th:if="${orderStatus == 'completed' && ordersList.isEmpty()}">
             현재 배달 완료한 주문이 아직 없으시네요!
         </div>
-        <div class="col-sm-12 fs-4 text-center" th:if="${orderStatus == 'completed' && !riderOrdersList.isEmpty()}">
+        <div class="col-sm-12 fs-4 text-center" th:if="${orderStatus == 'completed' && !ordersList.isEmpty()}">
             <table class="table table-hover text-center">
                 <thead class="fs-2">
                 <tr>
@@ -44,16 +44,16 @@
                 </tr>
                 </thead>
                 <tbody id="completedTbody">
-                <tr th:each="riderOrders : ${riderOrdersList}">
+                <tr th:each="order : ${ordersList}">
                     <td class="align-middle fs-3">
-                        <span th:id="${riderOrders.id + 'store' + 'storename'}"
-                              th:text="${storeMap.get(riderOrders.id).nickname}"></span>
+                        <span th:id="${order.orderId + 'store' + 'storename'}"
+                              th:text="${order.storeNickname}"></span>
                     </td>
-                    <td th:id="${riderOrders.id + 'store' + 'storetd'}">
-                        <span th:id="${riderOrders.id + 'store' + 'store-road'}"
-                              th:text="${storeMap.get(riderOrders.id).address.road}"></span>
-                        <span th:text="${storeMap.get(riderOrders.id).address.detail}"></span><br>
-                        <span class="position-relative link-primary" th:id="${riderOrders.id + 'store'}"
+                    <td th:id="${order.orderId + 'store' + 'storetd'}">
+                        <span th:id="${order.orderId + 'store' + 'store-road'}"
+                              th:text="${order.storeRoad}"></span>
+                        <span th:text="${order.storeDetail}"></span><br>
+                        <span class="position-relative link-primary" th:id="${order.orderId + 'store'}"
                               onclick="makeMap(this, 'store')">
                             <a href="#" class="stretched-link" onclick="return false;"></a>
                             <i class="fas fa-map-marked-alt"></i>
@@ -83,19 +83,24 @@
                                     ajaxReady = false;
                                     isLast = result.last;
                                     if (orderStatus == 'completed') {
-                                        let orderRegDateList = result.orderRegDateList;
-                                        let storeAddressMap = result.storeAddressMap;
-                                        let storeNicknameMap = result.storeNicknameMap;
                                         let completedTbody = document.getElementById('completedTbody');
-                                        isLast = result.last;
+                                        let riderOrderDtoList = result.riderOrderDtoList;
 
-                                        for (let orderRegDate of orderRegDateList) {
+                                        for (let riderOrderDto of riderOrderDtoList) {
+                                            let orderId = riderOrderDto.orderId;
+                                            let orderRegDate = riderOrderDto.orderRegDate;
+                                            let storeNickname = riderOrderDto.storeNickname;
+                                            let storeRoad = riderOrderDto.storeRoad;
+                                            let storeDetail = riderOrderDto.storeDetail;
+                                            let accountRoad = riderOrderDto.accountRoad;
+                                            let accountDetail = riderOrderDto.accountDetail;
+
                                             let tr = document.createElement('tr');
                                             let firstTd = document.createElement('td');
                                             firstTd.className = 'align-middle fs-3';
                                             let storeNameSpan = document.createElement('span');
                                             storeNameSpan.id = orderRegDate + 'store' + 'storename';
-                                            storeNameSpan.innerText = storeNicknameMap[orderRegDate];
+                                            storeNameSpan.innerText = storeNickname;
                                             firstTd.appendChild(storeNameSpan);
                                             tr.appendChild(firstTd);
 
@@ -103,11 +108,11 @@
                                             secondTd.id = orderRegDate + 'store' + 'storetd';
                                             let storeRoadSpan = document.createElement('span');
                                             storeRoadSpan.id = orderRegDate + 'store' + 'store-road';
-                                            storeRoadSpan.innerText = storeAddressMap[orderRegDate].road;
+                                            storeRoadSpan.innerText = storeRoad;
                                             secondTd.appendChild(storeRoadSpan);
 
                                             let storeDetailSpan = document.createElement('span');
-                                            storeDetailSpan.innerText = ' ' + storeAddressMap[orderRegDate].detail;
+                                            storeDetailSpan.innerText = ' ' + storeDetail;
                                             secondTd.appendChild(storeDetailSpan);
                                             let secondTdBr = document.createElement('br');
                                             secondTd.appendChild(secondTdBr);
@@ -158,57 +163,57 @@
              th:each="order : ${ordersList}">
             <div class="row g-3 justify-content-center">
                 <div class="col-sm-1 align-self-center text-center" th:if="${orderStatus == 'delivery_start'}">
-                    <form th:action="@{'/rider/' + ${order.id} + '/delivery-completed'}" method="post"
+                    <form th:action="@{'/rider/' + ${order.orderId} + '/delivery-completed'}" method="post"
                           class="row justify-content-center d-grid">
                         <button type="submit" class="btn btn-outline-success fs-4">완료</button>
                     </form>
                 </div>
                 <div class="col-sm-2 align-self-center">
                     <span>가게명</span><br>
-                    <span th:id="${order.regDate + 'store' + 'storename'}"
-                          th:text="${storeMap.get(order.regDate).nickname}"></span>
+                    <span th:id="${order.orderRegDate + 'store' + 'storename'}"
+                          th:text="${order.storeNickname}"></span>
                 </div>
                 <div class="col-sm-4 align-middle">
                     <span>가게위치</span><br>
-                    <span th:id="${order.regDate + 'store' + 'store-road'}"
-                          th:text="${storeMap.get(order.regDate).address.road}"></span>
-                    <span th:text="${' ' + storeMap.get(order.regDate).address.detail}"></span><br>
-                    <span class="position-relative link-primary" th:id="${order.regDate + 'store'}"
+                    <span th:id="${order.orderRegDate + 'store' + 'store-road'}"
+                          th:text="${order.storeRoad}"></span>
+                    <span th:text="${' ' + order.storeDetail}"></span><br>
+                    <span class="position-relative link-primary" th:id="${order.orderRegDate + 'store'}"
                           onclick="makeMap(this, 'store')">
                             <a href="#" class="stretched-link" onclick="return false;"></a>
                             <i class="fas fa-map-marked-alt"></i>
                         </span>
-                    <div th:id="${order.regDate + 'store'} + 'storetd'"></div>
+                    <div th:id="${order.orderRegDate + 'store'} + 'storetd'"></div>
                 </div>
                 <div class="col-sm-4 align-middle">
                     <div class="row justify-content-center">
                         <div class="col-sm-12">
                             <span>배송지</span><br>
-                            <span th:id="${order.regDate + 'account' + 'account-road'}"
-                                  th:text="${accountMap.get(order.regDate).address.road}"></span>
+                            <span th:id="${order.orderRegDate + 'account' + 'account-road'}"
+                                  th:text="${order.accountRoad}"></span>
 
-                            <span th:text="${accountMap.get(order.regDate).address.detail}"></span><br>
+                            <span th:text="${order.accountDetail}"></span><br>
                             <span class="position-relative link-primary"
-                                  th:id="${order.regDate + 'account'}"
+                                  th:id="${order.orderRegDate + 'account'}"
                                   onclick="makeMap(this, 'account')">
                             <a href="#" class="stretched-link" onclick="return false;"></a>
                             <i class="fas fa-map-marked-alt"></i>
                         </span>
                         </div>
                         <div class="col-sm-12"
-                             th:id="${order.regDate + 'account'} + 'accounttd'"></div>
+                             th:id="${order.orderRegDate + 'account'} + 'accounttd'"></div>
                     </div>
                 </div>
                 <div class="col-sm-1 align-self-center" th:if="${orderStatus == 'delivery_ready'}">
-                    <a th:href="@{'/rider/' + ${order.id} + '/detail'}"
+                    <a th:href="@{'/rider/' + ${order.orderId} + '/detail'}"
                        class="btn btn-outline-primary fs-5 my-2">상세보기</a>
-                    <form th:action="@{'/rider/' + ${order.id} + '/delivery-start'}" method="post">
+                    <form th:action="@{'/rider/' + ${order.orderId} + '/delivery-start'}" method="post">
                         <button type="submit" class="btn btn-outline-success fs-5">배달시작</button>
                     </form>
                 </div>
                 <div class="col-sm-1 align-self-center " th:if="${orderStatus == 'delivery_start'}">
                     <div>길찾기</div>
-                    <a th:id="${order.regDate + 'account'}" href="#" onclick="navi(this)">
+                    <a th:id="${order.orderRegDate + 'account'}" href="#" onclick="navi(this)">
                         <img src="https://developers.kakao.com/assets/img/about/buttons/navi/kakaonavi_btn_medium.png"/>
                     </a>
                 </div>
@@ -241,24 +246,26 @@
                                 dataType: 'json',
                                 success: function (result) {
                                     ajaxReady = false;
+                                    let riderOrderDtoList = result.riderOrderDtoList;
                                     isLast = result.last;
                                     if (orderStatus == 'delivery_ready' || orderStatus == 'delivery_start') {
-                                        let orderListDiv = document.getElementById('orderListDiv');
-                                        let orderRegDateList = result.orderRegDateList;
-                                        let orderIdMap = result.orderIdMap;
-                                        let storeNicknameMap = result.storeNicknameMap;
-                                        let storeAddressMap = result.storeAddressMap;
-                                        let accountAddressMap = result.accountAddressMap;
-                                        isLast = result.last;
+                                        for (let riderOrderDto of riderOrderDtoList) {
+                                            let orderId = riderOrderDto.orderId;
+                                            let orderRegDate = riderOrderDto.orderRegDate;
+                                            let storeNickname = riderOrderDto.storeNickname;
+                                            let storeRoad = riderOrderDto.storeRoad;
+                                            let storeDetail = riderOrderDto.storeDetail;
+                                            let accountRoad = riderOrderDto.accountRoad;
+                                            let accountDetail = riderOrderDto.accountDetail;
 
-                                        for (let orderRegDate of orderRegDateList) {
                                             if (orderStatus == 'delivery_start') {
+
                                                 let formDiv = document.createElement('div');
                                                 formDiv.className = 'col-sm-1 align-self-center text-center';
 
                                                 let form = document.createElement('form');
                                                 form.className = 'row justify-content-center d-grid';
-                                                form.action = '/rider/' + orderIdMap[orderRegDate] + '/delivery-completed?_csrf=' + '[[${_csrf.token}]]';
+                                                form.action = '/rider/' + orderId + '/delivery-completed?_csrf=' + '[[${_csrf.token}]]';
                                                 form.method = 'post';
                                                 form.className = 'row justify-content-center d-grid';
 
@@ -281,7 +288,7 @@
 
                                             let storeNameSecondSpan = document.createElement('span');
                                             storeNameSecondSpan.id = orderRegDate + 'store' + 'storename';
-                                            storeNameSecondSpan.innerText = storeNicknameMap[orderRegDate];
+                                            storeNameSecondSpan.innerText = storeNickname;
                                             storeNameDiv.appendChild(storeNameSecondSpan);
                                             orderListDiv.appendChild(storeNameDiv);
 
@@ -295,10 +302,10 @@
                                             storePlaceParentDiv.appendChild(placeBr1);
                                             let placeSecondSpan = document.createElement('span');
                                             placeSecondSpan.id = orderRegDate + 'store' + 'store-road';
-                                            placeSecondSpan.innerText = storeAddressMap[orderRegDate].road;
+                                            placeSecondSpan.innerText = storeRoad;
                                             storePlaceParentDiv.appendChild(placeSecondSpan);
                                             let placeThirdSpan = document.createElement('span');
-                                            placeThirdSpan.innerText = ' ' + storeAddressMap[orderRegDate].detail;
+                                            placeThirdSpan.innerText = ' ' + storeDetail;
                                             storePlaceParentDiv.appendChild(placeThirdSpan);
                                             let placeBr2 = document.createElement('br');
                                             storePlaceParentDiv.appendChild(placeBr2);
@@ -330,10 +337,10 @@
                                             deliveryPlaceParentDiv.appendChild(deliveryPlaceBr1);
                                             let deliveryPlaceSecondSpan = document.createElement('span');
                                             deliveryPlaceSecondSpan.id = orderRegDate + 'account' + 'account-road';
-                                            deliveryPlaceSecondSpan.innerText = accountAddressMap[orderRegDate].road;
+                                            deliveryPlaceSecondSpan.innerText = accountRoad;
                                             deliveryPlaceParentDiv.appendChild(deliveryPlaceSecondSpan);
                                             let deliveryThirdSpan = document.createElement('span');
-                                            deliveryThirdSpan.innerText = ' ' + accountAddressMap[orderRegDate].detail;
+                                            deliveryThirdSpan.innerText = ' ' + accountDetail;
                                             deliveryPlaceParentDiv.appendChild(deliveryThirdSpan);
                                             let deliveryPlaceBr2 = document.createElement('br');
                                             deliveryPlaceParentDiv.appendChild(deliveryPlaceBr2);
@@ -372,13 +379,13 @@
                                                 lastDiv.appendChild(naviLink);
                                             } else {
                                                 let detailLink = document.createElement('a');
-                                                detailLink.href = '/rider/' + orderIdMap[orderRegDate] + '/detail';
+                                                detailLink.href = '/rider/' + orderId + '/detail';
                                                 detailLink.className = 'btn btn-outline-primary fs-5 my-2';
                                                 detailLink.innerText = '상세보기';
                                                 lastDiv.appendChild(detailLink);
 
                                                 let deliveryForm = document.createElement('form');
-                                                deliveryForm.action = '/rider/' + orderIdMap[orderRegDate] + '/delivery-start?_csrf=' + '[[${_csrf.token}]]';
+                                                deliveryForm.action = '/rider/' + orderId + '/delivery-start?_csrf=' + '[[${_csrf.token}]]';
                                                 deliveryForm.method = 'post';
                                                 let submitButton = document.createElement('button');
                                                 submitButton.className = 'btn btn-outline-success fs-5';
