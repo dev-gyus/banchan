@@ -398,7 +398,7 @@
     }
 </script>
 
-<script th:fragment="normalReviewScrolling">
+<script th:fragment="storeReviewScrolling">
     // 무한 스크롤링
     let ajaxReady = true;
     let nowPage = 1;
@@ -411,26 +411,23 @@
             var maxHeight = $(document).height();
             var currentScroll = $(window).scrollTop() + $(window).height();
 
-            if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+            if (currentScroll >= maxHeight - 150 && ajaxReady && !isLast) {
                 ajaxReady = false;
                 $.ajax({
                     url: '/store/api/' + storeId + '/review?page=' + nowPage,
                     type: 'get',
                     dataType: 'json',
                     success: function (result) {
-                        let accountReviewMap = result.accountReviewMap;
-                        let regDateList = result.regDateList;
-                        let accountNicknameMap = result.accountNicknameMap;
-                        let accountThumbnailMap = result.accountThumbnailMap;
-                        let storeReviewMap = result.storeReviewMap;
+                        let reviewFetchDtoList = result.reviewFetchDtoList;
                         isLast = result.last;
 
-                        for (let regDate of regDateList) {
-                            let accountReview = accountReviewMap[regDate];
-                            let accountNickname = accountNicknameMap[regDate];
-                            let accountThumbnailName = accountThumbnailMap[regDate];
-                            let storeReview = storeReviewMap[regDate];
-                            let starPoint = accountReview.starPoint;
+                        for (let reviewFetchDto of reviewFetchDtoList) {
+                            let reviewId = reviewFetchDto.reviewId;
+                            let accountReview = reviewFetchDto.reviewContent;
+                            let accountNickname = reviewFetchDto.accountName;
+                            let accountThumbnailName = reviewFetchDto.accountThumbnail;
+                            let storeReview = reviewFetchDto.storeReviewContent;
+                            let starPoint = reviewFetchDto.starPoint;
 
                             let reviewParentDiv = document.createElement('div');
                             reviewParentDiv.setAttribute('class', 'col-sm-12 fs-3 p-3 m-0 border');
@@ -473,7 +470,7 @@
 
                             let reviewContentDiv = document.createElement('div');
                             reviewContentDiv.setAttribute('class', 'col-sm-12');
-                            reviewContentDiv.innerHTML = accountReview.content;
+                            reviewContentDiv.innerHTML = accountReview;
                             reviewRowDiv.appendChild(reviewContentDiv);
 
                             // 사장님리뷰
@@ -513,52 +510,52 @@
     });
 </script>
 
-<script th:fragment="myStoreScrolling">
+<script th:fragment="myReviewScrolling">
     // 무한 스크롤링
     let ajaxReady = true;
     let nowPage = 1;
     let isLast = false;
     let reviewListDiv = document.getElementById('reviewListDiv');
+    let storeId = '[[${storeId}]]';
 
     $(document).ready(function () {
         $(document).scroll(function() {
             var maxHeight = $(document).height();
             var currentScroll = $(window).scrollTop() + $(window).height();
 
-            if (currentScroll >= maxHeight - 100 && ajaxReady && !isLast) {
+            if (currentScroll >= maxHeight - 150 && ajaxReady && !isLast) {
                 ajaxReady = false;
                 $.ajax({
-                    url: '/review/api?page=' + nowPage,
+                    url: '/store/api/' + storeId + '/review?page=' + nowPage,
                     type: 'get',
                     dataType: 'json',
                     success: function (result) {
-                        let reviewList = result.reviewList;
-                        let storeNameMap = result.storeNameMap;
-                        let storeThumbnailMap = result.storeThumbnailMap;
-                        let storeReviewMap = result.storeReviewMap;
+                        let reviewFetchDtoList = result.reviewFetchDtoList;
                         isLast = result.last;
 
-                        for (let review of reviewList) {
-                            let reviewId = review.id;
-                            let storeName = storeNameMap[reviewId];
-                            let storeThumbnailName = storeThumbnailMap[reviewId];
-                            let storeReview = storeReviewMap[reviewId];
-                            let starPoint = review.starPoint;
+                        for (let reviewFetchDto of reviewFetchDtoList) {
+                            let reviewId = reviewFetchDto.reviewId;
+                            let accountReview = reviewFetchDto.reviewContent;
+                            let accountNickname = reviewFetchDto.accountName;
+                            let accountThumbnailName = reviewFetchDto.accountThumbnail;
+                            let storeNickname = reviewFetchDto.storeNickname;
+                            let storeReview = reviewFetchDto.storeReviewContent;
+                            let starPoint = reviewFetchDto.starPoint;
 
                             let reviewParentDiv = document.createElement('div');
                             reviewParentDiv.setAttribute('class', 'col-sm-12 fs-3 p-3 m-0 border');
                             let reviewRowDiv = document.createElement('div')
                             reviewRowDiv.setAttribute('class', 'row g-3 justify-content-center');
 
-                            // 상호썸네일, 상호명
                             let storeNameDiv = document.createElement('div');
+                            storeNameDiv.id = accountNickname;
                             storeNameDiv.setAttribute('class', 'text-center');
                             let storeThumbnail = document.createElement('img');
-                            storeThumbnail.src = storeThumbnailName;
+                            storeThumbnail.src = accountThumbnailName;
                             storeThumbnail.width = '70';
                             storeNameDiv.appendChild(storeThumbnail);
                             let storeNameSpan = document.createElement('span');
-                            storeNameSpan.innerText = '상호명: ' + storeName;
+                            storeNameSpan.innerText = '상호명: ' + storeNickname;
                             storeNameDiv.appendChild(storeNameSpan);
                             reviewRowDiv.appendChild(storeNameDiv);
 
@@ -569,11 +566,11 @@
                             starPointP.setAttribute('class', 'fs-2');
 
                             // 별점
-                            for(let a=1; a <= 5; a++){
+                            for (let a = 1; a <= 5; a++) {
                                 let starPointSpan = document.createElement('span');
 
-                                if(a <= starPoint){
-                                    starPointSpan.setAttribute('class','on');
+                                if (a <= starPoint) {
+                                    starPointSpan.setAttribute('class', 'on');
                                 }
 
                                 starPointSpan.innerText = '★';
@@ -586,7 +583,7 @@
 
                             let reviewContentDiv = document.createElement('div');
                             reviewContentDiv.setAttribute('class', 'col-sm-12');
-                            reviewContentDiv.innerHTML = review.content;
+                            reviewContentDiv.innerHTML = accountReview;
                             reviewRowDiv.appendChild(reviewContentDiv);
 
                             // 사장님리뷰
@@ -603,33 +600,13 @@
                             ownerIconDiv.appendChild(ownerSpan);
                             storeReviewContainerDiv.appendChild(ownerIconDiv);
 
-                            if(storeReview != null){
+                            if (storeReview != null) {
                                 // 가게답글있을때
                                 let ownerReviewDiv = document.createElement('div');
                                 ownerReviewDiv.style.backgroundColor = '#e9ecef';
-                                ownerReviewDiv.innerText = storeReview.content;
+                                ownerReviewDiv.innerText = storeReview;
                                 storeReviewContainerDiv.appendChild(ownerReviewDiv);
                                 reviewRowDiv.appendChild(storeReviewContainerDiv);
-                            }else{
-                                // 가게 답글 없을떄
-                                let replyButtonDiv = document.createElement('div');
-                                replyButtonDiv.id = review.id;
-                                replyButtonDiv.setAttribute('class', 'col-sm-6 d-grid');
-
-                                let replyButton = document.createElement('button');
-                                replyButton.id = review.id;
-                                replyButton.type = 'button';
-                                replyButton.setAttribute('class', 'btn btn-outline-success fs-4');
-                                replyButton.setAttribute('onclick', 'makeReply(this)');
-                                replyButton.innerHTML = '답글달기';
-                                replyButtonDiv.appendChild(replyButton);
-
-                                let replyFormDiv = document.createElement('div');
-                                replyFormDiv.id = review.id + 'formDiv';
-                                replyFormDiv.setAttribute('class', 'form-floating col-sm-12 d-grid');
-                                replyButtonDiv.appendChild(replyFormDiv);
-
-                                reviewRowDiv.appendChild(replyButtonDiv);
                             }
                             reviewParentDiv.appendChild(reviewRowDiv);
                             reviewListDiv.appendChild(reviewParentDiv);

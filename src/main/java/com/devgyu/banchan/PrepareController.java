@@ -105,25 +105,4 @@ public class PrepareController {
         return "redirect:/";
     }
 
-    @GetMapping("loginprepare/addreview/{storeId}")
-    @Transactional
-    public String addReview(@CurrentUser Account account, @PageableDefault Pageable pageable, @PathVariable Long storeId){
-
-        Page<Review> findReview = reviewRepository.findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(account.getId(), pageable);
-        Review review = findReview.getContent().get(0);
-        Account findAccount = review.getAccount();
-
-        List<Item> findItemList = itemRepository.findAllByCategoryAndStore("찌개", storeId);
-        for (Item item : findItemList) {
-            for(int a=0; a < 20; a++) {
-                Orders orders = new Orders(findAccount);
-                OrdersItem newOrdersItem = new OrdersItem(orders, item, 1);
-                Review newReview = new Review(findAccount, orders, "테스트리뷰입니다.", 3);
-                reviewRepository.save(newReview);
-            }
-        }
-
-        return "redirect:/";
-    }
-
 }

@@ -15,6 +15,7 @@ import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.devgyu.banchan.review.Review;
 import com.devgyu.banchan.review.ReviewDto;
 import com.devgyu.banchan.review.ReviewRepository;
+import com.devgyu.banchan.review.dto.ReviewFetchDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -63,35 +64,10 @@ public class StoreOwnerController {
     }
     @GetMapping("/review")
     public String mystore_review(@CurrentUser StoreOwner storeOwner, @ModelAttribute ReviewDto reviewDto, @PageableDefault Pageable pageable, Model model){
-        Page<Review> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeOwner.getId(), pageable);
-        List<Review> reviewList = findReviews.getContent();
-        Map<LocalDateTime, Review> storeReviewMap = new HashMap<>();
-        Map<LocalDateTime, Account> accountMap = new HashMap<>();
-        Map<LocalDateTime, List<OrdersItem>> ordersItemMap = new HashMap<>();
-        Map<LocalDateTime, Item> itemMap = new HashMap<>();
-        Map<LocalDateTime, List<ItemOption>> itemOptionMap = new HashMap<>();
+        Page<ReviewFetchDto> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeOwner.getId(), pageable);
 
-        for (Review review : reviewList) {
-            List<OrdersItem> ordersItemList = review.getOrders().getOrdersItemList();
-            ordersItemMap.put(review.getRegDate(), ordersItemList);
-            accountMap.put(review.getRegDate(), review.getAccount());
-            storeReviewMap.put(review.getRegDate(), review.getStoreReview());
-
-            for (OrdersItem ordersItem : ordersItemList) {
-                itemMap.put(ordersItem.getAddDate(), ordersItem.getItem());
-
-                List<Long> itemOptionList = ordersItem.getItemOptionList().stream().map(io -> io.getId()).collect(Collectors.toList());
-                List<ItemOption> findItemOptionList = itemOptionRepository.findAllByItemIdAndIdIn(ordersItem.getItem().getId(), itemOptionList);
-                itemOptionMap.put(ordersItem.getAddDate(), findItemOptionList);
-            }
-        }
+        List<ReviewFetchDto> reviewList = findReviews.getContent();
         model.addAttribute("reviewList", reviewList);
-        model.addAttribute("storeReviewMap", storeReviewMap);
-        model.addAttribute("accountMap", accountMap);
-        model.addAttribute("itemMap", itemMap);
-        model.addAttribute("ordersItemMap", ordersItemMap);
-        model.addAttribute("itemOptionMap", itemOptionMap);
-
         return "mystore/review";
     }
 
