@@ -58,17 +58,17 @@
                 </thead>
                 <tbody id="orderListTbody">
                 <tr th:each="order : ${orderList}">
-                    <td th:id="${order.id + 'storename'}" th:text="${storeMap.get(order.id).nickname}"></td>
-                    <td th:id="${order.id} + 'storetd'">
-                        <span th:id="${order.id + 'store-road'}" th:text="${storeAddressMap.get(order.id).road}"></span>
-                        <span th:text="${' ' + storeAddressMap.get(order.id).detail}"></span><br>
-                        <span class="position-relative link-primary" th:id="${order.id}" onclick="makeMap(this)">
+                    <td th:id="${order.orderId + 'storename'}" th:text="${order.storeNickname}"></td>
+                    <td th:id="${order.orderId} + 'storetd'">
+                        <span th:id="${order.orderId + 'store-road'}" th:text="${order.storeRoad}"></span>
+                        <span th:text="${' ' + order.storeDetail}"></span><br>
+                        <span class="position-relative link-primary" th:id="${order.orderId}" onclick="makeMap(this)">
                             <a href="#" class="stretched-link" onclick="return false;"></a>
                             <i class="fas fa-map-marked-alt"></i>
                         </span>
                     </td>
                     <td>
-                        <form th:action="@{'/rider/order-accept/' + ${order.id}}" method="post" class="d-grid">
+                        <form th:action="@{'/rider/order-accept/' + ${order.orderId}}" method="post" class="d-grid">
                             <button type="submit" class="btn btn-outline-success fs-4">배달시작</button>
                         </form>
                     </td>
@@ -96,14 +96,13 @@
                                     ajaxReady = false;
                                     isLast = result.last;
 
-                                    let orderIdList = result.orderIdList;
-                                    let storeNicknameMap = result.storeNicknameMap;
-                                    let storeAddressMap = result.storeAddressMap;
+                                    let riderOrderDtoList = result.riderOrderDtoList;
 
-                                    for (let orderId of orderIdList) {
-                                        let storeNickname = storeNicknameMap[orderId];
-                                        let road = storeAddressMap[orderId].road;
-                                        let detail = storeAddressMap[orderId].detail;
+                                    for (let riderOrderDto of riderOrderDtoList) {
+                                        let storeNickname = riderOrderDto.storeNickname;
+                                        let road = riderOrderDto.storeRoad;
+                                        let detail = riderOrderDto.storeDetail;
+                                        let orderId = riderOrderDto.orderId;
 
                                         let orderTr = document.createElement('tr');
                                         let storeNicknameTd = document.createElement('td');
