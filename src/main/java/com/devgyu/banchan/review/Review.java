@@ -34,9 +34,6 @@ public class Review {
     @JoinColumn(name = "store_review_id")
     private Review storeReview;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "storeReview")
-    @JsonIgnore
-    private Review customerReview;
 
     public Review(Account account, Orders orders, String content, int starPoint) {
         this.account = account;
@@ -49,7 +46,6 @@ public class Review {
 
     public Review(String content, Review customerReview) {
         this.content = content;
-        this.customerReview = customerReview;
         customerReview.setStoreReview(this);
     }
 }

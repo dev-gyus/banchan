@@ -1,0 +1,98 @@
+<div class="col-sm-12">
+  <div class="row g-3 justify-content-center">
+    <div class="col-sm-12 text-center fs-1">
+      <div th:replace="fragments :: accountThumbnail(${account}, 125, false)"></div>
+      <span th:text="${account.nickname} + '님의 주문 현황입니다.'"></span>
+      <div class="col-sm-12 text-start">
+        <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면
+        </button>
+      </div>
+    </div>
+    <div class="col-sm-12 fs-1" style="background-color: #e9ecef">
+      현재 주문내역
+    </div>
+    <div class="col-sm-12 text-center fs-1 border" th:if="${notCompOrderList == null || notCompOrderList.isEmpty()}">
+      현재 주문중인 내역이 없네요! <br> 정성스럽게 준비한 반찬으로 근사한 식탁을 꾸며보는건 어떨까요?<br>
+      <a th:href="@{/storelist}" class="btn btn-outline-primary fs-3">상품고르러가기</a>
+    </div>
+    <div class="col-sm-12 text-center border" th:each="order : ${notCompOrderList}" th:if="${notCompOrderList != null && !notCompOrderList.isEmpty()}">
+      <hr class="mt-1 bg-light">
+      <div class="row g-3 gx-4 justify-content-center">
+        <div class="col-sm-6 text-end fs-3 mt-0 text-danger"
+             th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).WAITING}"
+             th:text="'주문상태: 주문확인중'"></div>
+        <div class="col-sm-6 text-end fs-3 mt-0 text-primary"
+             th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).READY}"
+             th:text="'주문상태: 상품준비중'"></div>
+        <div class="col-sm-6 text-end fs-3 mt-0 text-primary"
+             th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).DELIVERY_READY}"
+             th:text="'주문상태: 배달준비중'"></div>
+        <div class="col-sm-6 text-end fs-3 mt-0 text-success"
+             th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).DELIVERY_START}"
+             th:text="'주문상태: 배달출발'"></div>
+        <div class="col-sm-6 text-start fs-3 mt-0">
+          <span th:text="'주문일: ' + ${#temporals.format(order.regDate, 'yyyy-MM-dd')}"></span><br>
+        </div>
+        <div class="col-sm-12 fs-3">
+          <span th:text="'상호명: ' + ${storeOwnerMap.get(order.id).nickname}"></span>
+        </div>
+        <div class="col-sm-12 fs-4" th:each="orderItem : ${ordersItemMap.get(order.id)}">
+          <div class="row g-3 text-center">
+            <div class="col-sm-12 fs-4">
+              <span><img th:src="@{'/upload/item/' + ${itemMap.get(orderItem.id).thumbnail}}" width="70"/> </span>
+              <span th:text="${itemMap.get(orderItem.id).name} + ' '"></span>
+              <span th:text="${itemMap.get(orderItem.id).price} + '₩'"></span>
+            </div>
+            <div class="col-sm-12 fs-5" th:if="${!itemOptionMap.get(orderItem.id).isEmpty()}">상품 옵션</div>
+            <div class="col-sm-12 fs-5" th:if="${!itemOptionMap.get(orderItem.id).isEmpty()}"
+                 th:each="itemOption : ${itemOptionMap.get(orderItem.id)}">
+              <span th:text="${itemOption.name + ' +' + itemOption.price + '₩'}"></span>
+            </div>
+            <div class="col-sm-12 fs-4 mt-1">
+              <span th:text="'총 구매수량: ' + ${orderItem.count}"></span><br>
+              <span th:text="'상품 가격: ' + ${orderPriceMap.get(orderItem.id) + '₩'}"></span>
+              <hr>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-12 text-center fs-2">
+          <span th:text="${'총 주문금액: ' + order.totalPrice + '₩'}"></span>
+        </div>
+        <div class="col-sm-6 d-grid text-center mb-3 fs-3" th:if="${order.orderStatus == T(com.devgyu.banchan.orders.OrderStatus).WAITING}">
+          <form th:action="@{'/orders/' + ${order.id} + '/cancel'}" method="post">
+            <small class="form-text">주문 취소는 주문상태가 주문확인중일때만 가능합니다.</small><br>
+            <button type="submit" class="btn btn-outline-danger fs-4">주문취소</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-12 fs-1" style="background-color: #e9ecef">
+      이전 주문내역
+    </div>
+    <div class="col-sm-12 text-center fs-1" th:if="${compOrderList == null || compOrderList.isEmpty()}">
+      <hr class="mt-1">
+      아직 완료된 주문이 없네요!
+    </div>
+    <div class="col-sm-12 text-center mt-1" th:each="order : ${compOrderList}" th:if="${compOrderList != null && !compOrderList.isEmpty()}">
+      <hr class="mt-1">
+      <div class="row g-3 gx-4 justify-content-center">
+        <div class="col-sm-6 text-center fs-3 mt-0">
+          <span th:text="'주문일: ' + ${#temporals.format(order.regDate, 'yyyy-MM-dd')}"></span><br>
+        </div>
+        <div class="col-sm-12 fs-3">
+          <span th:text="'상호명: ' + ${storeOwnerMap.get(order.id).nickname}"></span>
+        </div>
+        <div class="col-sm-12 fs-4" th:each="orderItem : ${ordersItemMap.get(order.id)}">
+          <span><img th:src="@{'/upload/item/' + ${itemMap.get(orderItem.id).thumbnail}}" width="70"/> </span>
+          <span th:text="${itemMap.get(orderItem.id).name}"></span>
+          <span th:text="${' x ' + orderItem.count}"></span>
+        </div>
+      </div>
+      <div th:if="${!order.isReviewed()}" class="col-sm-12 fs-4">
+        <hr>
+        <a th:href="@{'/review/' + ${order.id} + '/add'}" class="btn btn-outline-primary fs-4">리뷰쓰기</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -17,6 +17,9 @@ spring:
   thymeleaf:
     cache: false
     prefix: file:src/main/resources/templates/
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
 
 app:
   host: http://localhost:8080
@@ -30,3 +33,5 @@ logging:
       hibernate:
         stat: debug
 #        type: trace
+
+

@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragments :: commonHead"></head>
+<head>
+    <script src="/node_modules/moment/dist/moment.js"></script>
+</head>
 
 <body>
 <div th:replace="fragments :: commonNav">공통네비</div>
@@ -21,11 +24,11 @@
         </div>
 
         <div class="col-sm-12">
-            <div class="row g-3 justify-content-center">
+            <div id="orderListDiv" class="row g-3 justify-content-center">
                 <div class="col-sm-12 text-center fs-1">
                     <div th:replace="fragments :: accountThumbnail(${account}, 125, false)"></div>
                     <span th:text="${account.nickname} + '님의 주문 현황입니다.'"></span>
-                    <div class="col-sm-12 text-end">
+                    <div class="col-sm-12 text-start">
                         <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면
                         </button>
                     </div>
@@ -117,6 +120,107 @@
                     </div>
                 </div>
             </div>
+            <script>
+                // 무한 스크롤링
+                let ajaxReady = true;
+                let nowPage = 1;
+                let compLast = false;
+                let orderListDiv = document.getElementById('orderListDiv');
+
+                $(document).ready(function () {
+                    $(document).scroll(function() {
+                        var maxHeight = $(document).height();
+                        var currentScroll = $(window).scrollTop() + $(window).height();
+
+                        if (currentScroll >= maxHeight - 100 && ajaxReady && !compLast) {
+                            ajaxReady = false;
+                            $.ajax({
+                                url: '/orders/api/comp-list?page=' + nowPage,
+                                type: 'get',
+                                dataType: 'json',
+                                success: function (result) {
+                                    let compOrdersDtoList = result.compOrdersDtoList;
+                                    compLast = result.last;
+
+                                    for (let compOrdersDto of compOrdersDtoList) {
+                                        let orderDate = compOrdersDto.orderDate;
+                                        let storeName = compOrdersDto.storeName;
+                                        let reviewed = compOrdersDto.reviewed;
+                                        let ordersId = compOrdersDto.ordersId;
+                                        let compOrderItemDtoMap = compOrdersDto.compOrderItemDtoMap[ordersId];
+
+                                        let compOrderParentDiv = document.createElement('div');
+                                        compOrderParentDiv.className = 'col-sm-12 text-center mt-1';
+                                        let compFirstHr = document.createElement('hr');
+                                        compFirstHr.className = 'mt-1'
+                                        compOrderParentDiv.appendChild(compFirstHr);
+
+                                        let compRowDiv = document.createElement('div');
+                                        compRowDiv.className = 'row g-3 gx-4 justify-content-center';
+
+                                        let compOrderDateDiv = document.createElement('div');
+                                        compOrderDateDiv.className = 'col-sm-6 text-center fs-3 mt-0';
+                                        let compOrderDateSpan = document.createElement('span');
+                                        compOrderDateSpan.innertText = orderDate;
+                                        compOrderDateDiv.appendChild(compOrderDateSpan);
+                                        compRowDiv.appendChild(compOrderDateDiv);
+
+                                        let compStoreNameDiv = document.createElement('div');
+                                        compStoreNameDiv.className = 'col-sm-12 fs-3';
+                                        let compStoreNameSpan = document.createElement('span');
+                                        compStoreNameSpan.innerText = '상호명: ' + storeName;
+                                        compStoreNameDiv.appendChild(compStoreNameSpan);
+                                        compRowDiv.appendChild(compStoreNameDiv);
+
+                                        for (let compOrderItemDto of compOrderItemDtoMap) {
+                                            let compThumbnail = compOrderItemDto.thumbnail;
+                                            let compItemName = compOrderItemDto.name;
+                                            let compCount = compOrderItemDto.count;
+
+                                            let compItemDiv = document.createElement('div');
+                                            compItemDiv.className = 'col-sm-12 fs-4';
+                                            let compThumbnailSpan = document.createElement('span');
+                                            let compImg = document.createElement('img');
+                                            compImg.src = '/upload/item/' + compThumbnail;
+                                            compImg.width = '70';
+                                            compThumbnailSpan.appendChild(compImg);
+                                            compItemDiv.appendChild(compThumbnailSpan);
+
+                                            let compItemNameSpan = document.createElement('span');
+                                            compItemNameSpan.innerText = compItemName;
+                                            compItemDiv.appendChild(compItemNameSpan);
+
+                                            let compItemCountSpan = document.createElement('span');
+                                            compItemCountSpan.innerText = ' x ' + compCount;
+                                            compItemDiv.appendChild(compItemCountSpan);
+                                            compRowDiv.append(compItemDiv);
+                                        }
+                                        if(!reviewed){
+                                            let reviewDiv = document.createElement('div');
+                                            reviewDiv.className = 'col-sm-12 fs-4';
+                                            let reviewHr = document.createElement('hr');
+                                            reviewDiv.appendChild(reviewHr);
+                                            let reviewLink = document.createElement('a');
+                                            reviewLink.className = 'btn btn-outline-primary fs-4';
+                                            reviewLink.innerText = '리뷰쓰기';
+                                            reviewLink.href = '/review/' + ordersId + '/add';
+                                            reviewDiv.appendChild(reviewLink);
+                                            compRowDiv.appendChild(reviewDiv);
+                                        }
+                                        compOrderParentDiv.appendChild(compRowDiv);
+                                        orderListDiv.appendChild(compOrderParentDiv);
+                                    }
+                                    nowPage++;
+                                    ajaxReady = true;
+                                },
+                                error: function (){
+                                    alert('가게 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                                }
+                            });
+                        }
+                    });
+                });
+            </script>
         </div>
     </div>
 </div>

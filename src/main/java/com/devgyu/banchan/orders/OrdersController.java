@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,10 +44,10 @@ public class OrdersController {
         // 현재 주문내역 가져오기 ( 쿼리 2 + 카운트쿼리 2 + item의 option선택한 order의 갯수(최대 order페이징수만큼 ))
         // 이전 주문내역도 같이 가져오면 페이징이 제대로 처리가 안되므로 따로 가져오도록 한다.
         Page<Orders> notCompOrderList = ordersRepository
-                .findAccountItemFetchByIdAndStatus(account.getId(), pageable,
+                .findAccountItemStoreFetchByIdAndStatus(account.getId(), pageable,
                         OrderStatus.DELIVERY_READY, OrderStatus.DELIVERY_START, OrderStatus.READY, OrderStatus.WAITING);
         Page<Orders> compOrderList = ordersRepository
-                .findAccountItemFetchByIdAndStatus(account.getId(), pageable,
+                .findAccountItemStoreFetchByIdAndStatus(account.getId(), pageable,
                         OrderStatus.COMPLETED, null, null, null);
         if (notCompOrderList.isEmpty() && compOrderList.isEmpty()) {
             Account findAccount = accountRepository.findById(account.getId()).get();
@@ -106,6 +107,32 @@ public class OrdersController {
         model.addAttribute("itemOptionMap", itemOptionMap);
 
         return "orders/main";
+    }
+
+    @GetMapping("/api/comp-list")
+    @ResponseBody
+    public OrdersApiDto api_getCompList(@CurrentUser Account account, @PageableDefault Pageable pageable){
+        Page<Orders> compOrderList = ordersRepository
+                .findAccountItemStoreFetchByIdAndStatus(account.getId(), pageable,
+                        OrderStatus.COMPLETED, null, null, null);
+        List<Orders> ordersList = compOrderList.getContent();
+        List<CompOrdersDto> compOrdersDtoList = new ArrayList<>();
+        for (Orders orders : ordersList) {
+            Map<Long, List<CompOrderItemDto>> compOrderItemDtoMap = new HashMap<>();
+            List<OrdersItem> ordersItemList = orders.getOrdersItemList();
+            List<CompOrderItemDto> compOrderItemDtoList = new ArrayList<>();
+            String storeName = ""; // 하나의 주문은 하나의 가게에서만 할수있음
+            for (OrdersItem ordersItem : ordersItemList) {
+                Item item = ordersItem.getItem();
+                storeName = item.getStoreOwner().getNickname();
+                CompOrderItemDto compOrderItemDto = new CompOrderItemDto(item.getThumbnail(), item.getName(), ordersItem.getCount());
+                compOrderItemDtoList.add(compOrderItemDto);
+            }
+            compOrderItemDtoMap.put(orders.getId(), compOrderItemDtoList);
+            compOrdersDtoList.add(new CompOrdersDto(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(orders.getRegDate()), storeName, orders.isReviewed(), orders.getId(), compOrderItemDtoMap));
+        }
+        OrdersApiDto ordersApiDto = new OrdersApiDto(compOrdersDtoList, compOrderList.isLast());
+        return ordersApiDto;
     }
 
 

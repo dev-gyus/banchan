@@ -12,6 +12,8 @@ public class TodoClass {
 
     /**
      * TODO 버그수정:
+     * 주문취소 안됨
+     * 장바구니 추가 안됨
      * */
 
     /**

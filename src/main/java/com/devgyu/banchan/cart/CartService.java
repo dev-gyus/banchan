@@ -1,6 +1,7 @@
 package com.devgyu.banchan.cart;
 
 import com.devgyu.banchan.account.Account;
+import com.devgyu.banchan.account.AccountRepository;
 import com.devgyu.banchan.items.Item;
 import com.devgyu.banchan.items.ItemOption;
 import com.devgyu.banchan.items.ItemOptionRepository;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class CartService {
-    private final CartRepository cartRepository;
+    private final AccountRepository accountRepository;
     private final CartItemRepository cartItemRepository;
     private final ItemOptionRepository itemOptionRepository;
     private final ItemRepository itemRepository;
@@ -31,6 +32,7 @@ public class CartService {
         Item newItem = itemRepository.findStoreFetchById(cartAddDto.getItemId());
 
         Cart cart;
+        // 기존에 카트에 상품이 들어있는경우
         if (!findCartItemList.isEmpty()) {
             cart = findCartItemList.get(0).getCart(); // CartItem -> Cart 다대일 관계 -> 어떤 카트상품에서 카트를 추출해도 같은 카트이다.
             StoreOwner findStoreOwner = findCartItemList.get(0).getItem().getStoreOwner();
@@ -40,18 +42,16 @@ public class CartService {
             if(!findStoreOwner.equals(addItemStoreOwner)){
                 findCartItemList.forEach(ci -> cart.removeItem(ci));
             }
-        } else {
-            cart = cartRepository.findById(account.getCart().getId()).get(); // 로그인한 객체에서의 Account Cart의 Id는 불변, 유니크함
-        }
-        List<Item> itemList = findCartItemList.stream().map(ci -> ci.getItem()).collect(Collectors.toList());
-        Map<LocalDateTime, List<ItemOption>> itemOptionMap = new HashMap<>();
-        findCartItemList.forEach(ci -> itemOptionMap.put(ci.getAddDate(), ci.getItemOptionList()));
-        List<ItemOption> findItemOptionList =
-                itemOptionRepository.findAllByItemIdAndIdIn(cartAddDto.getItemId(), cartAddDto.getItemOptionIdList());
 
-        // 상품의 옵션 선택했을경우
-        if (!cartAddDto.getItemOptionIdList().isEmpty()) {
-            Item findItem = findItemOptionList.get(0).getItem(); // ItemOption -> Item = 다대일 관계 -> 어떤 아이템옵션을 가져와도 같은 아이템이다.
+            List<Item> itemList = findCartItemList.stream().map(ci -> ci.getItem()).collect(Collectors.toList());
+            Map<LocalDateTime, List<ItemOption>> itemOptionMap = new HashMap<>();
+            findCartItemList.forEach(ci -> itemOptionMap.put(ci.getAddDate(), ci.getItemOptionList()));
+            List<ItemOption> findItemOptionList =
+                    itemOptionRepository.findAllByItemIdAndIdIn(cartAddDto.getItemId(), cartAddDto.getItemOptionIdList());
+
+            // 상품의 옵션 선택했을경우
+            if (!cartAddDto.getItemOptionIdList().isEmpty()) {
+                Item findItem = findItemOptionList.get(0).getItem(); // ItemOption -> Item = 다대일 관계 -> 어떤 아이템옵션을 가져와도 같은 아이템이다.
 
                 for (CartItem cartItem : findCartItemList) {
                     List<ItemOption> itemOptions = itemOptionMap.get(cartItem.getAddDate()); // 기존 카트에 있던 itemOption리스트
@@ -63,20 +63,32 @@ public class CartService {
                     }
                 }
                 CartItem cartItem = new CartItem(cart, findItem, findItemOptionList, 1);
-        } else {    // 상품 옵션 선택 안했을경우
-            Item findItem = itemRepository.findById(cartAddDto.getItemId()).get();
-            if (itemList.contains(findItem)) {  // 기존 장바구니에 지금 추가한 상품이 있는경우
-                for (CartItem cartItem : findCartItemList) {
-                    List<ItemOption> itemOptions = itemOptionMap.get(cartItem.getAddDate());
-                    // 장바구니에 담긴 상품중 상품 옵션이 없는 상품 골라내기 + 장바구니에 들어있는 아이템인지 확인
-                    if (cartItem.getItem().equals(findItem) && itemOptions.isEmpty()) {
-                        cartItem.addCountForCart(); // 장바구니에 들어있는거랑 완전 똑같은 상품인걸 확인했으니 카운트 1개 추가
-                        return ResponseEntity.ok().build();
+            } else {    // 상품 옵션 선택 안했을경우
+                if (itemList.contains(newItem)) {  // 기존 장바구니에 지금 추가한 상품이 있는경우
+                    for (CartItem cartItem : findCartItemList) {
+                        List<ItemOption> itemOptions = itemOptionMap.get(cartItem.getAddDate());
+                        // 장바구니에 담긴 상품중 상품 옵션이 없는 상품 골라내기 + 장바구니에 들어있는 아이템인지 확인
+                        if (cartItem.getItem().equals(newItem) && itemOptions.isEmpty()) {
+                            cartItem.addCountForCart(); // 장바구니에 들어있는거랑 완전 똑같은 상품인걸 확인했으니 카운트 1개 추가
+                            return ResponseEntity.ok().build();
+                        }
                     }
                 }
+                CartItem newCartItem = new CartItem(cart, newItem, 1);
             }
-                CartItem newCartItem = new CartItem(cart, findItem, 1);
+        } else {    // 카트에 상품이 들어있지 않은경우
+            cart = accountRepository.findCartFetchById(account.getId()).getCart();
+            Long itemId = cartAddDto.getItemId();
+            List<Long> itemOptionIdList = cartAddDto.getItemOptionIdList();
+            // 옵션 선택 했을경우
+            if(!itemOptionIdList.isEmpty()){
+                List<ItemOption> selectedItemOptionList = itemOptionRepository.findAllByItemIdAndIdIn(itemId, itemOptionIdList);
+                CartItem cartItem = new CartItem(cart, newItem, selectedItemOptionList, 1);
+            }else{  // 옵션 선택 안한경우
+                CartItem cartItem = new CartItem(cart, newItem, 1);
+            }
         }
+
         return ResponseEntity.ok().build();
     }
 

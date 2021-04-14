@@ -13,7 +13,7 @@
                 <div class="col-sm-12 text-center fs-1">
                     <div th:replace="fragments :: accountThumbnail(${account}, 125, false)"></div>
                     <span th:text="${account.nickname} + '님의 장바구니'"></span>
-                    <div class="col-sm-12 text-end">
+                    <div class="col-sm-12 text-start">
                         <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면
                         </button>
                     </div>

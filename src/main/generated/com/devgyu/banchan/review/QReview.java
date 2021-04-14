@@ -26,8 +26,6 @@ public class QReview extends EntityPathBase<Review> {
 
     public final StringPath content = createString("content");
 
-    public final QReview customerReview;
-
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final com.devgyu.banchan.orders.QOrders orders;
@@ -59,7 +57,6 @@ public class QReview extends EntityPathBase<Review> {
     public QReview(Class<? extends Review> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.account = inits.isInitialized("account") ? new com.devgyu.banchan.account.QAccount(forProperty("account"), inits.get("account")) : null;
-        this.customerReview = inits.isInitialized("customerReview") ? new QReview(forProperty("customerReview"), inits.get("customerReview")) : null;
         this.orders = inits.isInitialized("orders") ? new com.devgyu.banchan.orders.QOrders(forProperty("orders"), inits.get("orders")) : null;
         this.storeReview = inits.isInitialized("storeReview") ? new QReview(forProperty("storeReview"), inits.get("storeReview")) : null;
     }

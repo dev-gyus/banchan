@@ -42,7 +42,7 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
     }
 
     @Override
-    public Page<Orders> findAccountItemFetchByIdAndStatus(Long accountId, Pageable pageable, OrderStatus firstCondition,
+    public Page<Orders> findAccountItemStoreFetchByIdAndStatus(Long accountId, @Nullable Pageable pageable, OrderStatus firstCondition,
                                                           @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition,
                                                           @Nullable OrderStatus fourthCondition){
         QueryResults<Orders> result = queryFactory
