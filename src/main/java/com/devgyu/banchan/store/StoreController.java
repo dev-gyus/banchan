@@ -11,6 +11,8 @@ import com.devgyu.banchan.mystore.MystoreDto;
 import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.devgyu.banchan.review.Review;
 import com.devgyu.banchan.review.ReviewRepository;
+import com.devgyu.banchan.review.dto.ReviewApiDto;
+import com.devgyu.banchan.review.dto.ReviewFetchDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -77,50 +79,23 @@ public class StoreController {
 
     @GetMapping({"/{storeId}/review"})
     public String store_review(@PathVariable Long storeId, @PageableDefault Pageable pageable, Model model) {
-        Page<Review> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeId, pageable);
-        List<Review> reviewList = findReviews.getContent();
-        Map<LocalDateTime, Review> storeReviewMap = new HashMap<>();
-        Map<LocalDateTime, Account> accountMap = new HashMap<>();
+        Page<ReviewFetchDto> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeId, pageable);
 
-        for (Review review : reviewList) {
-            accountMap.put(review.getRegDate(), review.getAccount());
-            storeReviewMap.put(review.getRegDate(), review.getStoreReview());
-        }
-        model.addAttribute("storeId", storeId);
+        List<ReviewFetchDto> reviewList = findReviews.getContent();
         model.addAttribute("reviewList", reviewList);
-        model.addAttribute("storeReviewMap", storeReviewMap);
-        model.addAttribute("accountMap", accountMap);
 
         return "store/review";
     }
 
     @GetMapping({"/api/{storeId}/review"})
     @ResponseBody
-    public StoreReviewApiDto api_store_review(@PathVariable Long storeId, @PageableDefault Pageable pageable, Model model) {
-        Page<Review> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeId, pageable);
-        List<Review> reviewList = findReviews.getContent();
-        List<String> regDateList = new ArrayList<>();
-        Map<LocalDateTime, StoreAccountReviewDto> accountReviewMap = new HashMap<>();
-        Map<LocalDateTime, String> accountNicknameMap = new HashMap<>();
-        Map<LocalDateTime, String> accountThumbnailMap = new HashMap<>();
-        Map<LocalDateTime, String> storeReviewContentMap = new HashMap<>();
+    public ReviewApiDto api_store_review(@PathVariable Long storeId, @PageableDefault Pageable pageable, Model model) {
+        Page<ReviewFetchDto> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeId, pageable);
 
-        for (Review review : reviewList) {
-            // List<LocalDateTime> 타입으로 Jackson을 이용해 json으로 변환하면 LocalDateTime포맷으로 변환함
-            // -> 맨 뒤 의미없는 0이 사라짐, 하지만 Map의 Key로 LocalDateTime을 주면 String형으로 변환되므로 실제 뷰페이지에서 키값이 다름
-            // 결국 같은 키이지만 변환되는 타입이 다르기때문에 뷰페이지에서 undifined나옴. -> 그냥 String으로 변환해서 쓰면 문제없음
-            regDateList.add(review.getRegDate().toString());
-            accountReviewMap.put(review.getRegDate(), new StoreAccountReviewDto(review.getStarPoint(), review.getContent()));
-            accountNicknameMap.put(review.getRegDate(), review.getAccount().getNickname());
-            accountThumbnailMap.put(review.getRegDate(), review.getAccount().getThumbnail());
-            if(review.getStoreReview() != null) {
-                storeReviewContentMap.put(review.getRegDate(), review.getStoreReview().getContent());
-            }
-        }
+        List<ReviewFetchDto> reviewList = findReviews.getContent();
 
-        StoreReviewApiDto storeReviewApiDto =
-                new StoreReviewApiDto(regDateList, accountReviewMap, accountNicknameMap, accountThumbnailMap, storeReviewContentMap, findReviews.isLast());
-        return storeReviewApiDto;
+        ReviewApiDto reviewApiDto = new ReviewApiDto(findReviews.getContent(), findReviews.isLast());
+        return reviewApiDto;
     }
 
 }

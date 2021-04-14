@@ -2,13 +2,15 @@ package com.devgyu.banchan.review;
 
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.CurrentUser;
+import com.devgyu.banchan.account.Roles;
 import com.devgyu.banchan.items.Item;
 import com.devgyu.banchan.items.ItemOption;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.orders.Orders;
-import com.devgyu.banchan.orders.OrdersRepository;
 import com.devgyu.banchan.ordersitem.OrdersItem;
 import com.devgyu.banchan.ordersitem.OrdersItemRepository;
+import com.devgyu.banchan.review.dto.ReviewApiDto;
+import com.devgyu.banchan.review.dto.ReviewFetchDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,43 +36,23 @@ public class ReviewController {
 
     @GetMapping({"","/"})
     public String review_main(@CurrentUser Account account, @PageableDefault Pageable pageable, Model model){
-        Page<Review> findReviews = reviewRepository.findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(account.getId(), pageable);
-        List<Review> reviewList = findReviews.getContent();
-        Map<Long, StoreOwner> storeMap = new HashMap<>();
-        Map<Long, Review> storeReviewMap = new HashMap<>();
-        for (Review review : reviewList) {
-            // Review -> Orders 다대일, 하나의 주문의 상품은 하나의 가게의 상품이므로 어떤 주문 상품에서 가게를 추출하더라도 같은 가게가 나옴
-            StoreOwner storeOwner = review.getOrders().getOrdersItemList().get(0).getItem().getStoreOwner();
-            storeMap.put(review.getId(), storeOwner);
+        Page<ReviewFetchDto> findReviews = reviewRepository.findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(account.getId(), pageable);
+        List<ReviewFetchDto> reviewList = findReviews.getContent();
+        Roles accountRole = reviewList.get(0).getAccountRole();
+        Long storeId = reviewList.get(0).getStoreId();
 
-            Review storeReview = review.getStoreReview();
-            storeReviewMap.put(review.getId(), storeReview);
-        }
-        model.addAttribute("account", account);
+        model.addAttribute("accountRole", accountRole);
+        model.addAttribute("storeId", storeId);
         model.addAttribute("reviewList", reviewList);
-        model.addAttribute("storeMap", storeMap);
-        model.addAttribute("storeReviewMap", storeReviewMap);
         return "review/main";
     }
 
     @GetMapping("/api")
     @ResponseBody
     public ReviewApiDto review_api(@CurrentUser Account account, @PageableDefault Pageable pageable){
-        Page<Review> findReviews = reviewRepository.findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(account.getId(), pageable);
-        List<Review> reviewList = findReviews.getContent();
-        Map<Long, String> storeNameMap = new HashMap<>();
-        Map<Long, String> storeThumbnailMap = new HashMap<>();
-        Map<Long, Review> storeReviewMap = new HashMap<>();
-        for (Review review : reviewList) {
-            // Review -> Orders 다대일, 하나의 주문의 상품은 하나의 가게의 상품이므로 어떤 주문 상품에서 가게를 추출하더라도 같은 가게가 나옴
-            StoreOwner storeOwner = review.getOrders().getOrdersItemList().get(0).getItem().getStoreOwner();
-            storeNameMap.put(review.getId(), storeOwner.getNickname());
-            storeThumbnailMap.put(review.getId(), storeOwner.getThumbnail());
+        Page<ReviewFetchDto> findReviews = reviewRepository.findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(account.getId(), pageable);
 
-            Review storeReview = review.getStoreReview();
-            storeReviewMap.put(review.getId(), storeReview);
-        }
-        return new ReviewApiDto(reviewList, storeNameMap, storeThumbnailMap, storeReviewMap, findReviews.isLast());
+        return new ReviewApiDto(findReviews.getContent(), findReviews.isLast());
     }
 
     @GetMapping("/{orderId}/add")

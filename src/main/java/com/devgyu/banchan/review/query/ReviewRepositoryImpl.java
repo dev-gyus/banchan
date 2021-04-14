@@ -2,13 +2,17 @@ package com.devgyu.banchan.review.query;
 
 import com.devgyu.banchan.review.QReview;
 import com.devgyu.banchan.review.Review;
+import com.devgyu.banchan.review.dto.ReviewFetchDto;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
+
+import java.util.List;
 
 import static com.devgyu.banchan.account.QAccount.account;
 import static com.devgyu.banchan.items.QItem.item;
@@ -27,37 +31,42 @@ public class ReviewRepositoryImpl implements ReviewQueryRepository{
     }
 
     @Override
-    public Page<Review> findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(Long accountId, Pageable pageable){
+    public Page<ReviewFetchDto> findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(Long accountId, Pageable pageable){
         QReview storeReview = new QReview("storeReview");
-        QueryResults<Review> results = queryFactory
-                .selectFrom(review)
-                .leftJoin(review.storeReview, storeReview).fetchJoin()
-                .join(review.account, account).fetchJoin()
-                .join(review.orders, orders).fetchJoin()
-                .join(orders.ordersItemList, ordersItem).fetchJoin()
-                .join(ordersItem.item, item).fetchJoin()
-                .join(item.storeOwner, storeOwner).fetchJoin()
+        QueryResults<ReviewFetchDto> result = queryFactory
+                .select(Projections.constructor(ReviewFetchDto.class, review.id, storeOwner.id, review.regDate, review.content, review.starPoint,
+                        account.thumbnail, account.nickname, account.role, storeOwner.nickname, storeOwner.thumbnail, review.storeReview.content))
+                .from(review)
+                .leftJoin(review.storeReview, storeReview)
+                .join(review.account, account)
+                .join(review.orders, orders)
+                .join(orders.ordersItemList, ordersItem)
+                .join(ordersItem.item, item)
+                .join(item.storeOwner, storeOwner)
                 .where(account.id.eq(accountId))
+                .orderBy(review.regDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();
-
-        return new PageImpl<>(results.getResults(), pageable, results.getTotal());
+        return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
 
     @Override
-    public Page<Review> findAccountOrdersOrderItemItemStoreByStoreId(Long storeId, Pageable pageable) {
+    public Page<ReviewFetchDto> findAccountOrdersOrderItemItemStoreByStoreId(Long storeId, Pageable pageable) {
         QReview newReview = new QReview("temp");
-        QueryResults<Review> results = queryFactory
-                .selectFrom(review)
+        QueryResults<ReviewFetchDto> results = queryFactory
+                .select(Projections.constructor(ReviewFetchDto.class, review.id, storeOwner.id, review.regDate, review.content,
+                        review.starPoint, account.thumbnail, account.nickname, account.role, storeOwner.nickname, storeOwner.thumbnail, review.storeReview.content))
+                .from(review)
                 .distinct()
-                .leftJoin(review.storeReview, newReview).fetchJoin()
-                .join(review.account).fetchJoin()
-                .join(review.orders, orders).fetchJoin()
-                .join(orders.ordersItemList, ordersItem).fetchJoin()
-                .join(ordersItem.item, item).fetchJoin()
-                .join(item.storeOwner, storeOwner).fetchJoin()
+                .leftJoin(review.storeReview, newReview)
+                .join(review.account, account)
+                .join(review.orders, orders)
+                .join(orders.ordersItemList, ordersItem)
+                .join(ordersItem.item, item)
+                .join(item.storeOwner, storeOwner)
                 .where(storeOwner.id.eq(storeId))
+                .orderBy(review.regDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetchResults();

@@ -3,6 +3,8 @@ package com.devgyu.banchan.todo;
 
 public class TodoClass {
     //TODO 주문한 고객에게 알림 보낼것
+    //TODO Paging 처리할때 Projection 써서 직접 DTO로 조회해올것 <- 페치조인 + 페이징하면 서버에 부담많이감 (리뷰 부분 완료)
+    //      StoreOwner, Rider 주문목록, 내가한주문목록 페이징 Projection 해야됨
     //TODO 단순히 로그인한 객체 최신화를 위해 조회해서 발생하는 쿼리 다이어트 할것
     //TODO 테스트코드 작성
     //TODO CI/CD 및 AWS 연동해서 배포구현
@@ -12,8 +14,6 @@ public class TodoClass {
 
     /**
      * TODO 버그수정:
-     * 주문취소 안됨
-     * 장바구니 추가 안됨
      * */
 
     /**
@@ -25,6 +25,8 @@ public class TodoClass {
      * Store상품 지우는 로직 구현 - 완료. SoftDelete로 구현(주문내역, 리뷰 등에서 조회해올때 필요)
      * 스토어 태그 지운갯수>=추가한갯수 수정안되는 현상 수정할것 - 완료
      * 스토어 태그 지운갯수 < 추가한갯수면 지운거 + 추가한거 모두 다 추가되버리는 현상 수정할것 - 완료
+     * 주문취소 안됨 - 완료
+     * 장바구니 추가 안됨 - 완료
      */
 
 }

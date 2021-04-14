@@ -40,8 +40,8 @@
                         <div class="col-sm-12 fs-3 p-3 border" th:if="${!reviewList.isEmpty()}" th:each="review : ${reviewList}">
                             <div class="row g-3 justify-content-center">
                                 <div class="col-sm-12 text-center">
-                                    <img th:src="${accountMap.get(review.regDate).thumbnail}" width="70"/>
-                                    <span th:text="'작성자: ' + ${accountMap.get(review.regDate).nickname}"></span>
+                                    <img th:src="${review.storeThumbnail}" width="70"/>
+                                    <span th:text="'작성자: ' + ${review.accountName}"></span>
                                 </div>
                                 <div class="col-sm-12">
                                     <p id="star" class="fs-2"> <!-- 부모 -->
@@ -50,13 +50,13 @@
                                     <hr>
                                 </div>
                                 <div class="col-sm-12">
-                                    <div th:utext="${review.content}"></div>
+                                    <div th:utext="${review.reviewContent}"></div>
                                 </div>
-                                <div class="col-sm-6" th:if="${storeReviewMap.get(review.regDate) == null}">
+                                <div class="col-sm-6" th:if="${review.storeReviewContent == null}">
                                     <div class="d-grid">
-                                        <button th:id="${review.id}" type="button" class="btn btn-outline-success fs-4" onclick="makeReply(this)">답글달기</button>
+                                        <button th:id="${review.reviewId}" type="button" class="btn btn-outline-success fs-4" onclick="makeReply(this)">답글달기</button>
                                     </div>
-                                        <div th:id="${review.id + 'formDiv'}" class="form-floating d-grid">
+                                        <div th:id="${review.reviewId + 'formDiv'}" class="form-floating d-grid">
                                         </div>
 
                                     <script>
@@ -111,10 +111,10 @@
                                         }
                                     </script>
                                 </div>
-                                <div class="col-sm-6" th:if="${storeReviewMap.get(review.regDate) != null}">
+                                <div class="col-sm-6" th:if="${review.storeReviewContent != null}">
                                     <div class="text-start" style="background-color: #dee2e6"><i class="fas fa-reply fa-rotate-180"></i> 사장님 :</div>
                                     <hr class="m-0">
-                                    <div style="background-color: #e9ecef" th:text="${storeReviewMap.get(review.regDate).content}"></div>
+                                    <div style="background-color: #e9ecef" th:text="${review.storeReviewContent}"></div>
                                 </div>
                             </div>
                         </div>
@@ -143,18 +143,15 @@
                     type: 'get',
                     dataType: 'json',
                     success: function (result) {
-                        let reviewList = result.reviewList;
-                        let storeNameMap = result.storeNameMap;
-                        let storeThumbnailMap = result.storeThumbnailMap;
-                        let storeReviewMap = result.storeReviewMap;
+                        let reviewFetchDtoList = result.reviewFetchDtoList;
                         isLast = result.last;
 
-                        for (let review of reviewList) {
-                            let reviewId = review.id;
-                            let storeName = storeNameMap[reviewId];
-                            let storeThumbnailName = storeThumbnailMap[reviewId];
-                            let storeReview = storeReviewMap[reviewId];
-                            let starPoint = review.starPoint;
+                        for (let reviewFetchDto of reviewFetchDtoList) {
+                            let reviewId = reviewFetchDto.reviewId;
+                            let accountName = reviewFetchDto.accountName;
+                            let storeThumbnailName = reviewFetchDto.storeThumbnail;
+                            let storeReview = reviewFetchDto.storeReviewContent;
+                            let starPoint = reviewFetchDto.starPoint;
 
                             let reviewParentDiv = document.createElement('div');
                             reviewParentDiv.setAttribute('class', 'col-sm-12 fs-3 p-3 m-0 border');
@@ -169,7 +166,7 @@
                             storeThumbnail.width = '70';
                             storeNameDiv.appendChild(storeThumbnail);
                             let storeNameSpan = document.createElement('span');
-                            storeNameSpan.innerText = '상호명: ' + storeName;
+                            storeNameSpan.innerText = ' 작성자: ' + accountName;
                             storeNameDiv.appendChild(storeNameSpan);
                             reviewRowDiv.appendChild(storeNameDiv);
 
@@ -197,7 +194,7 @@
 
                             let reviewContentDiv = document.createElement('div');
                             reviewContentDiv.setAttribute('class', 'col-sm-12');
-                            reviewContentDiv.innerHTML = review.content;
+                            reviewContentDiv.innerHTML = reviewFetchDto.reviewContent;
                             reviewRowDiv.appendChild(reviewContentDiv);
 
                             // 사장님리뷰
@@ -218,17 +215,17 @@
                                 // 가게답글있을때
                                 let ownerReviewDiv = document.createElement('div');
                                 ownerReviewDiv.style.backgroundColor = '#e9ecef';
-                                ownerReviewDiv.innerText = storeReview.content;
+                                ownerReviewDiv.innerText = storeReview;
                                 storeReviewContainerDiv.appendChild(ownerReviewDiv);
                                 reviewRowDiv.appendChild(storeReviewContainerDiv);
                             }else{
                                 // 가게 답글 없을떄
                                 let replyButtonDiv = document.createElement('div');
-                                replyButtonDiv.id = review.id;
+                                replyButtonDiv.id = reviewId;
                                 replyButtonDiv.setAttribute('class', 'col-sm-6 d-grid');
 
                                 let replyButton = document.createElement('button');
-                                replyButton.id = review.id;
+                                replyButton.id = reviewId;
                                 replyButton.type = 'button';
                                 replyButton.setAttribute('class', 'btn btn-outline-success fs-4');
                                 replyButton.setAttribute('onclick', 'makeReply(this)');
@@ -236,7 +233,7 @@
                                 replyButtonDiv.appendChild(replyButton);
 
                                 let replyFormDiv = document.createElement('div');
-                                replyFormDiv.id = review.id + 'formDiv';
+                                replyFormDiv.id = reviewId + 'formDiv';
                                 replyFormDiv.setAttribute('class', 'form-floating col-sm-12 d-grid');
                                 replyButtonDiv.appendChild(replyFormDiv);
 
