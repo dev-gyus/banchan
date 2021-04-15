@@ -190,15 +190,15 @@ public class StoreOwnerController {
     }
 
     @PostMapping("/{ordersId}/accept")
-    public String orders_accept(@PathVariable Long ordersId) {
-        ordersService.acceptOrder(ordersId);
-        return "redirect:/orders/order-list/waiting";
+    public String orders_accept(@CurrentUser StoreOwner storeOwner, @PathVariable Long ordersId) {
+        ordersService.acceptOrder(ordersId, storeOwner.getNickname());
+        return "redirect:/mystore/order-list/waiting";
     }
 
     @PostMapping("/{ordersId}/reject")
-    public String orders_reject(@PathVariable Long ordersId) {
-        ordersService.rejectOrder(ordersId);
-        return "redirect:/orders/order-list/waiting";
+    public String orders_reject(@CurrentUser StoreOwner storeOwner, @PathVariable Long ordersId) {
+        ordersService.rejectOrder(ordersId, storeOwner.getNickname());
+        return "redirect:/mystore/order-list/waiting";
     }
 
     @PostMapping("/modify")

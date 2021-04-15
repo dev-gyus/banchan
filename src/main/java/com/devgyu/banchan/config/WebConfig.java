@@ -1,7 +1,7 @@
 package com.devgyu.banchan.config;
 
 import com.devgyu.banchan.AppProperties;
-import com.devgyu.banchan.interceptor.ThumbnailInterceptor;
+import com.devgyu.banchan.interceptor.CommonNavInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
     private final AppProperties appProperties;
-    private final ThumbnailInterceptor thumbnailInterceptor;
+    private final CommonNavInterceptor commonNavInterceptor;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -28,7 +28,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        InterceptorRegistration ir1 = registry.addInterceptor(thumbnailInterceptor);
+        InterceptorRegistration ir1 = registry.addInterceptor(commonNavInterceptor);
         ir1.addPathPatterns("/**")
         .excludePathPatterns("/api/**", "/orders/api/**", "/mystore/api/**", "/rider/api/**", "/cart/api/**", "/review/api", "/review/api/**"
                             , "/store/api/**", "/storelist/api/**");

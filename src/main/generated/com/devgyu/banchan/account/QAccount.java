@@ -24,6 +24,8 @@ public class QAccount extends EntityPathBase<Account> {
 
     public final QAddress address;
 
+    public final ListPath<com.devgyu.banchan.alarm.Alarm, com.devgyu.banchan.alarm.QAlarm> alarmList = this.<com.devgyu.banchan.alarm.Alarm, com.devgyu.banchan.alarm.QAlarm>createList("alarmList", com.devgyu.banchan.alarm.Alarm.class, com.devgyu.banchan.alarm.QAlarm.class, PathInits.DIRECT2);
+
     public final NumberPath<Integer> blockCount = createNumber("blockCount", Integer.class);
 
     public final BooleanPath blocked = createBoolean("blocked");

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div id="alarmListDiv" class="row g-3 justify-content-center">
+    <div class="col-sm-12 text-center fs-1" th:if="${alarmList.isEmpty()}">
+        새로운 알림이 없습니다
+    </div>
+    <div class="col-sm-12" th:if="${!alarmList.isEmpty()}" th:each="alarm : ${alarmList}">
+
+        <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).ORDER_ACCEPTED}">
+            <div class="form-text fs-4">확인된 주문이 있습니다!</div>
+            <hr>
+            <div class="text-start"
+                 th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
+            <div th:text="${alarm.content}"></div>
+            <hr>
+        </div>
+
+        <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).ORDER_REJECTED}">
+            <div class="form-text fs-4">주문이 취소되었습니다!</div>
+            <hr>
+            <div class="text-start"
+                 th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
+            <div th:text="${alarm.content}"></div>
+        </div>
+
+        <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).DELIVERY_START}">
+            <div class="form-text fs-4">배달이 시작되었습니다!</div>
+            <hr>
+            <div class="text-start"
+                 th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
+            <div th:text="${alarm.content}"></div>
+        </div>
+
+        <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).COMPLETED}">
+            <div class="form-text fs-4">배달이 완료되었습니다!</div>
+            <hr>
+            <div class="text-start"
+                 th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
+            <div th:text="${alarm.content}"></div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

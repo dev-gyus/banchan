@@ -11,5 +11,5 @@ import java.util.List;
 public interface RiderOrdersQueryRepository {
     Page<RiderOrders> findAccountOrdersItemStoreFetchByRiderIdAndStatus(Long riderId, OrderStatus orderStatus, Pageable pageable);
     List<RiderOrders> findAccountOrdersItemStoreFetchByOrdersIdAndRiderId(Long ordersId, Long riderId);
-    List<RiderOrders> findOrderFetchByRiderIdAndOrderId(Long riderId, Long orderId);
+    List<RiderOrders> findAccountOrderFetchByRiderIdAndOrderId(Long riderId, Long orderId);
 }

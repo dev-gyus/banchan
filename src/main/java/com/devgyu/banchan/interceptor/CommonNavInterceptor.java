@@ -6,6 +6,8 @@ import com.devgyu.banchan.account.customer.Customer;
 import com.devgyu.banchan.account.customer.CustomerRepository;
 import com.devgyu.banchan.admin.Admin;
 import com.devgyu.banchan.admin.AdminRepository;
+import com.devgyu.banchan.alarm.AlarmRepository;
+import com.devgyu.banchan.alarm.AlarmService;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.storeowner.StoreOwnerRepository;
 import com.devgyu.banchan.modules.rider.Rider;
@@ -26,11 +28,12 @@ import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
-public class ThumbnailInterceptor implements HandlerInterceptor {
+public class CommonNavInterceptor implements HandlerInterceptor {
     private final CustomerRepository customerRepository;
     private final StoreOwnerRepository storeOwnerRepository;
     private final RiderRepository riderRepository;
     private final AdminRepository adminRepository;
+    private final AlarmRepository alarmRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -38,39 +41,41 @@ public class ThumbnailInterceptor implements HandlerInterceptor {
         if (authentication instanceof AnonymousAuthenticationToken) {
         } else if (authentication instanceof UsernamePasswordAuthenticationToken || authentication instanceof RememberMeAuthenticationToken) {
             UserAccount userAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Long id = 0L;
+            Long accountId = 0L;
             if (userAccount.getCustomer() != null) {
-                id = userAccount.getCustomer().getId();
-                Customer account = customerRepository.findById(id).get();
+                accountId = userAccount.getCustomer().getId();
+                Customer account = customerRepository.findById(accountId).get();
 
                 //쿼리 다이어트용. 매 페이지 이동시마다 인터셉터에서 로그인한 유저엔티티 최신상태로 유지해줌
                 refreshAuthentication(userAccount, account);
 
                 request.setAttribute("navAccount", account);
             } else if (userAccount.getStoreOwner() != null) {
-                id = userAccount.getStoreOwner().getId();
-                StoreOwner account = storeOwnerRepository.findById(id).get();
+                accountId = userAccount.getStoreOwner().getId();
+                StoreOwner account = storeOwnerRepository.findById(accountId).get();
 
                 //쿼리 다이어트용. 매 페이지 이동시마다 인터셉터에서 로그인한 유저엔티티 최신상태로 유지해줌
                 refreshAuthentication(userAccount, account);
 
                 request.setAttribute("navAccount", account);
             } else if (userAccount.getRider() != null) {
-                id = userAccount.getRider().getId();
-                Rider account = riderRepository.findById(id).get();
+                accountId = userAccount.getRider().getId();
+                Rider account = riderRepository.findById(accountId).get();
 
                 //쿼리 다이어트용. 매 페이지 이동시마다 인터셉터에서 로그인한 유저엔티티 최신상태로 유지해줌
                 refreshAuthentication(userAccount, account);
 
                 request.setAttribute("navAccount", account);
             } else if (userAccount.getAdmin() != null) {
-                id = userAccount.getId();
-                Admin account = adminRepository.findById(id).get();
+                accountId = userAccount.getId();
+                Admin account = adminRepository.findById(accountId).get();
 
                 //쿼리 다이어트용. 매 페이지 이동시마다 인터셉터에서 로그인한 유저엔티티 최신상태로 유지해줌
                 refreshAuthentication(userAccount, account);
                 request.setAttribute("navAccount", account);
             }
+            Long alarmCount = alarmRepository.countNewAlarmsByAccountId(accountId);
+            request.setAttribute("alarmCount", alarmCount);
         }
         return true;
     }

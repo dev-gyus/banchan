@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div class="list-group" th:fragment="alarmNav(nowPage)">
+    <a th:href="@{/alarm}" class="list-group-item list-group-item-action" th:classappend="${nowPage == 'alert'} ? 'active'">
+        읽지 않은 알림
+    </a>
+    <a th:href="@{/alarm/checked}" class="list-group-item list-group-item-action" th:classappend="${nowPage == 'checked'} ? 'active'">읽은 알림</a>
+</div>
+</html>

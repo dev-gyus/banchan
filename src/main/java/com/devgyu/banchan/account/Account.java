@@ -1,5 +1,6 @@
 package com.devgyu.banchan.account;
 
+import com.devgyu.banchan.alarm.Alarm;
 import com.devgyu.banchan.cart.Cart;
 import com.devgyu.banchan.orders.Orders;
 import com.devgyu.banchan.review.Review;
@@ -57,6 +58,10 @@ public abstract class Account {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
     @JsonIgnore
     private List<Review> reviewList = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Alarm> alarmList = new ArrayList<>();
 
     private boolean blocked;
     private int failCount;

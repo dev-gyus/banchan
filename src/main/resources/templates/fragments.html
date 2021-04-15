@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="/node_modules/summernote/dist/summernote-lite.min.css">
     <script src="/node_modules/summernote/dist/summernote-lite.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function(){
+        document.addEventListener('DOMContentLoaded', function () {
             jdenticon();
         })
     </script>
@@ -64,39 +64,57 @@
                     </li>
                 </ul>
 
-                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지"
+                     th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
                     <div th:replace="fragments :: profileImage ('/mypage')"></div>
                 </div>
-                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지"
+                     th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_USER}">
                     <div th:replace="fragments :: profileNickname ('/mypage')"></div>
                 </div>
 
-                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="내 가게정보" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="내 가게정보"
+                     th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
                     <div th:replace="fragments :: profileImage ('/mystore')"></div>
                 </div>
-                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="내 가게정보" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="내 가게정보"
+                     th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_OWNER}">
                     <div th:replace="fragments :: profileNickname ('/mystore')"></div>
                 </div>
 
-                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지"
+                     th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
                     <div th:replace="fragments :: profileImage ('/rider/rider-page')"></div>
                 </div>
-                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="마이페이지"
+                     th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_RIDER}">
                     <div th:replace="fragments :: profileNickname ('/rider/rider-page')"></div>
                 </div>
 
-                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="관리페이지" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}">
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="관리페이지"
+                     th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}">
                     <a th:href="@{/admin}" class="btn btn-outline-primary me-1">관리페이지</a>
                 </div>
 
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="주문확인">
-                    <span class="position-relative me-2" >
+                <div class="position-relative me-2" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}"
+                     data-bs-toggle="tooltip" data-bs-placement="bottom" title="알림">
+                    <span class="ms-2 me-2">
+                        <a th:href="@{/alarm}" class="stretched-link"></a>
+                            <i class="far fa-bell fa-2x"></i>
+                            <span class="fa-layers-counter fa-3x" style="background:Tomato" th:text="${#request.getAttribute('alarmCount')}">1,419</span>
+                    </span>
+                </div>
+
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}"
+                     data-bs-toggle="tooltip" data-bs-placement="bottom" title="주문확인">
+                    <span class="position-relative me-2">
                         <a th:href="@{/orders}" class="stretched-link"></a>
                         <i class="fas fa-clipboard-list fa-2x"></i>
                     </span>
                 </div>
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="장바구니">
-                    <span class="position-relative me-2" >
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}"
+                     data-bs-toggle="tooltip" data-bs-placement="bottom" title="장바구니">
+                    <span class="position-relative me-2">
                         <a th:href="@{/cart}" class="stretched-link"></a>
                         <i class="fas fa-shopping-cart fa-2x"></i>
                     </span>
@@ -140,10 +158,10 @@
 
 <script th:fragment="phone-validate">
     let phone = document.getElementById('phone');
-    document.addEventListener('DOMContentLoaded', function (){
-        phone.addEventListener('change',function(){
+    document.addEventListener('DOMContentLoaded', function () {
+        phone.addEventListener('change', function () {
             let regExp = /^\d{10,11}$/;
-            if(!regExp.exec(phone.value)){
+            if (!regExp.exec(phone.value)) {
                 $('#phone-error').show();
             }
         })
@@ -152,12 +170,12 @@
 
 <script th:fragment="tel-validate">
     let tel = document.getElementById('tel');
-    document.addEventListener('DOMContentLoaded', function (){
-        tel.addEventListener('change',function(){
+    document.addEventListener('DOMContentLoaded', function () {
+        tel.addEventListener('change', function () {
             let regExp = /^\d{9,11}$/;
-            if(!regExp.exec(tel.value)){
+            if (!regExp.exec(tel.value)) {
                 $('#tel-error').show();
-            }else if(regExp.exec(tel.value)){
+            } else if (regExp.exec(tel.value)) {
                 $('#tel-error').hide();
             }
         })
@@ -244,7 +262,7 @@
         let $profileImage = $("#profileImage");
         let rounded = 'rounded-circle';
         let isRounded = '[[${isRounded}]]';
-        if(isRounded == 'false'){
+        if (isRounded == 'false') {
             rounded = 'rounded-3';
         }
 
@@ -326,20 +344,25 @@
 
 <span th:fragment="accountThumbnail (accountObject, size, isRounded)">
 
-    <svg th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:id="current-profile-image" th:if="${accountObject.thumbnail == null}"
+    <svg th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:id="current-profile-image"
+         th:if="${accountObject.thumbnail == null}"
          th:data-jdenticon-value="${accountObject.name}" th:width="${size}" th:height="${size}">
         Fallback text or image for browsers not supporting inline svg.
     </svg>
-    <img th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:if="${accountObject.thumbnail != null}" th:id="current-profile-image"
+    <img th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'"
+         th:if="${accountObject.thumbnail != null}" th:id="current-profile-image"
          th:src="${accountObject.thumbnail}" th:width="${size}">
 </span>
 
 <span th:fragment="storeNoAuthThumbnail (accountObject, size, isRounded)">
-    <svg th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:id="current-profile-image" th:if="${accountObject.thumbnail == null}"
-         th:data-jdenticon-value="${accountObject.name}" th:width="${size}" th:height="${size}" style="mix-blend-mode: luminosity;">
+    <svg th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:id="current-profile-image"
+         th:if="${accountObject.thumbnail == null}"
+         th:data-jdenticon-value="${accountObject.name}" th:width="${size}" th:height="${size}"
+         style="mix-blend-mode: luminosity;">
         Fallback text or image for browsers not supporting inline svg.
     </svg>
-    <img style="mix-blend-mode: luminosity;" th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'" th:if="${accountObject.thumbnail != null}" th:id="current-profile-image"
+    <img style="mix-blend-mode: luminosity;" th:classappend="${isRounded == true} ? 'rounded-circle' : 'rounded-3'"
+         th:if="${accountObject.thumbnail != null}" th:id="current-profile-image"
          th:src="${accountObject.thumbnail}" th:width="${size}">
 </span>
 
@@ -379,19 +402,19 @@
         data = new FormData();
         data.append("image", file);
         $.ajax({
-            data : data,
-            type : "POST",
-            url : "/review/api/image",
-            contentType : false,
-            processData : false,
-            beforeSend(xhr){
+            data: data,
+            type: "POST",
+            url: "/review/api/image",
+            contentType: false,
+            processData: false,
+            beforeSend(xhr) {
                 xhr.setRequestHeader(header, token);
             },
-            success : function(url) {
+            success: function (url) {
                 //항상 업로드된 파일의 url이 있어야 한다.
                 $(editor).summernote('insertImage', url);
             },
-            errors : function(){
+            errors: function () {
                 alert('이미지 업로드 실패. 계속 반복되면 관리자에게 문의해주세요');
             }
         });
@@ -407,7 +430,7 @@
     let storeId = '[[${storeId}]]';
 
     $(document).ready(function () {
-        $(document).scroll(function() {
+        $(document).scroll(function () {
             var maxHeight = $(document).height();
             var currentScroll = $(window).scrollTop() + $(window).height();
 
@@ -501,7 +524,7 @@
                         nowPage++;
                         ajaxReady = true;
                     },
-                    error: function (){
+                    error: function () {
                         alert('가게 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
                     }
                 });
@@ -519,7 +542,7 @@
     let storeId = '[[${storeId}]]';
 
     $(document).ready(function () {
-        $(document).scroll(function() {
+        $(document).scroll(function () {
             var maxHeight = $(document).height();
             var currentScroll = $(window).scrollTop() + $(window).height();
 
@@ -614,7 +637,7 @@
                         nowPage++;
                         ajaxReady = true;
                     },
-                    error: function (){
+                    error: function () {
                         alert('가게 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
                     }
                 });

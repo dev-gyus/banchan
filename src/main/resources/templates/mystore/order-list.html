@@ -14,11 +14,11 @@
     <div id="orderListDiv" class="row justify-content-center">
         <div class="col-sm-12 fs-3">
             <nav class="nav nav-pills nav-justified">
-                <a class="nav-link border" aria-current="page" th:href="@{/orders/order-list/waiting}"
+                <a class="nav-link border" aria-current="page" th:href="@{/mystore/order-list/waiting}"
                    th:classappend="${orderStatus == 'waiting'} ? 'active'">새 주문목록</a>
-                <a class="nav-link border" aria-current="page" th:href="@{/orders/order-list/ready}"
+                <a class="nav-link border" aria-current="page" th:href="@{/mystore/order-list/ready}"
                    th:classappend="${orderStatus == 'ready'} ? 'active'">보낼 주문목록</a>
-                <a class="nav-link border" th:href="@{/orders/order-list/delivery}"
+                <a class="nav-link border" th:href="@{/mystore/order-list/delivery}"
                    th:classappend="${orderStatus == 'delivery'} ? 'active'">발송한 주문목록</a>
             </nav>
         </div>

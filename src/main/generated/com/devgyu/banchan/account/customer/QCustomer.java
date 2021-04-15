@@ -28,6 +28,9 @@ public class QCustomer extends EntityPathBase<Customer> {
     public final com.devgyu.banchan.account.QAddress address;
 
     //inherited
+    public final ListPath<com.devgyu.banchan.alarm.Alarm, com.devgyu.banchan.alarm.QAlarm> alarmList;
+
+    //inherited
     public final NumberPath<Integer> blockCount;
 
     //inherited
@@ -101,6 +104,7 @@ public class QCustomer extends EntityPathBase<Customer> {
         super(type, metadata, inits);
         this._super = new com.devgyu.banchan.account.QAccount(type, metadata, inits);
         this.address = _super.address;
+        this.alarmList = _super.alarmList;
         this.blockCount = _super.blockCount;
         this.blocked = _super.blocked;
         this.blockedDate = _super.blockedDate;

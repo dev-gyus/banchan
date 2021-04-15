@@ -4,6 +4,8 @@ import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.dto.ModifyPasswordDto;
 import com.devgyu.banchan.account.dto.MypageDto;
+import com.devgyu.banchan.alarm.Alarm;
+import com.devgyu.banchan.alarm.AlarmType;
 import com.devgyu.banchan.modules.rider.dto.RiderPageDto;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.orders.OrderStatus;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -59,16 +62,31 @@ public class RiderService {
     }
 
     public void startDelivery(Rider rider, Long orderId) {
-        List<RiderOrders> findOrder = riderOrdersRepository.findOrderFetchByRiderIdAndOrderId(rider.getId(), orderId);
+        List<RiderOrders> findOrder = riderOrdersRepository.findAccountOrderFetchByRiderIdAndOrderId(rider.getId(), orderId);
         if(findOrder.isEmpty()){
             throw new IllegalArgumentException("잘못된 요청입니다");
         }
         RiderOrders riderOrders = findOrder.get(0);
-        riderOrders.getOrders().setOrderStatus(OrderStatus.DELIVERY_START);
+        Orders orders = riderOrders.getOrders();
+        orders.setOrderStatus(OrderStatus.DELIVERY_START);
+        Account account = orders.getAccount();
+
+        String nickname = orders.getOrdersItemList().get(0).getItem().getStoreOwner().getNickname();
+        String content = nickname + "가게에서 배달을 시작합니다!";
+
+        new Alarm(account, content, AlarmType.DELIVERY_START, LocalDateTime.now());
     }
 
     public void completedDelivery(Long orderId) {
-        Orders orders = ordersRepository.findById(orderId).get();
+        List<Orders> tempOrders = ordersRepository.findAccountFetchById(orderId);
+        if(tempOrders.isEmpty()){
+            throw new IllegalArgumentException("잘못된 요청입니다");
+        }
+        Orders orders = tempOrders.get(0);
         orders.setOrderStatus(OrderStatus.COMPLETED);
+
+        Account account = orders.getAccount();
+        String content = "배달이 완료되었습니다. 즐거운 식사시간 보내세요!";
+        new Alarm(account, content, AlarmType.COMPLETED, LocalDateTime.now());
     }
 }

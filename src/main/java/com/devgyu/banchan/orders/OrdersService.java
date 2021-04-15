@@ -2,6 +2,8 @@ package com.devgyu.banchan.orders;
 
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.AccountRepository;
+import com.devgyu.banchan.alarm.Alarm;
+import com.devgyu.banchan.alarm.AlarmType;
 import com.devgyu.banchan.cart.Cart;
 import com.devgyu.banchan.cart.CartItem;
 import com.devgyu.banchan.cart.CartItemRepository;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,23 +75,27 @@ public class OrdersService {
         orders.setOrderStatus(OrderStatus.CANCELED);
     }
 
-    public void acceptOrder(Long ordersId) {
+    public void acceptOrder(Long ordersId, String nickname) {
         List<Orders> findOrders = ordersRepository.findAccountFetchById(ordersId);
         if(findOrders.isEmpty()){
             throw new IllegalArgumentException("잘못된 요청입니다.");
         }
         Orders orders = findOrders.get(0);
         orders.setOrderStatus(OrderStatus.READY);
-        // TODO 주문한 고객에게 알림 보낼것
+        Account customer = orders.getAccount();
+        String content = nickname + "에서 주문을 확인하였습니다";
+        Alarm alarm = new Alarm(customer, content, AlarmType.ORDER_ACCEPTED, LocalDateTime.now());
     }
 
-    public void rejectOrder(Long ordersId) {
+    public void rejectOrder(Long ordersId, String nickname) {
         List<Orders> findOrders = ordersRepository.findAccountFetchById(ordersId);
         if(findOrders.isEmpty()){
             throw new IllegalArgumentException("잘못된 요청입니다.");
         }
         Orders orders = findOrders.get(0);
         orders.setOrderStatus(OrderStatus.REJECTED);
-        // TODO 주문한 고객에게 알림 보낼것
+        Account customer = orders.getAccount();
+        String content = nickname + "에서 주문을 취소하였습니다";
+        Alarm alarm = new Alarm(customer, content, AlarmType.ORDER_REJECTED, LocalDateTime.now());
     }
 }
