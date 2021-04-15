@@ -60,7 +60,6 @@ public class RiderService {
 
     public void startDelivery(Rider rider, Long orderId) {
         List<RiderOrders> findOrder = riderOrdersRepository.findOrderFetchByRiderIdAndOrderId(rider.getId(), orderId);
-        Rider findRider = riderRepository.findById(rider.getId()).get();
         if(findOrder.isEmpty()){
             throw new IllegalArgumentException("잘못된 요청입니다");
         }

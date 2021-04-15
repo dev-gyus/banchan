@@ -1,10 +1,16 @@
 package com.devgyu.banchan.orders.query;
 
 import com.devgyu.banchan.modules.rider.QRider;
+import com.devgyu.banchan.orders.NotCompOrderItemDto;
 import com.devgyu.banchan.orders.OrderStatus;
 import com.devgyu.banchan.orders.Orders;
+import com.devgyu.banchan.orders.OrdersFetchDto;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -43,15 +49,15 @@ public class OrdersRepositoryImpl implements OrdersQueryRepository{
 
     @Override
     public Page<Orders> findAccountItemStoreFetchByIdAndStatus(Long accountId, @Nullable Pageable pageable, OrderStatus firstCondition,
-                                                          @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition,
-                                                          @Nullable OrderStatus fourthCondition){
+                                                               @Nullable OrderStatus secondCondition, @Nullable OrderStatus thirdCondition,
+                                                               @Nullable OrderStatus fourthCondition){
         QueryResults<Orders> result = queryFactory
                 .selectFrom(orders)
                 .distinct()
                 .join(orders.account, account).fetchJoin()
-                .join(orders.ordersItemList, ordersItem).fetchJoin()
-                .join(ordersItem.item, item).fetchJoin()
-                .join(item.storeOwner, storeOwner).fetchJoin()
+//                .join(orders.ordersItemList, ordersItem).fetchJoin()
+//                .join(ordersItem.item, item).fetchJoin()
+//                .join(item.storeOwner, storeOwner).fetchJoin()
                 .where(account.id.eq(accountId).and(conditionSelect(firstCondition, secondCondition, thirdCondition, fourthCondition)))
                 .orderBy(orders.regDate.desc())
                 .offset(pageable.getOffset())

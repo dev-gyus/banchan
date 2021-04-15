@@ -68,7 +68,7 @@
                                                 'content' : content.value
                                             };
                                             $.ajax({
-                                                url: '/mystore/' + reviewId + '/add-store-review',
+                                                url: '/mystore/api/' + reviewId + '/add-store-review',
                                                 type: 'post',
                                                 data: JSON.stringify(data),
                                                 contentType: 'application/json',

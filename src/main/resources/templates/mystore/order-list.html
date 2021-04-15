@@ -76,12 +76,12 @@
                 </div>
                 <div class="col-sm-7" th:if="${orderStatus == 'waiting'}">
                     <div class="mb-3">
-                        <form th:action="@{'/orders/' + ${order.id} + '/accept'}" class="d-grid" method="post">
+                        <form th:action="@{'/mystore/' + ${order.id} + '/accept'}" class="d-grid" method="post">
                             <button type="submit" class="btn btn-outline-success fs-4">주문수락</button>
                         </form>
                     </div>
                     <div>
-                        <form th:action="@{'/orders/' + ${order.id} + '/reject'}" class="d-grid" method="post">
+                        <form th:action="@{'/mystore/' + ${order.id} + '/reject'}" class="d-grid" method="post">
                             <button type="submit" class="btn btn-outline-danger fs-4">주문거절</button>
                         </form>
                     </div>

@@ -1,6 +1,10 @@
 package com.devgyu.banchan.ordersitem.query;
 
+import com.devgyu.banchan.orders.NotCompOrderItemDto;
+import com.devgyu.banchan.orders.OrdersItemOptionDto;
 import com.devgyu.banchan.ordersitem.OrdersItem;
+import com.devgyu.banchan.ordersitem.QOrdersItem;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import javax.persistence.EntityManager;
@@ -53,6 +57,18 @@ public class OrdersItemRepositoryImpl implements OrdersItemQueryRepository{
                 .leftJoin(ordersItem.itemOptionList, itemOption).fetchJoin()
                 .join(item.storeOwner, storeOwner).fetchJoin()
                 .where(orders.id.eq(orderId))
+                .fetch();
+    }
+
+    @Override
+    public List<NotCompOrderItemDto> findOrdersItemItemOptionStoreOwnerByOrderIdIn(List<Long> ordersIdList){
+        return queryFactory
+                .select(Projections.constructor(NotCompOrderItemDto.class,ordersItem.id, item.thumbnail, item.name, item.price, ordersItem.count, ordersItem.price))
+                .from(ordersItem)
+                .join(ordersItem.item, item)
+                .join(ordersItem.orders, orders)
+                .join(item.storeOwner, storeOwner)
+                .where(ordersItem.id.in(ordersIdList))
                 .fetch();
     }
 }

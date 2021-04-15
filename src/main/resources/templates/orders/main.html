@@ -68,8 +68,8 @@
                                     <span th:text="${itemMap.get(orderItem.id).name} + ' '"></span>
                                     <span th:text="${itemMap.get(orderItem.id).price} + '₩'"></span>
                                 </div>
-                                <div class="col-sm-12 fs-5" th:if="${!itemOptionMap.get(orderItem.id).isEmpty()}">상품 옵션</div>
-                                <div class="col-sm-12 fs-5" th:if="${!itemOptionMap.get(orderItem.id).isEmpty()}"
+                                <div class="col-sm-12 fs-5" th:if="${itemOptionMap.get(orderItem.id) != null && !itemOptionMap.get(orderItem.id).isEmpty()}">상품 옵션</div>
+                                <div class="col-sm-12 fs-5" th:if="${itemOptionMap.get(orderItem.id) != null && !itemOptionMap.get(orderItem.id).isEmpty()}"
                                      th:each="itemOption : ${itemOptionMap.get(orderItem.id)}">
                                     <span th:text="${itemOption.name + ' +' + itemOption.price + '₩'}"></span>
                                 </div>

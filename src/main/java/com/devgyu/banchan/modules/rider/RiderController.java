@@ -48,9 +48,8 @@ public class RiderController {
 
     @GetMapping("/rider-page")
     public String rider_page(@CurrentUser Rider rider, @ModelAttribute RiderMainDto riderMainDto) {
-        Rider findRider = riderRepository.findById(rider.getId()).get();
-        Address address = findRider.getAddress();
-        modelMapper.map(findRider, riderMainDto);
+        Address address = rider.getAddress();
+        modelMapper.map(rider, riderMainDto);
         modelMapper.map(address, riderMainDto);
         return "rider/main";
     }
@@ -238,8 +237,7 @@ public class RiderController {
     @PostMapping("/modify-password")
     public String modifyPassword_do(@CurrentUser Rider rider, @Valid @ModelAttribute ModifyPasswordDto modifyPasswordDto,
                                     BindingResult result, Model model) {
-        Rider findRider = riderRepository.findById(rider.getId()).get();
-        if (modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), findRider.getPassword())) {
+        if (modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), rider.getPassword())) {
             result.rejectValue("password", null, "인증에 실패 하였습니다.");
             return "rider/change-password";
         }

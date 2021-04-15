@@ -3,10 +3,6 @@ package com.devgyu.banchan.todo;
 
 public class TodoClass {
     //TODO 주문한 고객에게 알림 보낼것
-    //TODO Paging 처리할때 Projection 써서 직접 DTO로 조회해올것 <- 페치조인 + 페이징하면 서버에 부담많이감 (리뷰 부분 완료)
-    //      StoreOwner, 내가한주문목록 페이징 Projection 해야됨
-    //TODO 썸네일인터셉터 ajax조회할땐 작동안되도록 수정(ajax조회할때도 인터셉터때문에 쿼리+1 됨)
-    //TODO 단순히 로그인한 객체 최신화를 위해 조회해서 발생하는 쿼리 다이어트 할것
     //TODO 테스트코드 작성
     //TODO CI/CD 및 AWS 연동해서 배포구현
 
@@ -30,6 +26,11 @@ public class TodoClass {
      * 장바구니 추가 안됨 - 완료
      * 라이더 주문목록 페이징 Projection조회 - 완료
      * 리뷰 페이징 Projection조회 - 완료
+     * Paging 처리할때 Projection 써서 직접 DTO로 조회해올것 -> 완료(default_batch_fetch_size 적용)
+     * RememberMe로 로그인할시 공통 Navigation에 로그인 유저 정보 뜨지 않는 버그 수정 - 완료
+     * 썸네일인터셉터 ajax조회할땐 작동안되도록 수정(ajax조회할때도 인터셉터때문에 쿼리+1 됨) - 완료
+     * 단순히 로그인한 객체 최신화를 위해 조회해서 발생하는 쿼리 다이어트 할것 - 완료
+     *
      */
 
 }

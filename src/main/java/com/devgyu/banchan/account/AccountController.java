@@ -110,12 +110,8 @@ public class AccountController {
 
     @GetMapping("/mypage")
     public String mypage(@CurrentUser Account customer, Model model) throws IllegalAccessException {
-        if(customer instanceof StoreOwner){
-            throw new IllegalAccessException("잘못된 요청입니다.");
-        }
-        Account findCustomer = accountRepository.findByEmail(customer.getEmail());
-        MypageDto map = modelMapper.map(findCustomer, MypageDto.class);
-        modelMapper.map(findCustomer.getAddress(), map);
+        MypageDto map = modelMapper.map(customer, MypageDto.class);
+        modelMapper.map(customer.getAddress(), map);
         model.addAttribute(map);
         return "mypage/main";
     }
@@ -138,10 +134,9 @@ public class AccountController {
         return "mypage/change-password";
     }
     @PostMapping("/mypage/modify-password")
-    public String modifyPassword(@CurrentUser Account customer, @ModelAttribute ModifyPasswordDto modifyPasswordDto,
+    public String modifyPassword(@CurrentUser Account account, @ModelAttribute ModifyPasswordDto modifyPasswordDto,
                                  BindingResult result){
-        Account findAccount = accountRepository.findById(customer.getId()).get();
-        if(modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), findAccount.getPassword())){
+        if(modifyPasswordDto.getPassword().equals("") || !passwordEncoder.matches(modifyPasswordDto.getPassword(), account.getPassword())){
             result.rejectValue("password", null, "인증에 실패 하였습니다.");
             return "mypage/change-password";
         }

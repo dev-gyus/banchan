@@ -92,8 +92,6 @@ public class StoreController {
     public ReviewApiDto api_store_review(@PathVariable Long storeId, @PageableDefault Pageable pageable, Model model) {
         Page<ReviewFetchDto> findReviews = reviewRepository.findAccountOrdersOrderItemItemStoreByStoreId(storeId, pageable);
 
-        List<ReviewFetchDto> reviewList = findReviews.getContent();
-
         ReviewApiDto reviewApiDto = new ReviewApiDto(findReviews.getContent(), findReviews.isLast());
         return reviewApiDto;
     }
