@@ -70,6 +70,7 @@
                                 <div class="text-start"
                                      th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
                                 <div th:text="${alarm.content}"></div>
+                                <hr>
                             </div>
 
                             <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).DELIVERY_START}">
@@ -78,6 +79,7 @@
                                 <div class="text-start"
                                      th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
                                 <div th:text="${alarm.content}"></div>
+                                <hr>
                             </div>
 
                             <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).COMPLETED}">
@@ -86,6 +88,16 @@
                                 <div class="text-start"
                                      th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
                                 <div th:text="${alarm.content}"></div>
+                                <hr>
+                            </div>
+
+                            <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).RIDER_ORDER_ACCEPT}">
+                                <div class="form-text fs-4">라이더님이 배달을 수락하셨습니다!</div>
+                                <hr>
+                                <div class="text-start"
+                                     th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
+                                <div th:text="${alarm.content}"></div>
+                                <hr>
                             </div>
 
                         </div>
@@ -136,13 +148,15 @@
                                 alarmTopDiv.innerText = '주문이 취소되었습니다!';
                             }else if(alarmType == 'DELIVERY_START'){
                                 alarmTopDiv.innerText = '배달이 시작되었습니다!';
+                            }else if(alarmType == 'RIDER_ORDER_ACCEPT'){
+                                alarmTopDiv.innerText = '님이 배달을 수락하셨습니다!';
                             }else{
                                 alarmTopDiv.innerText = '배달이 완료되었습니다!';
                             }
                             alarmParentDiv.appendChild(alarmTopDiv);
 
-                            let hr = document.createElement('hr');
-                            alarmParentDiv.appendChild(hr);
+                            let firstHr = document.createElement('hr');
+                            alarmParentDiv.appendChild(firstHr);
 
                             let alarmDateDiv = document.createElement('div');
                             alarmDateDiv.className = 'text-start';
@@ -152,6 +166,9 @@
                             let alarmContentDiv = document.createElement('div');
                             alarmContentDiv.innerText = content;
                             alarmParentDiv.appendChild(alarmContentDiv);
+
+                            let secondHr = document.createElement('hr');
+                            alarmParentDiv.appendChild(secondHr);
                             alarmListDiv.appendChild(alarmParentDiv);
                         }
 
