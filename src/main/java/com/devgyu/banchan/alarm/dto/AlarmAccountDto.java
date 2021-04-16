@@ -4,11 +4,11 @@ import lombok.Data;
 
 @Data
 public class AlarmAccountDto {
-    private String nickname;
+    private String name;
     private String thumbnail;
 
-    public AlarmAccountDto(String nickname, String thumbnail) {
-        this.nickname = nickname;
+    public AlarmAccountDto(String name, String thumbnail) {
+        this.name = name;
         this.thumbnail = thumbnail;
     }
 }

@@ -1,6 +1,7 @@
 package com.devgyu.banchan.storelist;
 
 import com.devgyu.banchan.AppProperties;
+import com.devgyu.banchan.CommonUtils;
 import com.devgyu.banchan.ScrollingDto;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.CurrentUser;
@@ -66,20 +67,9 @@ public class StoreListController {
     public ScrollingDto category_scrolling(@CurrentUser Account account, @PathVariable String category, @PageableDefault Pageable pageable){
 
         String road = account.getAddress().getRoad();
-        String gu = road.split(" ")[1];
-        String convertedRoad = "";
+        String sigungu = CommonUtils.splitSigungu(road);
 
-        if (gu.indexOf('시') != -1) {
-            convertedRoad = gu.split("시")[0] + "시";
-        } else if (gu.indexOf('군') != -1) {
-            convertedRoad = gu.split("군")[0] + "군";
-        } else if (gu.indexOf('구') != -1) {
-            convertedRoad = gu.split("구")[0] + "구";
-        } else {
-            throw new IllegalArgumentException("주문을 확인하던중 에러가 발생하였습니다. 관리자에게 문의 부탁드립니다.");
-        }
-
-        Page<StoreOwner> findStore = storeOwnerRepository.findCategoriesFetchByCategoryNameAndSigungu(category, convertedRoad,pageable);
+        Page<StoreOwner> findStore = storeOwnerRepository.findCategoriesFetchByCategoryNameAndSigungu(category, sigungu, pageable);
         List<StoreListDto> collect = findStore.getContent()
                 .stream().map(fs -> new StoreListDto(fs.getId(), fs.getName(), fs.getThumbnail(), fs.isManagerAuthenticated()))
                 .collect(Collectors.toList());

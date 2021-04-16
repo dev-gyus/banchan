@@ -1,30 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragments :: commonHead"></head>
-<head>
-    <style>
-        .tagify--outside {
-            border: 0;
-        }
-
-        .tagify--outside .tagify__input {
-            order: -1;
-            flex: 100%;
-            border: 1px solid var(--tags-border-color);
-            margin-bottom: 1em;
-            transition: .1s;
-        }
-
-        .tagify--outside .tagify__input:hover {
-            border-color: var(--tags-hover-border-color);
-        }
-
-        .tagify--outside.tagify--focus .tagify__input {
-            transition: 0s;
-            border-color: var(--tags-focus-border-color);
-        }
-    </style>
-</head>
 
 <body>
 <div th:replace="fragments :: commonNav">공통네비</div>
@@ -35,7 +11,7 @@
             <div class="col-sm-12 text-center">
                 <div class="mb-3">
                     <span th:replace="fragments :: accountThumbnail(${alarmAccountDto}, 125, false)"></span>
-                    <span class="fs-1" th:text="${' ' + alarmAccountDto.nickname + '님께 도착한 알림목록입니다'}"></span>
+                    <span class="fs-1" th:text="${' ' + alarmAccountDto.name + '님께 도착한 알림목록입니다'}"></span>
                 </div>
             </div>
             <hr>
@@ -100,6 +76,42 @@
                                 <hr>
                             </div>
 
+                            <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).STORE_ACCEPTED}">
+                                <div class="form-text fs-4">가게 승인이 완료되었습니다!</div>
+                                <hr>
+                                <div class="text-start"
+                                     th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
+                                <div th:text="${alarm.content}"></div>
+                                <hr>
+                            </div>
+
+                            <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).STORE_REJECTED}">
+                                <div class="form-text fs-4">가게 변동사항을 다시한번 확인해주세요!</div>
+                                <hr>
+                                <div class="text-start"
+                                     th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
+                                <div th:text="${alarm.content}"></div>
+                                <hr>
+                            </div>
+
+                            <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).RIDER_ACCEPTED}">
+                                <div class="form-text fs-4">관리자가 권한을 승인하였습니다!</div>
+                                <hr>
+                                <div class="text-start"
+                                     th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
+                                <div th:text="${alarm.content}"></div>
+                                <hr>
+                            </div>
+
+                            <div th:if="${alarm.alarmType == T(com.devgyu.banchan.alarm.AlarmType).RIDER_REJECTED}">
+                                <div class="form-text fs-4">라이더님의 정보를 다시 한번 확인해주세요!</div>
+                                <hr>
+                                <div class="text-start"
+                                     th:text="${#temporals.format(alarm.alertDate, 'yyyy-MM-dd')}"></div>
+                                <div th:text="${alarm.content}"></div>
+                                <hr>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -150,8 +162,18 @@
                                 alarmTopDiv.innerText = '배달이 시작되었습니다!';
                             }else if(alarmType == 'RIDER_ORDER_ACCEPT'){
                                 alarmTopDiv.innerText = '님이 배달을 수락하셨습니다!';
-                            }else{
+                            }else if(alarmType == 'COMPLETED'){
                                 alarmTopDiv.innerText = '배달이 완료되었습니다!';
+                            }else if(alarmType == 'STORE_ACCEPTED'){
+                                alarmTopDiv.innerText = '가게 승인이 완료되었습니다!';
+                            }else if(alarmType == 'STORE_REJECTED'){
+                                alarmTopDiv.innerText = '가게 변동사항을 다시한번 확인해주세요!';
+                            }else if(alarmType == 'RIDER_ACCEPTED'){
+                                alarmTopDiv.innerText = '관리자가 권한을 승인하였습니다!';
+                            }else if(alarmType == 'RIDER_REJECTED'){
+                                alarmTopDiv.innerText = '라이더님의 정보를 다시 한번 확인해주세요!';
+                            }else{
+                                continue;
                             }
                             alarmParentDiv.appendChild(alarmTopDiv);
 

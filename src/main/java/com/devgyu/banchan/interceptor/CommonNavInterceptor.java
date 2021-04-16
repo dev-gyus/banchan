@@ -74,8 +74,10 @@ public class CommonNavInterceptor implements HandlerInterceptor {
                 refreshAuthentication(userAccount, account);
                 request.setAttribute("navAccount", account);
             }
-            Long alarmCount = alarmRepository.countNewAlarmsByAccountId(accountId);
-            request.setAttribute("alarmCount", alarmCount);
+            if(userAccount.getAdmin() == null) {
+                Long alarmCount = alarmRepository.countNewAlarmsByAccountId(accountId);
+                request.setAttribute("alarmCount", alarmCount);
+            }
         }
         return true;
     }

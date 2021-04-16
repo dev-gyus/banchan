@@ -8,6 +8,9 @@ import com.devgyu.banchan.items.ItemOption;
 import com.devgyu.banchan.items.ItemRepository;
 import com.devgyu.banchan.modules.category.Category;
 import com.devgyu.banchan.modules.category.CategoryRepository;
+import com.devgyu.banchan.modules.rider.Rider;
+import com.devgyu.banchan.modules.rider.RiderRepository;
+import com.devgyu.banchan.modules.rider.query.RiderRepositoryImpl;
 import com.devgyu.banchan.modules.storecategory.StoreCategory;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.storeowner.StoreOwnerRepository;
@@ -37,6 +40,7 @@ import java.util.stream.Collectors;
 public class PrepareController {
     private final CategoryRepository categoryRepository;
     private final StoreOwnerRepository storeOwnerRepository;
+    private final RiderRepository riderRepository;
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
     private final AccountRepository accountRepository;
@@ -70,6 +74,20 @@ public class PrepareController {
             newOwnerList.add(newOwner);
         }
         storeOwnerRepository.saveAll(newOwnerList);
+        return "redirect:/";
+    }
+
+    @GetMapping("/prepare/add-rider")
+    @Transactional
+    public String addRider() {
+        String rowPassword = "vmffkd495";
+        Address address = new Address("12345", "관악구 신림로 11길", "오솔길11", "2층202호", null);
+        List<Rider> newRider = new ArrayList<>();
+        for (int a = 100; a < 134; a++) {
+            Rider rider = new Rider("cjsworbehd" + a, "규스" + a, passwordEncoder.encode(rowPassword), "규스" + a, "01012341234", address, "021231234", "12-12-123456-12");
+            newRider.add(rider);
+        }
+        riderRepository.saveAll(newRider);
         return "redirect:/";
     }
 

@@ -38,7 +38,11 @@ public class ReviewController {
     public String review_main(@CurrentUser Account account, @PageableDefault Pageable pageable, Model model){
         Page<ReviewFetchDto> findReviews = reviewRepository.findStoreReviewAccountOrdersOrderItemItemStoreLeftByAccountId(account.getId(), pageable);
         List<ReviewFetchDto> reviewList = findReviews.getContent();
-        Roles accountRole = reviewList.get(0).getAccountRole();
+        Roles accountRole = account.getRole();
+        if(reviewList.isEmpty()){
+            model.addAttribute("accountRole", accountRole);
+            return "review/main";
+        }
         Long storeId = reviewList.get(0).getStoreId();
 
         model.addAttribute("accountRole", accountRole);

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+</head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light pb-5">
+
+    <div class="row g-3 justify-content-center fs-2">
+        <div class="col-sm-12">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12 text-start">
+                    <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면
+                    </button>
+                </div>
+                <div class="col-sm-12 text-center fs-1">
+                    <img class="rounded-3" th:src="'/upload/item/' + ${selectOptionDto.thumbnail}" width="125">
+                    <span th:text="${selectOptionDto.itemName}"></span>
+                    <div class="col-sm-12 text-center fs-1">
+                        <span class="form-text" th:text="${selectOptionDto.itemIntroduce}"></span>
+                        <hr>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div>옵션 선택</div>
+            <hr>
+            <form id="optionForm" th:action="@{'/orders/' + ${selectOptionDto.itemId} + '/add'}" method="post"
+                  th:object="${selectOptionDto}" class="row g-3 justify-content-center">
+                <div class="form-group col-sm-12" th:each="option : ${selectOptionDto.selectOptionListDtoList}">
+                    <input th:id="'option[' + ${optionStat.index} + ']'"
+                           type="checkbox" class="form-check-input"
+                           th:name="'optionId[' + ${optionStat.index} + ']'" th:value="${option.optionId}">
+                    <label th:for="'option[' + ${optionStat.index} + ']'" class="form-check-label"
+                           th:text="${option.optionName + '   ' + '+' + option.optionPrice + '₩'}"></label>
+                </div>
+                <div class="form-group text-center">
+                    <button type="button" class="btn btn-outline-primary fs-4" onclick="addCart()">장바구니 추가</button>
+                    <button type="submit" class="btn btn-outline-success fs-4">주문하기</button>
+                </div>
+                <script>
+                    $(function () {
+                        $.ajaxSetup({
+                            statusCode: {
+                                302: function () {
+                                    location.href = '/login';
+                                }
+                            }
+                        });
+                    });
+                    let itemId = [[${selectOptionDto.itemId}]];
+                    let optionCount = [[${selectOptionDto.selectOptionListDtoList.size()}]];
+                    let header = $('meta[name="_csrf_header"]').attr('content');
+                    let token = $('meta[name="_csrf"]').attr('content');
+
+                    function addCart() {
+                        let optionId = [];
+                        for (let a = 0; a < optionCount; a++) {
+                            let checkbox = document.querySelector("input[id='option[" + a + "]'");
+                            if (checkbox.checked) {
+                                optionId.push(checkbox.value);
+                            }
+                        }
+
+                        let data = {
+                            'itemId': itemId,
+                            'itemOptionIdList': optionId
+                        };
+
+                        sendAjax('/cart/api/confirm', data, false);
+                    }
+
+                    function sendAjax(url, data, alertOkay) {
+                        $.ajax({
+                            url: url,
+                            type: 'post',
+                            data: JSON.stringify(data),
+                            dataType: 'text',
+                            contentType: 'application/json',
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader(header, token);
+                            },
+                            success: function (result, xhr) {
+                                console.log(result);
+                                if (alertOkay) {
+                                    alert('장바구니에 추가가 완료되었습니다.');
+                                } else {
+                                    if(result == 'store_update'){
+                                        alert('현재 준비중인 가게입니다.');
+                                        return;
+                                    }
+                                    if (!alertOkay && result == 'true') {
+                                        if (confirm('장바구니는 한 가게의 상품만 주문 가능합니다. 만약 다른 가게의 상품을 추가하실경우' +
+                                            ' 기존 장바구니 상품은 지워지고, 해당 상품이 추가됩니다.')) {
+                                            sendAjax('/cart/api/add', data, true);
+                                        }
+                                    }else{
+                                        sendAjax('/cart/api/add', data, true);
+                                    }
+                                }
+                            },
+                            error: function (xhr) {
+                                if (alertOkay) {
+                                    alert('장바구니에 상품을 추가하는중 에러가 발생했습니다.' +
+                                        '계속해서 에러가 발생할경우 관리자에게 문의부탁드립니다.');
+                                }
+                            }
+                        });
+                    }
+                </script>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

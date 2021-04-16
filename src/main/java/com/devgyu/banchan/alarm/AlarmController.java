@@ -58,7 +58,7 @@ public class AlarmController {
     }
 
     private void nonApiAlarmMethod(@CurrentUser Account account, Model model, Page<Alarm> alarmList, String command) {
-        AlarmAccountDto alarmAccountDto = new AlarmAccountDto(account.getNickname(), account.getThumbnail());
+        AlarmAccountDto alarmAccountDto = new AlarmAccountDto(account.getName(), account.getThumbnail());
         model.addAttribute("command", command);
         model.addAttribute("alarmAccountDto", alarmAccountDto);
         model.addAttribute("alarmList", alarmList.getContent());

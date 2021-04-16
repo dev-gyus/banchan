@@ -59,6 +59,8 @@ public class QRider extends EntityPathBase<Rider> {
     //inherited
     public final NumberPath<Long> id;
 
+    public final DateTimePath<java.time.LocalDateTime> lastAuthDate = createDateTime("lastAuthDate", java.time.LocalDateTime.class);
+
     public final BooleanPath managerAuthenticated = createBoolean("managerAuthenticated");
 
     //inherited

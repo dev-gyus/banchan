@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light pb-5">
+
+    <div class="row g-3 justify-content-center fs-2">
+        <div class="col-sm-12">
+            <div class="row g-3 justify-content-center">
+                <div class="alert alert-info text-center">
+                    <span class="fs-1">현재 페이지는 관리자 상점페이지 입니다.</span><br>
+                    <span class="fs-3">상점의 변경사항을 확인하시고 이상 발생시 해당 가게로 연락, 알림메세지를 보내주시기 바랍니다.</span><br>
+                    <a th:href="@{/admin/store-accept}" class="link-secondary">가게승인 페이지 이동</a>
+                </div>
+                <div class="col-sm-12 text-center fs-1">
+                    <div th:replace="fragments :: accountThumbnail(${storeDto}, 125, false)"></div>
+                    <span th:id="${storeDto.id + 'storename'}" th:text="${storeDto.name}"></span>
+                </div>
+                <div class="col-sm-12 text-center fs-3">
+                    <span th:id="${storeDto.id + 'store-road'}" th:text="${storeDto.road}"></span>
+                    <span class="position-relative link-primary" th:id="${storeDto.id}"
+                          onclick="makeMap(this, 'store')">
+                            <a href="#" class="stretched-link" onclick="return false;"></a>
+                            <i class="fas fa-map-marked-alt"></i>
+                        </span>
+                </div>
+                <div class="col-sm-12 text-center fs-2">
+                    <span class="form-text" th:if="${storeDto.storeIntroduce != ''}"
+                          th:text="${storeDto.storeIntroduce}"></span>
+                    <small class="form-text" th:if="${storeDto.storeIntroduce == ''}"
+                           th:text="${storeDto.name}"></small>
+                    <hr>
+                </div>
+                <div th:id="${storeDto.id + 'storetd'}" class="col-sm-12 text-center"></div>
+            </div>
+        </div>
+        <div class="col-sm-12" th:each="map : ${itemMap}">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12">
+                    <span>상품 카테고리: </span><span th:text="${map.key} "></span>
+                    <hr class="mt-0">
+                </div>
+                <div th:id="${item.name}" class="col-sm-12" th:each="item : ${map.value}">
+                    <div class="row g-3 justify-content-center position-relative">
+                        <div class="col-sm-2 text-center">
+                            <img th:src="'/upload/item/' + ${item.thumbnail}" width="100px" height="100px"
+                                 class="rounded-3">
+                        </div>
+                        <div class="col-sm-2 align-self-center text-center fs-4" th:text="${item.name}"></div>
+                        <div class="col-sm-5 align-self-center text-center fs-4" th:text="${item.itemIntroduce}"></div>
+                        <div class="col-sm-2 align-self-center text-center fs-4" th:text="${item.price} + '₩'"></div>
+                        <a th:href="@{'/store/' + ${item.id} + '/selectoption'}" class="stretched-link"></a>
+                    </div>
+                    <hr class="mt-1">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:replace="store/store-fragments :: storeMapJs"></script>
+<script th:replace="fragments :: form-validate"></script>
+</body>
+</html>

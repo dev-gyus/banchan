@@ -40,10 +40,10 @@
                 <div class="col-sm-12 text-start">
                     <button type="button" class="btn btn-outline-success fs-4" onclick="history.back()">이전화면</button>
                 </div>
-                <div class="col-sm-12 fs-2 text-center" th:if="${reviewList.isEmpty()}">
+                <div class="col-sm-12 fs-2 text-center" th:if="${reviewList == null || reviewList.isEmpty()}">
                     현재 작성하신 리뷰가 아직 없으시네요!
                 </div>
-                <div class="col-sm-12 text-center" th:if="${!reviewList.isEmpty()}" >
+                <div class="col-sm-12 text-center" th:if="${reviewList != null && !reviewList.isEmpty()}" >
                     <hr class="mt-1 bg-light">
                     <div id="reviewListDiv" class="row g-3 gx-4 justify-content-center">
                         <div class="col-sm-12 fs-3 p-3 m-0 border" th:each="review : ${reviewList}">

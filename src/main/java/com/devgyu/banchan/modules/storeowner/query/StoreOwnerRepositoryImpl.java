@@ -10,6 +10,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -60,5 +61,17 @@ public class StoreOwnerRepositoryImpl implements StoreOwnerQueryRepository{
                 .limit(pageable.getPageSize())
                 .fetchResults();
         return new PageImpl<>(findStoreOwner.getResults(), pageable, findStoreOwner.getTotal());
+    }
+
+    @Override
+    public Page<StoreOwner> findAllByManagerAuthenticatedAndSigungu(boolean managerAuth, String sigungu, Pageable pageable) {
+        QueryResults<StoreOwner> result = queryFactory
+                .selectFrom(storeOwner)
+                .where(storeOwner.managerAuthenticated.eq(managerAuth).and(storeOwner.address.road.contains(sigungu)))
+                .orderBy(storeOwner.lastAuthDate.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+        return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
 }

@@ -59,6 +59,8 @@ public class QStoreOwner extends EntityPathBase<StoreOwner> {
 
     public final ListPath<com.devgyu.banchan.items.Item, com.devgyu.banchan.items.QItem> items = this.<com.devgyu.banchan.items.Item, com.devgyu.banchan.items.QItem>createList("items", com.devgyu.banchan.items.Item.class, com.devgyu.banchan.items.QItem.class, PathInits.DIRECT2);
 
+    public final DateTimePath<java.time.LocalDateTime> lastAuthDate = createDateTime("lastAuthDate", java.time.LocalDateTime.class);
+
     public final BooleanPath managerAuthenticated = createBoolean("managerAuthenticated");
 
     //inherited

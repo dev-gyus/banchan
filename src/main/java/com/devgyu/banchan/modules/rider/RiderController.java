@@ -1,5 +1,6 @@
 package com.devgyu.banchan.modules.rider;
 
+import com.devgyu.banchan.CommonUtils;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.CurrentUser;
@@ -100,20 +101,10 @@ public class RiderController {
     public RiderWaitingApiDto api_orderList(@CurrentUser Rider rider, @PageableDefault Pageable pageable) {
 
         String road = rider.getAddress().getRoad();
-        String gu = road.split(" ")[1];
-        String convertedRoad = "";
+        String sigungu = CommonUtils.splitSigungu(road);
 
-        if (gu.indexOf('시') != -1) {
-            convertedRoad = gu.split("시")[0] + "시";
-        } else if (gu.indexOf('군') != -1) {
-            convertedRoad = gu.split("군")[0] + "군";
-        } else if (gu.indexOf('구') != -1) {
-            convertedRoad = gu.split("구")[0] + "구";
-        } else {
-            throw new IllegalArgumentException("주문을 확인하던중 에러가 발생하였습니다. 관리자에게 문의 부탁드립니다.");
-        }
 
-        Page<RiderOrderDto> findOrders = riderRepository.findAccountItemFetchByStoreRoadIdAndStatus(convertedRoad, OrderStatus.READY, pageable);
+        Page<RiderOrderDto> findOrders = riderRepository.findAccountItemFetchByStoreRoadIdAndStatus(sigungu, OrderStatus.READY, pageable);
         List<RiderOrderDto> orderList = findOrders.getContent();
 
         return new RiderWaitingApiDto(orderList, findOrders.isLast());

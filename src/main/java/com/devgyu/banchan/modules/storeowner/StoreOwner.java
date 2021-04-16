@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,8 @@ public class StoreOwner extends Account {
     @OneToMany(mappedBy = "storeOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<StoreCategory> storeCategories = new ArrayList<>();
+
+    private LocalDateTime lastAuthDate = LocalDateTime.now();
 
     private boolean managerAuthenticated;
 

@@ -3,5 +3,222 @@
   <div class="text-center" th:fragment="adminNav(nowPage)">
     <a th:href="@{/admin}" class="list-group-item list-group-item-action" th:classappend="${nowPage == '대시보드'} ? 'active'">대시보드</a>
     <a th:href="@{/admin/user-block}" class="list-group-item list-group-item-action" th:classappend="${nowPage == '회원정지'} ? 'active'">회원정지</a>
+    <a th:href="@{/admin/store-accept}" class="list-group-item list-group-item-action" th:classappend="${nowPage == '가게승인'} ? 'active'">가게승인</a>
+    <a th:href="@{/admin/rider-accept}" class="list-group-item list-group-item-action" th:classappend="${nowPage == '라이더승인'} ? 'active'">라이더승인</a>
   </div>
+
+  <script th:fragment="adminStoreAddressJs">
+    let road = document.getElementById('road');
+    let searchForm = document.getElementById('searchForm');
+    let addressSearched = false;
+    document.addEventListener('DOMContentLoaded', function () {
+      road.addEventListener('keydown', function (e) {
+        alert('주소검색을 이용하여 입력해주세요');
+        e.preventDefault();
+        addressSearched = false;
+      });
+    });
+
+    function submitCheck() {
+      if (addressSearched) {
+        searchForm.submit();
+      } else {
+        alert('주소검색을 이용하여 입력해주세요');
+      }
+    }
+
+    //본 예제에서는 도로명 주소 표기 방식에 대한 법령에 따라, 내려오는 데이터를 조합하여 올바른 주소를 구성하는 방법을 설명합니다.
+    function sample4_execDaumPostcode() {
+      new daum.Postcode({
+        oncomplete: function (data) {
+          // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+          // 도로명 주소의 노출 규칙에 따라 주소를 표시한다.
+          // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+          var roadAddr = data.roadAddress; // 도로명 주소 변수
+
+          // 우편번호와 주소 정보를 해당 필드에 넣는다.
+          document.getElementById("road").value = roadAddr;
+          addressSearched = true;
+        }
+      }).open();
+    }
+  </script>
+
+  <script th:fragment="adminStoreAcceptScrolling">
+    // 무한 스크롤링
+    let ajaxReady = true;
+    let nowPage = 1;
+    let isLast = false;
+    let storeListDiv = document.getElementById('storeListDiv');
+    let searchRoad = '[[${adminStoreDto.road}]]';
+
+    $(document).ready(function () {
+      $(document).scroll(function () {
+        var maxHeight = $(document).height();
+        var currentScroll = $(window).scrollTop() + $(window).height();
+
+        if (currentScroll >= maxHeight - 150 && ajaxReady && !isLast) {
+          ajaxReady = false;
+          $.ajax({
+            url: '/admin/api/' + searchRoad + '/store-accept?page=' + nowPage + '&_csrf=' + token,
+            type: 'get',
+            dataType: 'json',
+            success: function (result) {
+              isLast = result.last;
+              let adminStoreDtoList = result.adminStoreDtoList;
+              for (let adminStoreDto of adminStoreDtoList) {
+                let storeId = adminStoreDto.id;
+                let nickname = adminStoreDto.nickname;
+                let road = adminStoreDto.road;
+                let tel = adminStoreDto.tel;
+
+                let tr = document.createElement('tr');
+                let storeNicknameTd = document.createElement('td');
+
+                let storeIdLink = document.createElement('a');
+                storeIdLink.href = '/admin/store/' + storeId;
+                storeIdLink.className = 'link-secondary';
+                storeIdLink.innerText = nickname;
+                storeNicknameTd.appendChild(storeIdLink);
+                tr.appendChild(storeNicknameTd);
+
+                let storeRoadTd = document.createElement('td');
+                storeRoadTd.innerText = road;
+                tr.appendChild(storeRoadTd);
+
+                let storeTelTd = document.createElement('td');
+                storeTelTd.innerText = tel;
+                tr.appendChild(storeTelTd);
+
+                let accessTd = document.createElement('td');
+                let accessForm = document.createElement('form');
+                accessForm.action = '/admin/store-accept/' + storeId + '?_csrf=' + token;
+                accessForm.method = 'post';
+
+                let roadInput = document.createElement('input');
+                roadInput.type = 'hidden';
+                roadInput.name = 'road';
+                roadInput.value = road;
+                accessForm.appendChild(roadInput);
+
+                let accessButton = document.createElement('button');
+                accessButton.type = 'submit';
+                accessButton.className = 'btn btn-outline-success';
+                accessButton.innerText = '승인';
+                accessForm.appendChild(accessButton);
+                accessTd.appendChild(accessForm);
+                tr.appendChild(accessTd);
+
+                let denyTd = document.createElement('td');
+                let denyButton = document.createElement('button');
+                denyButton.type = 'submit';
+                denyButton.className = 'btn btn-outline-danger';
+                denyButton.setAttribute('data-bs-storeId', storeId);
+                denyButton.setAttribute('data-bs-storeNickname', nickname);
+                denyButton.setAttribute('data-bs-toggle', 'modal');
+                denyButton.setAttribute('data-bs-target', '#exampleModal');
+                denyButton.innerText = '거부';
+                denyTd.appendChild(denyButton);
+                tr.appendChild(denyTd);
+                storeListDiv.appendChild(tr);
+              }
+              nowPage++;
+              ajaxReady = true;
+            },
+            error: function () {
+              alert('가게 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+            }
+          });
+        }
+      });
+    });
+  </script>
+
+  <script th:fragment="adminRiderAcceptScrolling">
+    // 무한 스크롤링
+    let ajaxReady = true;
+    let nowPage = 1;
+    let isLast = false;
+    let riderListDiv = document.getElementById('riderListDiv');
+    let searchRoad = '[[${adminRiderDto.road}]]';
+
+    $(document).ready(function () {
+      $(document).scroll(function () {
+        var maxHeight = $(document).height();
+        var currentScroll = $(window).scrollTop() + $(window).height();
+
+        if (currentScroll >= maxHeight - 150 && ajaxReady && !isLast) {
+          ajaxReady = false;
+          $.ajax({
+            url: '/admin/api/' + searchRoad + '/rider-accept?page=' + nowPage,
+            type: 'get',
+            dataType: 'json',
+            success: function (result) {
+              isLast = result.last;
+              let adminRiderDtoList = result.adminRiderDtoList;
+              for (let adminRiderDto of adminRiderDtoList) {
+                let riderId = adminRiderDto.id;
+                let road = adminRiderDto.road;
+                let nickname = adminRiderDto.nickname;
+                let driverLicense = adminRiderDto.driverLicense;
+                let name = adminRiderDto.name;
+
+                let tr = document.createElement('tr');
+
+                let riderNicknameTd = document.createElement('td');
+                riderNicknameTd.innerText = nickname;
+                tr.appendChild(riderNicknameTd);
+
+                let riderNameTd = document.createElement('td');
+                riderNameTd.innerText = name;
+                tr.appendChild(riderNameTd);
+
+                let driverLicenseTd = document.createElement('td');
+                driverLicenseTd.innerText = driverLicense;
+                tr.appendChild(driverLicenseTd);
+
+                let accessTd = document.createElement('td');
+                let accessForm = document.createElement('form');
+                accessForm.action = '/admin/rider-accept/' + riderId + '?_csrf=' + token;
+                accessForm.method = 'post';
+
+                let roadInput = document.createElement('input');
+                roadInput.type = 'hidden';
+                roadInput.name = 'road';
+                roadInput.value = road;
+                accessForm.appendChild(roadInput);
+
+                let accessButton = document.createElement('button');
+                accessButton.type = 'submit';
+                accessButton.className = 'btn btn-outline-success';
+                accessButton.innerText = '승인';
+                accessForm.appendChild(accessButton);
+                accessTd.appendChild(accessForm);
+                tr.appendChild(accessTd);
+
+                let denyTd = document.createElement('td');
+                let denyButton = document.createElement('button');
+                denyButton.type = 'submit';
+                denyButton.className = 'btn btn-outline-danger';
+                denyButton.setAttribute('data-bs-riderId', riderId);
+                denyButton.setAttribute('data-bs-riderNickname', nickname);
+                denyButton.setAttribute('data-bs-toggle', 'modal');
+                denyButton.setAttribute('data-bs-target', '#exampleModal');
+                denyButton.innerText = '거부';
+                denyTd.appendChild(denyButton);
+                tr.appendChild(denyTd);
+                riderListDiv.appendChild(tr);
+              }
+              nowPage++;
+              ajaxReady = true;
+            },
+            error: function () {
+              alert('가게 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+            }
+          });
+        }
+      });
+    });
+  </script>
 </html>

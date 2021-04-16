@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class Rider extends Account {
     private List<RiderOrders> riderOrdersList = new ArrayList<>();
 
     private boolean managerAuthenticated;
+    private LocalDateTime lastAuthDate = LocalDateTime.now();
 
     public Rider(String email, String nickname, String password, String name, String phone, Address address, String emailToken, String driverLicense) {
         super(email, nickname, password, name, phone, Roles.ROLE_RIDER, address, emailToken);

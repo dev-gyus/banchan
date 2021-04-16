@@ -2,6 +2,7 @@ package com.devgyu.banchan.modules.rider.query;
 
 import com.devgyu.banchan.modules.rider.QRider;
 import com.devgyu.banchan.modules.rider.QRiderOrders;
+import com.devgyu.banchan.modules.rider.Rider;
 import com.devgyu.banchan.modules.rider.RiderOrderDto;
 import com.devgyu.banchan.orders.OrderStatus;
 import com.devgyu.banchan.orders.Orders;
@@ -73,5 +74,17 @@ public class RiderRepositoryImpl implements RiderQueryRepository{
 
         return new PageImpl<>(results.getResults(), pageable, results.getTotal());
 
+    }
+
+    @Override
+    public Page<Rider> findAllByManagerAuthenticatedAndSigungu(boolean managerAuth, String sigungu, Pageable pageable) {
+        QueryResults<Rider> result = queryFactory
+                .selectFrom(rider)
+                .where(rider.managerAuthenticated.eq(managerAuth).and(rider.address.road.contains(sigungu)))
+                .orderBy(rider.lastAuthDate.asc())
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetchResults();
+        return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
 }

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
+
+<body>
+<div th:replace="fragments :: commonNav">공통네비</div>
+<div class="container-sm bg-light pb-5">
+    <div class="row g-3 justify-content-center fs-4">
+        <div class="col-sm-2">
+            <div th:replace="admin/admin-fragments :: adminNav('라이더승인')"></div>
+        </div>
+        <div class="col-sm-10 text-center">
+            <div class="row g-3 justify-content-center">
+                <div class="col-sm-12 text-start">
+                    <h2>라이더승인</h2>
+                    <hr>
+                </div>
+                <div class="col-sm-12">
+                    <form id="searchForm" th:object="${adminRiderDto}" th:action="@{/admin/rider-accept}" method="post"
+                          class="row g-3 justify-content-center needs-validation" novalidate>
+                        <div class="form-group col-sm-8">
+                            <input id="road" type="text" name="road" class="form-control fs-4" th:field="*{road}" autocomplete="off" required/>
+                        </div>
+                        <div class="form-group text-start col-sm-5 d-grid">
+                            <button type="button" class="btn btn-outline-primary fs-5" onclick="sample4_execDaumPostcode()">
+                                주소찾기
+                            </button>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <small class="invalid-feedback">필수항목입니다</small>
+                            <small class="form-text">승인할 라이더의 시,군,구 주소를 조회해주세요</small><br>
+                        </div>
+                        <div class="form-group col-sm-7 d-grid">
+                            <button id="submitButton" type="button" class="btn btn-outline-success fs-4"
+                                    onclick="submitCheck()">검색
+                            </button>
+                        </div>
+                    </form>
+                    <hr>
+                </div>
+                <div class="col-sm-6" th:if="${riderList == null || riderList.isEmpty()}">
+                    <h2>주소를 입력하지 않으셨거나, 조회한 시,군,구 주소에 승인이 필요한 라이더 목록이 없습니다.</h2>
+                </div>
+                <div class="col-sm-12" th:if="${riderList != null}">
+                    <table class="table table-hover text-center">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="col-sm-3">닉네임</th>
+                            <th scope="col" class="col-sm-3">이름</th>
+                            <th scope="col" class="col-sm-4">운전면허번호</th>
+                            <th scope="col" class="col-sm-1">승인</th>
+                            <th scope="col" class="col-sm-1">거절</th>
+                        </tr>
+                        </thead>
+                        <tbody id="riderListDiv">
+                        <tr th:each="rider : ${riderList}">
+                            <td th:text="${rider.nickname}"></td>
+                            <td th:text="${rider.name}"></td>
+                            <td th:text="${rider.driverLicense}"></td>
+                            <td>
+                                <form th:action="@{'/admin/rider-accept/' + ${rider.id}}" method="post">
+                                    <input type="hidden" name="road" th:value="${rider.road}"/>
+                                    <button type="submit" class="btn btn-outline-success">승인</button>
+                                </form>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                        th:data-bs-riderNickname="${rider.nickname}" th:data-bs-riderId="${rider.id}">거절</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">승인 거절</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modalForm" method="post">
+                    <input type="hidden" name="road" th:value="${road}">
+                    <div>라이더의 승인 거절 사유를 입력해주세요</div>
+                    <div id="modalRiderNickname"></div>
+                    <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label">거절사유:</label>
+                        <input type="text" class="form-control" id="recipient-name" name="rejectReason">
+                    </div>
+                    <div class="form-group text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">거절</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let token = '[[${_csrf.token}]]';
+    var exampleModal = document.getElementById('exampleModal')
+    exampleModal.addEventListener('show.bs.modal', function (event) {
+        // Button that triggered the modal
+        var button = event.relatedTarget
+        // Extract info from data-bs-* attributes
+        var riderId = button.getAttribute('data-bs-riderId');
+        var nickname = button.getAttribute('data-bs-riderNickname');
+        // If necessary, you could initiate an AJAX request here
+        // and then do the updating in a callback.
+        //
+        // Update the modal's content.
+        let modalForm = document.getElementById('modalForm');
+        modalForm.action = '/admin/rider-reject/' + riderId + '?_csrf=' + token;
+
+        let modalRiderNickname = document.getElementById('modalRiderNickname');
+        modalRiderNickname.innerText = '라이더닉네임: ' + nickname;
+    })
+</script>
+<script th:replace="admin/admin-fragments :: adminRiderAcceptScrolling"></script>
+<script th:replace="fragments :: form-validate"></script>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script th:replace="admin/admin-fragments :: adminStoreAddressJs"></script>
+</body>
+</html>
