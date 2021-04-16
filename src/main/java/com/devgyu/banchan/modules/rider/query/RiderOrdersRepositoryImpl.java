@@ -59,15 +59,4 @@ public class RiderOrdersRepositoryImpl implements RiderOrdersQueryRepository{
                 .where(orders.id.eq(ordersId).and(rider.id.eq(riderId)))
                 .fetch();
     }
-
-    @Override
-    public List<RiderOrders> findAccountOrderFetchByRiderIdAndOrderId(Long riderId, Long orderId) {
-        return queryFactory
-                .selectFrom(riderOrders)
-                .join(riderOrders.rider, rider).fetchJoin()
-                .join(riderOrders.orders, orders).fetchJoin()
-                .join(orders.account, account).fetchJoin()
-                .where(rider.id.eq(riderId).and(orders.id.eq(orderId)))
-                .fetch();
-    }
 }

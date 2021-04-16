@@ -48,4 +48,17 @@ public class StoreOwnerRepositoryImpl implements StoreOwnerQueryRepository{
                 .fetchResults();
         return new PageImpl<>(findStoreOwner.getResults(), pageable, findStoreOwner.getTotal());
     }
+
+    @Override
+    public Page<StoreOwner> findCategoriesFetchByCategoryNameAndSigungu(String categoryName, String sigungu, Pageable pageable) {
+        QueryResults<StoreOwner> findStoreOwner = queryFactory
+                .selectFrom(storeOwner)
+                .join(storeOwner.storeCategories, storeCategory).fetchJoin()
+                .join(storeCategory.category, category).fetchJoin()
+                .where(category.urlName.eq(categoryName).and(storeOwner.address.road.contains(sigungu)))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+        return new PageImpl<>(findStoreOwner.getResults(), pageable, findStoreOwner.getTotal());
+    }
 }

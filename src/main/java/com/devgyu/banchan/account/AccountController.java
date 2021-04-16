@@ -32,7 +32,10 @@ public class AccountController {
     // TODO Account 엔티티로 받는거 전부 Customer 엔티티로 받도록 변경할것
 
     @GetMapping("/login")
-    public String login(@ModelAttribute LoginDto loginDto){
+    public String login(@CurrentUser Account account, @ModelAttribute LoginDto loginDto){
+        if(account != null){
+            return "redirect:/";
+        }
         return "login";
     }
     @PostMapping("/login")

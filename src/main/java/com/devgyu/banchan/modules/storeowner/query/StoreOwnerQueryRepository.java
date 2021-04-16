@@ -12,4 +12,6 @@ public interface StoreOwnerQueryRepository {
     List<StoreOwner> findCategoriesFetchById(Long id);
 
     Page<StoreOwner> findCategoriesFetchByCategoryName(String categoryName, Pageable pageable);
+
+    Page<StoreOwner> findCategoriesFetchByCategoryNameAndSigungu(String category, String sigungu, Pageable pageable);
 }

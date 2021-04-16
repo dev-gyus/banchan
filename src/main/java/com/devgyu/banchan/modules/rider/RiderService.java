@@ -55,17 +55,16 @@ public class RiderService {
         if(findOrders.getRiderOrders() != null){
             throw new IllegalArgumentException("이미 배송이 시작된 주문입니다");
         }
-        Rider findRider = riderRepository.findById(rider.getId()).get();
-        RiderOrders riderOrders = new RiderOrders(findRider, findOrders);
+        RiderOrders riderOrders = new RiderOrders(rider, findOrders);
         findOrders.setOrderStatus(OrderStatus.DELIVERY_READY);
 
         StoreOwner storeOwner = findOrders.getOrdersItemList().get(0).getItem().getStoreOwner();
-        String content = findRider.getNickname() + "님이 배달을 수락하셨습니다!";
+        String content = rider.getNickname() + "님이 배달을 수락하셨습니다!";
         new Alarm(storeOwner, content, AlarmType.RIDER_ORDER_ACCEPT, LocalDateTime.now());
     }
 
     public void startDelivery(Rider rider, Long orderId) {
-        List<RiderOrders> findOrder = riderOrdersRepository.findAccountOrderFetchByRiderIdAndOrderId(rider.getId(), orderId);
+        List<RiderOrders> findOrder = riderOrdersRepository.findAccountOrdersItemStoreFetchByOrdersIdAndRiderId(orderId, rider.getId());
         if(findOrder.isEmpty()){
             throw new IllegalArgumentException("잘못된 요청입니다");
         }

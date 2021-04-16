@@ -2,6 +2,7 @@ package com.devgyu.banchan.store;
 
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
+import com.devgyu.banchan.account.CurrentUser;
 import com.devgyu.banchan.items.*;
 import com.devgyu.banchan.modules.category.Category;
 import com.devgyu.banchan.modules.category.CategoryRepository;
@@ -42,12 +43,24 @@ public class StoreController {
     private final ItemOptionRepository itemOptionRepository;
 
     @GetMapping({"/{storeId}"})
-    public String store_main(@PathVariable Long storeId, Model model) {
+    public String store_main(@CurrentUser Account account, @PathVariable Long storeId, Model model) {
         List<Category> categoryList = categoryRepository.findAllByStoreOwnerId(storeId);
         StoreOwner findOwner = categoryList.get(0).getStoreCategoryList().get(0).getStoreOwner();
-        Address address = findOwner.getAddress();
+        Address ownerAddress = findOwner.getAddress();
+
+        // 가게 상세보기 URL로 접근할 경우 로그인한 사용자와 가게의 주소 시,군,구 단위가 다른지 여부 확인
+        String storeRoad = ownerAddress.getRoad();
+        String storeGu = storeRoad.split(" ")[1];
+
+        String accountRoad = account.getAddress().getRoad();
+        String accountGu = accountRoad.split(" ")[1];
+
+        if(!storeGu.equals(accountGu)){
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
         StoreDto map = modelMapper.map(findOwner, StoreDto.class);
-        modelMapper.map(address, map);
+        modelMapper.map(ownerAddress, map);
 
         List<String> categoryNames = categoryList.stream().map(c -> c.getName()).collect(Collectors.toList());
 
