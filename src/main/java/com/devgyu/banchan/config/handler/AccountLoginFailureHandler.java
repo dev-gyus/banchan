@@ -38,6 +38,7 @@ public class AccountLoginFailureHandler implements AuthenticationFailureHandler 
 
             if (findAccount.getFailCount() >= 5) {
                 request.setAttribute("isLocked", true);
+                request.setAttribute("exceptionMessage", "계정이 잠겼습니다. 비밀번호 찾기 후 로그인 해 주세요");
             } else {
                 findAccount.addFailCount();
                 request.setAttribute("isFailed", true);

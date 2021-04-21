@@ -96,7 +96,12 @@
                     <a th:href="@{/admin}" class="btn btn-outline-primary me-1">관리페이지</a>
                 </div>
 
-                <div class="position-relative me-2" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}"
+                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="상담목록"
+                     th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}">
+                    <a th:href="@{/counselor/list}" class="btn btn-outline-primary me-1">상담목록</a>
+                </div>
+
+                <div class="position-relative me-2" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}"
                      data-bs-toggle="tooltip" data-bs-placement="bottom" title="알림">
                     <span class="ms-2 me-2">
                         <a th:href="@{/alarm}" class="stretched-link"></a>
@@ -105,18 +110,26 @@
                     </span>
                 </div>
 
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}"
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}"
                      data-bs-toggle="tooltip" data-bs-placement="bottom" title="주문확인">
                     <span class="position-relative me-2">
                         <a th:href="@{/orders}" class="stretched-link"></a>
                         <i class="fas fa-clipboard-list fa-2x"></i>
                     </span>
                 </div>
-                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN}"
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}"
                      data-bs-toggle="tooltip" data-bs-placement="bottom" title="장바구니">
                     <span class="position-relative me-2">
                         <a th:href="@{/cart}" class="stretched-link"></a>
                         <i class="fas fa-shopping-cart fa-2x"></i>
+                    </span>
+                </div>
+
+                <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}"
+                     class="me-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="문의하기">
+                    <span class="position-relative">
+                        <i class="fas fa-comment-dots fa-2x"></i>
+                        <a th:href="@{/customer-service}" class="stretched-link"></a>
                     </span>
                 </div>
 

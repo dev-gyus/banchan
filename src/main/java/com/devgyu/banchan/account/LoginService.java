@@ -1,6 +1,7 @@
 package com.devgyu.banchan.account;
 
 import com.devgyu.banchan.admin.Admin;
+import com.devgyu.banchan.modules.counselor.Counselor;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.rider.Rider;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,8 @@ public class LoginService implements UserDetailsService {
             return new UserAccount(findAccount.getEmail(), findAccount.getPassword(), Arrays.asList(new SimpleGrantedAuthority(findAccount.getRole().toString())), findAccount.getId(), (Rider) findAccount);
         }else if(findAccount instanceof Admin){
             return new UserAccount(findAccount.getEmail(), findAccount.getPassword(), Arrays.asList(new SimpleGrantedAuthority(findAccount.getRole().toString())), findAccount.getId(), (Admin) findAccount);
+        }else if(findAccount instanceof Counselor){
+            return new UserAccount(findAccount.getEmail(), findAccount.getPassword(), Arrays.asList(new SimpleGrantedAuthority(findAccount.getRole().toString())), findAccount.getId(), (Counselor) findAccount);
         }
         return null;
     }

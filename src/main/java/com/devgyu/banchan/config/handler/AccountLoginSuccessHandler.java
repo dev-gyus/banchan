@@ -39,8 +39,10 @@ public class AccountLoginSuccessHandler implements AuthenticationSuccessHandler 
             account = principal.getRider();
         }else if(principal.getAdmin() != null){
             account = principal.getAdmin();
-        }else {
-            return;
+        }else if(principal.getCounselor() != null){
+            account = principal.getCounselor();
+        }else{
+            throw new IllegalArgumentException("잘못된 접근입니다.");
         }
 
         Account findAccount = accountRepository.findById(account.getId()).get();

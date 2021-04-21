@@ -2,6 +2,7 @@ package com.devgyu.banchan.account;
 
 import com.devgyu.banchan.account.customer.Customer;
 import com.devgyu.banchan.admin.Admin;
+import com.devgyu.banchan.modules.counselor.Counselor;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.rider.Rider;
 import lombok.*;
@@ -18,6 +19,7 @@ public class UserAccount extends User {
     private StoreOwner storeOwner;
     private Rider rider;
     private Admin admin;
+    private Counselor counselor;
     private Roles role;
 
     public UserAccount(String username, String password, Collection<? extends GrantedAuthority> authorities, Long id, Customer customer) {
@@ -44,5 +46,25 @@ public class UserAccount extends User {
         this.id = id;
         this.admin = admin;
         this.role = admin.getRole();
+    }
+    public UserAccount(String username, String password, Collection<? extends GrantedAuthority> authorities, Long id, Counselor counselor) {
+        super(username, password, authorities);
+        this.id = id;
+        this.counselor = counselor;
+        this.role = counselor.getRole();
+    }
+
+    public Account getAccount(){
+        if(this.customer != null){
+            return this.customer;
+        }else if(this.storeOwner != null){
+            return this.storeOwner;
+        }else if(this.rider != null){
+            return this.rider;
+        }else if(this.counselor != null){
+            return this.counselor;
+        }else {
+            return this.admin;
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.devgyu.banchan.account;
 
 import com.devgyu.banchan.alarm.Alarm;
 import com.devgyu.banchan.cart.Cart;
+import com.devgyu.banchan.account.chatroom.ChatRoom;
 import com.devgyu.banchan.orders.Orders;
 import com.devgyu.banchan.review.Review;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -70,6 +71,10 @@ public abstract class Account {
     private LocalDateTime blockedDate;
     private LocalDateTime unblockedDate;
     private String blockReason;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
+    @JsonIgnore
+    private List<ChatRoom> chatRoomList = new ArrayList<>();
 
     public Account(String email, String nickname, String password, String name, String phone, Roles role, Address address, String emailToken) {
         this.email = email;

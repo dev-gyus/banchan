@@ -36,6 +36,8 @@ public class QAccount extends EntityPathBase<Account> {
 
     public final com.devgyu.banchan.cart.QCart cart;
 
+    public final ListPath<com.devgyu.banchan.account.chatroom.ChatRoom, com.devgyu.banchan.account.chatroom.QChatRoom> chatRoomList = this.<com.devgyu.banchan.account.chatroom.ChatRoom, com.devgyu.banchan.account.chatroom.QChatRoom>createList("chatRoomList", com.devgyu.banchan.account.chatroom.ChatRoom.class, com.devgyu.banchan.account.chatroom.QChatRoom.class, PathInits.DIRECT2);
+
     public final StringPath email = createString("email");
 
     public final StringPath emailToken = createString("emailToken");

@@ -1,10 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments :: commonHead"></head>
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+  <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+  <script src="/webjars/stomp-websocket/stomp.min.js"></script>
 </head>
+
 <body>
-$END$
+<div th:replace="fragments :: commonNav">공통네비</div>
+
+<div class="container-sm bg-light pb-5">
+  <div class="row g-3 justify-content-center fs-2">
+    <div class="col-sm-10">
+      <h2>고객문의</h2>
+      <hr>
+    </div>
+    <div id="messageDiv" class="col-sm-10 fs-4" style="height: 500px; overflow: auto; background-color: #ffffff">
+      <div th:if="${chatList != null}" th:each="chat : ${chatList}">
+        <div class="text-end" th:if="${chat.chatRole == T(com.devgyu.banchan.chat.ChatRole).COUNSELOR}">
+          <span th:text="${counselorNickname}"></span><br>
+          <span style="background-color: #FFD700" th:text="${chat.message}"></span>
+        </div>
+        <div class="text-start" th:if="${chat.chatRole == T(com.devgyu.banchan.chat.ChatRole).NORMAL}">
+          <span th:text="${accountNickname}"></span><br>
+          <span style="background-color: #F5F5F5" th:text="${chat.message}"></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-10">
+      <form class="row justify-content-center">
+        <div class="form-group col-sm-10 align-self-center">
+          <input type="text" id="chatMessage" class="form-control" placeholder="메시지를 입력해주세요."/>
+        </div>
+        <div class="form-group col-sm-2 align-self-center d-grid">
+          <button id="chatSend" class="btn btn-outline-primary" type="button">보내기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  var stompClient = null;
+  let messageDiv = document.getElementById('messageDiv');
+  let sessionId = '[[${sessionId}]]';
+  let chatMessage = document.createElement('chatMessage');
+  let previousStatus = '[[${previousStatus}]]';
+
+  function connect() {
+    var socket = new SockJS('/websocket');
+    stompClient = Stomp.over(socket);
+    // SockJS와 stomp client를 통해 연결을 시도.
+    stompClient.connect({}, function (frame) {
+      console.log(frame);
+      if(previousStatus == 'WAITING'){
+      stompClient.send("/app/counselor/" + sessionId + "/join", {}, JSON.stringify({
+        'message' : '',
+        'sessionId' : sessionId
+      }));
+      }
+      stompClient.subscribe('/queue/chat/' + sessionId , function (chat) {
+        showChat(JSON.parse(chat.body));
+      });
+    });
+  }
+
+  function sendChat() {
+    let message = $('#chatMessage').val();
+    if(message !== '') {
+      stompClient.send("/app/counselor/" + sessionId, {}, JSON.stringify({
+        'message': message,
+        'sessionId' : sessionId
+      }));
+      $('#chatMessage').val('');
+    }
+  }
+  function showChat(chat) {
+    if(chat == null){
+      return;
+    }
+    let role = chat.chatRole;
+
+    if(role == 'COUNSELOR'){
+      $('#createMessage').hide();
+      chatMessage.setAttribute('readonly', 'false');
+      chatMessage.setAttribute('placeholder', '메시지를 입력해주세요');
+    }
+
+    if(role == 'COUNSELOR') {
+      let messageContainer = document.createElement('div');
+      messageContainer.className = 'text-end';
+
+      let nicknameSpan = document.createElement('span');
+      nicknameSpan.innerHTML = chat.nickname + '<br>';
+      messageContainer.appendChild(nicknameSpan);
+
+      let contentSpan = document.createElement('span');
+      contentSpan.innerHTML = chat.message;
+      contentSpan.style.backgroundColor = '#FFD700';
+      messageContainer.appendChild(contentSpan);
+      messageDiv.appendChild(messageContainer);
+    }else if(role == 'NORMAL'){
+      let messageContainer = document.createElement('div');
+      messageContainer.className = 'text-start';
+
+      let nicknameSpan = document.createElement('span');
+      nicknameSpan.innerHTML = chat.nickname;
+      messageContainer.appendChild(nicknameSpan);
+
+      let br = document.createElement('br');
+      messageContainer.appendChild(br);
+
+      let contentSpan = document.createElement('span');
+      contentSpan.innerHTML = chat.message;
+      contentSpan.style.backgroundColor = '#F5F5F5';
+      messageContainer.appendChild(contentSpan);
+      messageDiv.appendChild(messageContainer);
+    }else{
+      makeCreateMessage(chat);
+    }
+    messageDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
+  }
+
+  function makeCreateMessage(chat){
+    let createMessageContainer = document.createElement('div');
+    createMessageContainer.innerHTML = chat.message;
+    createMessageContainer.className = 'alert alert-info text-center fs-3';
+    createMessageContainer.id = 'createMessage';
+    messageDiv.appendChild(createMessageContainer);
+  }
+
+  $(function () {
+    $("form").on('submit', function (e) {
+      e.preventDefault();
+    });
+    $( "#chatSend" ).click(function(){ sendChat(); });
+    $( "#chatMessage" ).keydown(function(event){
+      if(event.keyCode == 13){
+        sendChat();  // 실행할 이벤트
+      }
+    });
+    connect();
+    messageDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
+  });
+</script>
+
 </body>
 </html>

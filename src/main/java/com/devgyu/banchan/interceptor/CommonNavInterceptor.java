@@ -8,6 +8,8 @@ import com.devgyu.banchan.admin.Admin;
 import com.devgyu.banchan.admin.AdminRepository;
 import com.devgyu.banchan.alarm.AlarmRepository;
 import com.devgyu.banchan.alarm.AlarmService;
+import com.devgyu.banchan.modules.counselor.Counselor;
+import com.devgyu.banchan.modules.counselor.CounselorRepository;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.storeowner.StoreOwnerRepository;
 import com.devgyu.banchan.modules.rider.Rider;
@@ -34,6 +36,7 @@ public class CommonNavInterceptor implements HandlerInterceptor {
     private final RiderRepository riderRepository;
     private final AdminRepository adminRepository;
     private final AlarmRepository alarmRepository;
+    private final CounselorRepository counselorRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -73,6 +76,13 @@ public class CommonNavInterceptor implements HandlerInterceptor {
                 //쿼리 다이어트용. 매 페이지 이동시마다 인터셉터에서 로그인한 유저엔티티 최신상태로 유지해줌
                 refreshAuthentication(userAccount, account);
                 request.setAttribute("navAccount", account);
+            }else if(userAccount.getCounselor() != null){
+                accountId = userAccount.getId();
+                Counselor account = counselorRepository.findById(accountId).get();
+
+                //쿼리 다이어트용. 매 페이지 이동시마다 인터셉터에서 로그인한 유저엔티티 최신상태로 유지해줌
+                refreshAuthentication(userAccount, account);
+                request.setAttribute("navAccount", account);
             }
             if(userAccount.getAdmin() == null) {
                 Long alarmCount = alarmRepository.countNewAlarmsByAccountId(accountId);
@@ -93,7 +103,10 @@ public class CommonNavInterceptor implements HandlerInterceptor {
         } else if (account instanceof Rider) {
             newUserAccount = new UserAccount(account.getEmail(), account.getPassword(),
                     Arrays.asList(new SimpleGrantedAuthority(account.getRole().toString())), account.getId(), (Rider) account);
-        } else {
+        } else if (account instanceof Counselor){
+            newUserAccount = new UserAccount(account.getEmail(), account.getPassword(),
+                    Arrays.asList(new SimpleGrantedAuthority(account.getRole().toString())), account.getId(), (Counselor) account);
+        } else{
             newUserAccount = new UserAccount(account.getEmail(), account.getPassword(),
                     Arrays.asList(new SimpleGrantedAuthority(account.getRole().toString())), account.getId(), (Admin) account);
         }

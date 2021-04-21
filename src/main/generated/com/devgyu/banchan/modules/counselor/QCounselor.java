@@ -46,6 +46,11 @@ public class QCounselor extends EntityPathBase<Counselor> {
     public final com.devgyu.banchan.cart.QCart cart;
 
     //inherited
+    public final ListPath<com.devgyu.banchan.account.chatroom.ChatRoom, com.devgyu.banchan.account.chatroom.QChatRoom> chatRoomList;
+
+    public final ListPath<com.devgyu.banchan.account.chatroom.ChatRoom, com.devgyu.banchan.account.chatroom.QChatRoom> counselList = this.<com.devgyu.banchan.account.chatroom.ChatRoom, com.devgyu.banchan.account.chatroom.QChatRoom>createList("counselList", com.devgyu.banchan.account.chatroom.ChatRoom.class, com.devgyu.banchan.account.chatroom.QChatRoom.class, PathInits.DIRECT2);
+
+    //inherited
     public final StringPath email;
 
     //inherited
@@ -110,6 +115,7 @@ public class QCounselor extends EntityPathBase<Counselor> {
         this.blockedDate = _super.blockedDate;
         this.blockReason = _super.blockReason;
         this.cart = _super.cart;
+        this.chatRoomList = _super.chatRoomList;
         this.email = _super.email;
         this.emailToken = _super.emailToken;
         this.failCount = _super.failCount;

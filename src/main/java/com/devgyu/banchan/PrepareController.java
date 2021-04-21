@@ -8,6 +8,7 @@ import com.devgyu.banchan.items.ItemOption;
 import com.devgyu.banchan.items.ItemRepository;
 import com.devgyu.banchan.modules.category.Category;
 import com.devgyu.banchan.modules.category.CategoryRepository;
+import com.devgyu.banchan.modules.counselor.CounselorService;
 import com.devgyu.banchan.modules.rider.Rider;
 import com.devgyu.banchan.modules.rider.RiderRepository;
 import com.devgyu.banchan.modules.rider.query.RiderRepositoryImpl;
@@ -43,6 +44,7 @@ public class PrepareController {
     private final RiderRepository riderRepository;
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
+    private final CounselorService counselorService;
     private final AccountRepository accountRepository;
     private final ItemRepository itemRepository;
     private final ReviewRepository reviewRepository;
@@ -121,6 +123,12 @@ public class PrepareController {
             }
         }
         return "redirect:/";
+    }
+
+    @GetMapping("/prepare/counselor")
+    public String prepare_counselor(){
+        counselorService.saveCounselor();
+        return"redirect:/";
     }
 
 }
