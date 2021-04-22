@@ -30,15 +30,18 @@
             </div>
         </div>
         <div class="col-sm-10">
-            <form class="row justify-content-center">
-                <div class="form-group col-sm-10 align-self-center">
+            <form onsubmit="return false" class="row justify-content-center">
+                <div class="form-group col-sm-9 align-self-center">
                     <input type="text" id="chatMessage" class="form-control" placeholder="상담사 참여시 입력가능합니다!"
                            readonly="disabled"/>
                 </div>
-                <div class="form-group col-sm-2 align-self-center d-grid">
+                <div class="form-group col-sm-3 align-self-center d-grid">
                     <button id="chatSend" class="btn btn-outline-primary" type="button">보내기</button>
                 </div>
             </form>
+        </div>
+        <div class="col-sm-10 d-grid">
+            <a th:href="@{/customer-service-list}" class="btn btn-outline-success fs-5">목록화면으로이동</a>
         </div>
     </div>
 </div>
@@ -58,8 +61,9 @@
         stompClient.connect({}, function (frame) {
             console.log(frame);
             if (!infoSent) {
-                stompClient.send("/app/chat/" + sessionId + "/create", {}, JSON.stringify({
-                    'message': ''
+                stompClient.send("/app/chat/" + sessionId + '/create', {}, JSON.stringify({
+                    'message': '',
+                    'sessionId' : sessionId
                 }));
             }
             stompClient.subscribe('/queue/chat/' + sessionId, function (chat) {
@@ -72,7 +76,8 @@
         let message = $('#chatMessage').val();
         if (message !== '') {
             stompClient.send("/app/chat/" + sessionId, {}, JSON.stringify({
-                'message': message
+                'message': message,
+                'sessionId' : sessionId
             }));
             $('#chatMessage').val('');
         }
@@ -135,9 +140,6 @@
     }
 
     $(function () {
-        $("form").on('submit', function (e) {
-            e.preventDefault();
-        });
         if (previousStatus == 'COUNSELLING') {
             $('#createMessage').hide();
             $('#chatMessage').prop('readonly', false);

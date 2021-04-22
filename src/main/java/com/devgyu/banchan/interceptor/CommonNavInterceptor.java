@@ -43,6 +43,7 @@ public class CommonNavInterceptor implements HandlerInterceptor {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication instanceof AnonymousAuthenticationToken) {
         } else if (authentication instanceof UsernamePasswordAuthenticationToken || authentication instanceof RememberMeAuthenticationToken) {
+            System.out.println("Request URL ======" + request.getRequestURL());
             UserAccount userAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long accountId = 0L;
             if (userAccount.getCustomer() != null) {

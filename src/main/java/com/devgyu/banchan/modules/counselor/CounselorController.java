@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.time.format.DateTimeFormatter;
@@ -38,7 +39,7 @@ public class CounselorController {
 
     @GetMapping("/list")
     public String counselor_list(@CurrentUser Counselor counselor, @PageableDefault Pageable pageable, Model model) {
-        Page<ChatRoom> waitingChatRoomList = chatRoomRepository.findAllByWaiting(counselor.getId(), pageable);
+        Slice<ChatRoom> waitingChatRoomList = chatRoomRepository.findAllByWaiting(pageable);
         List<ChatRoom> counsellingChatRoomList = chatRoomRepository.findAllByCounsellingAndCounselorId(counselor.getId());
 
         if (waitingChatRoomList.isEmpty() && counsellingChatRoomList.isEmpty()) {
@@ -64,6 +65,14 @@ public class CounselorController {
         model.addAttribute("waitingChatRoomList", waitingChatRoomDtoList);
         model.addAttribute("counsellingChatRoomList", counsellingChatRoomDtoList);
         return "counselor/list";
+    }
+    @GetMapping("/api/waiting-list")
+    @ResponseBody
+    public CounselorApiDto api_waitingList(@PageableDefault Pageable pageable){
+        Slice<ChatRoom> findChatRoom = chatRoomRepository.findAllByWaiting(pageable);
+        List<ChatRoom> chatRoomList = findChatRoom.getContent();
+        List<CounselorDto> collect = chatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname())).collect(Collectors.toList());
+        return new CounselorApiDto(collect, findChatRoom.hasNext());
     }
 
     @GetMapping("/{sessionId}/join")

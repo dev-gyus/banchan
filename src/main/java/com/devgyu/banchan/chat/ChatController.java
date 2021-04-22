@@ -18,10 +18,12 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,16 +37,54 @@ public class ChatController {
     private final ChatService chatService;
     private final ChatRoomService chatRoomService;
 
-    @GetMapping("/customer-service")
-    public String customerService(@CurrentUser Account account, Model model, HttpSession session, @PageableDefault Pageable pageable){
+    @GetMapping("/customer-service-list")
+    public String customer_service_list(@CurrentUser Account account, Model model, HttpSession session) {
+        List<ChatRoom> chatRoomList = chatRoomRepository.findAccountCounselorFetchWaitingOrCounsellingAllByAccountId(account.getId());
+        List<ChatRoomDto> counsellingList = new ArrayList<>();
+        List<ChatRoomDto> waitingList = new ArrayList<>();
+
+        if (!chatRoomList.isEmpty()) {
+            chatRoomList.forEach(c -> {
+                if (c.getChatRoomStatus() == ChatRoomStatus.WAITING) {
+                    waitingList.add(new ChatRoomDto(c.getCounselor().getNickname(), c.getSessionId(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate())));
+                } else {
+                    counsellingList.add(new ChatRoomDto(c.getCounselor().getNickname(), c.getSessionId(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate())));
+                }
+            });
+        }else{
+            return "redirect:/customer-service/" + session.getId();
+        }
+
+        model.addAttribute("counsellingChatRoomList", counsellingList);
+        model.addAttribute("waitingChatRoomList", waitingList);
+
+        return "chat/list";
+    }
+
+    @GetMapping("/customer-service-create")
+    public String customer_service_create(@CurrentUser Account account, Model model, HttpSession session){
+        boolean isExist = chatRoomRepository.existsBySessionId(session.getId());
         boolean infoSent = false;
-        String sessionId = session.getId();
+        if(!isExist) {
+            chatRoomService.createChatRoom(account.getId(), session.getId());
+        }else{
+            infoSent = true;
+            return "redirect:/customer-service/" + session.getId();
+        }
+        model.addAttribute("infoSent", infoSent);
+        model.addAttribute("sessionId", session.getId());
+        return "chat/main";
+    }
+
+    @GetMapping("/customer-service/{sessionId}")
+    public String customerService(@CurrentUser Account account, Model model, @PathVariable String sessionId, @PageableDefault Pageable pageable) {
+        boolean infoSent = false;
         List<ChatRoom> findChatRoomList = chatRoomService.findChatFetchBySessionId(sessionId);
         if (findChatRoomList.isEmpty()) {
-            chatRoomService.createChatRoom(account.getId(), sessionId);
+            throw new IllegalArgumentException("잘못된 요청입니다");
         } else {
             Slice<Chat> tempChatRoom = chatRepository.findChatRoomAccountCounselorFetchBySessionId(sessionId, pageable);
-            if(!tempChatRoom.isEmpty()){
+            if (!tempChatRoom.isEmpty()) {
                 List<Chat> chatList = tempChatRoom.getContent();
                 ChatRoom chatRoom = chatList.get(0).getChatRoom();
 
@@ -60,32 +100,33 @@ public class ChatController {
             }
         }
         model.addAttribute("infoSent", infoSent);
-        model.addAttribute("sessionId", session.getId());
+        model.addAttribute("sessionId", sessionId);
         return "chat/main";
     }
+
     @MessageMapping("/chat/{sessionId}/create")
-    @SendTo("/queue/chat/{sessionId}")
-    public ChatDto chat_create(@Payload Chat chat, SimpMessageHeaderAccessor accessor){
-            Principal principal = accessor.getUser();
-            String email = principal.getName();
-            String nickname = (String) accessor.getSessionAttributes().get(email);
-            String sessionId = (String) accessor.getSessionAttributes().get("sessionId");
-            String message = nickname + "님 어서오세요. 곧 담당 상담사가 도착예정입니다.";
+    @SendTo({"/queue/chat/{sessionId}", "/topic/list"})
+    public ChatDto chat_create(@Payload ChatDto chatDto, SimpMessageHeaderAccessor accessor) {
+        Principal principal = accessor.getUser();
+        String email = principal.getName();
+        String nickname = (String) accessor.getSessionAttributes().get(email);
+        String sessionId = chatDto.getSessionId();
+        String message = nickname + "님 어서오세요. 곧 담당 상담사가 도착예정입니다.";
 
-            Chat newChat = chatService.addNewMessage(sessionId, message, ChatRole.INFO);
+        Chat newChat = chatService.addNewMessage(sessionId, message, ChatRole.INFO);
 
-            return new ChatDto(nickname, newChat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(newChat.getSendDate()), newChat.getChatRole());
+        return new ChatDto(nickname, newChat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(newChat.getSendDate()), newChat.getChatRole(), sessionId);
     }
 
     @MessageMapping("/chat/{sessionId}")
     @SendTo("/queue/chat/{sessionId}")
-    public ChatDto chatting(@Payload Chat chat, SimpMessageHeaderAccessor accessor){
+    public ChatDto chatting(@Payload ChatDto chatDto, SimpMessageHeaderAccessor accessor) {
         Principal principal = accessor.getUser();
         String email = principal.getName();
         String nickname = (String) accessor.getSessionAttributes().get(email);
-        String sessionId = (String) accessor.getSessionAttributes().get("sessionId");
+        String sessionId = chatDto.getSessionId();
 
-        Chat newChat = chatService.addNewMessage(sessionId, chat.getMessage(), ChatRole.NORMAL);
+        Chat newChat = chatService.addNewMessage(sessionId, chatDto.getMessage(), ChatRole.NORMAL);
         return new ChatDto(nickname, newChat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(newChat.getSendDate()), newChat.getChatRole());
 
     }

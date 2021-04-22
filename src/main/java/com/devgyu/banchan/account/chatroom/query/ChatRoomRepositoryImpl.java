@@ -6,9 +6,7 @@ import com.devgyu.banchan.account.chatroom.QChatRoom;
 import com.devgyu.banchan.chat.QChat;
 import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -38,16 +36,22 @@ public class ChatRoomRepositoryImpl implements ChatRoomQueryRepository{
     }
 
     @Override
-    public Page<ChatRoom> findAllByWaiting(Long counselorId, Pageable pageable) {
-        QueryResults<ChatRoom> result = queryFactory
+    public Slice<ChatRoom> findAllByWaiting(Pageable pageable) {
+        List<ChatRoom> result = queryFactory
                 .selectFrom(chatRoom)
                 .join(chatRoom.account, account).fetchJoin()
                 .where(chatRoom.chatRoomStatus.eq(ChatRoomStatus.WAITING))
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
 
-        return new PageImpl<>(result.getResults(), pageable, result.getTotal());
+        Slice<ChatRoom> chatRoomSlice;
+        if(result.size() > pageable.getPageSize()){
+            chatRoomSlice = new SliceImpl<>(result, pageable, true);
+        }else{
+            chatRoomSlice = new SliceImpl<>(result, pageable, false);
+        }
+        return chatRoomSlice;
     }
 
     @Override
@@ -66,6 +70,17 @@ public class ChatRoomRepositoryImpl implements ChatRoomQueryRepository{
                 .selectFrom(chatRoom)
                 .leftJoin(chatRoom.chatList, chat).fetchJoin()
                 .where(chatRoom.sessionId.eq(sessionId))
+                .fetch();
+    }
+
+    @Override
+    public List<ChatRoom> findAccountCounselorFetchWaitingOrCounsellingAllByAccountId(Long accountId) {
+        return queryFactory
+                .selectFrom(chatRoom)
+                .join(chatRoom.account, account).fetchJoin()
+                .join(chatRoom.counselor, counselor).fetchJoin()
+                .where(account.id.eq(accountId).and(chatRoom.chatRoomStatus.eq(ChatRoomStatus.WAITING).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELLING))))
+                .orderBy(chatRoom.regDate.desc())
                 .fetch();
     }
 }

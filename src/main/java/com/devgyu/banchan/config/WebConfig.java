@@ -30,7 +30,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         InterceptorRegistration ir1 = registry.addInterceptor(commonNavInterceptor);
         ir1.addPathPatterns("/**")
-        .excludePathPatterns("/api/**", "/orders/api/**", "/mystore/api/**", "/rider/api/**", "/cart/api/**", "/review/api", "/review/api/**"
-                            , "/store/api/**", "/storelist/api/**");
+        .excludePathPatterns("/error", "/api/**", "/orders/api/**", "/mystore/api/**", "/rider/api/**", "/cart/api/**", "/review/api", "/review/api/**"
+                            , "/store/api/**", "/storelist/api/**", "/counselor/api/**");
     }
 }

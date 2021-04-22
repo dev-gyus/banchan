@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragments :: commonHead"></head>
+<head>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+</head>
 
 <body>
 <div th:replace="fragments :: commonNav">공통네비</div>
 
 <div class="container-sm bg-light p-0 pb-5">
-    <div class="row g-3 justify-content-center fs-2">
+    <div id="customerServiceListDiv" class="row g-3 justify-content-center fs-2">
         <div class="col-sm-10">
             <h2>내가상담중인목록</h2>
             <hr>
@@ -29,11 +33,89 @@
             <hr>
         </div>
         <div class="col-sm-10 position-relative" th:if="${waitingChatRoomList != null}" th:each="chatRoom : ${waitingChatRoomList}">
-            <div class="fs-4" th:text="'고객 닉네임: ' + ${chatRoom.nickname}"></div>
+            <h4>
+                <span th:text="'고객 닉네임: ' + ${chatRoom.nickname}"></span>
+                <span class="badge bg-danger">NEW</span>
+            </h4>
             <a class="stretched-link" th:href="@{'/counselor/' + ${chatRoom.sessionId} + '/join'}"></a>
             <hr>
         </div>
     </div>
 </div>
+<script>
+    var stompClient = null;
+    let customerServiceListDiv = document.getElementById('customerServiceListDiv');
+
+    let ajaxReady = true;
+    let nowPage = 1;
+    let hasNext = true;
+
+    $(document).ready(function () {
+        $(document).scroll(function () {
+            var maxHeight = $(document).height();
+            var currentScroll = $(window).scrollTop() + $(window).height();
+
+            if (currentScroll >= maxHeight - 100 && ajaxReady && hasNext) {
+                ajaxReady = false;
+                $.ajax({
+                    url: '/counselor/api/waiting-list?page=' + nowPage,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (result) {
+                        ajaxReady = false;
+                        hasNext = result.hasNext;
+                        let counselorDtoList = result.counselorDtoList;
+                        for (let counselorDto of counselorDtoList) {
+                            showNewCustomerService(counselorDto);
+                        }
+                        nowPage++;
+                        if(!hasNext){
+                            connect();
+                        }
+                        ajaxReady = true;
+                    },
+                    error: function () {
+                        alert('주문 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                    }
+                });
+            }
+        });
+    });
+
+
+    function connect() {
+        var socket = new SockJS('/websocket');
+        stompClient = Stomp.over(socket);
+        // SockJS와 stomp client를 통해 연결을 시도.
+        stompClient.connect({}, function (frame) {
+            console.log(frame);
+            stompClient.subscribe('/topic/list' , function (chat) {
+                showNewCustomerService(JSON.parse(chat.body));
+                customerServiceListDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
+            });
+        });
+    }
+
+    function showNewCustomerService(data){
+        let customerServiceContainerDiv = document.createElement('div');
+        customerServiceContainerDiv.className = 'col-sm-10 position-relative';
+        let customerNicknameH4 = document.createElement('h4');
+        customerNicknameH4.innerText = '고객 닉네임: ' + data.nickname;
+        let newTagSpan = document.createElement('span');
+        newTagSpan.className = 'badge bg-danger';
+        newTagSpan.innerText = 'NEW';
+        customerNicknameH4.appendChild(newTagSpan);
+        customerServiceContainerDiv.appendChild(customerNicknameH4);
+
+        let chatRoomLink = document.createElement('a');
+        chatRoomLink.className = 'stretched-link';
+        chatRoomLink.href = '/counselor/' + data.sessionId + '/join';
+        customerServiceContainerDiv.appendChild(chatRoomLink);
+
+        let hr = document.createElement('hr');
+        customerServiceContainerDiv.appendChild(hr);
+        customerServiceListDiv.appendChild(customerServiceContainerDiv);
+    }
+</script>
 </body>
 </html>

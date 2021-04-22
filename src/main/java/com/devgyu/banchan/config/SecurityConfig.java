@@ -92,7 +92,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         web
                 .ignoring()
-                .mvcMatchers("/node_modules/**", "/images/**", "/api/**", "/upload/**");
+                .mvcMatchers("/node_modules/**", "/images/**", "/api/**", "/upload/**", "/webjars/**");
     }
 
     @Bean

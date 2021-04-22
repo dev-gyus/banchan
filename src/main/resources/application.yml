@@ -22,6 +22,11 @@ spring:
     serialization:
       FAIL_ON_EMPTY_BEANS: false
 
+server:
+  servlet:
+    session:
+      timeout: 60m
+
 app:
   host: http://localhost:8080
   uploadFolderPrefix: /Users/devgyu/banchan

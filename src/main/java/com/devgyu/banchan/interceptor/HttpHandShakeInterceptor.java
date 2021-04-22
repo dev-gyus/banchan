@@ -1,4 +1,4 @@
-package com.devgyu.banchan.chat;
+package com.devgyu.banchan.interceptor;
 
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.AccountRepository;
@@ -35,14 +35,10 @@ public class HttpHandShakeInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
         UserAccount userAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Account account = userAccount.getAccount();
-        ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
-        HttpSession session = servletRequest.getServletRequest().getSession();
-        String sessionId = session.getId();
 
         String nickname = account.getNickname();
         String username = account.getEmail();
         attributes.put(username, nickname);
-        attributes.put("sessionId", sessionId);
         return true;
     }
 

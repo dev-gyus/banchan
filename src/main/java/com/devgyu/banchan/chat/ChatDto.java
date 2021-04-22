@@ -12,6 +12,14 @@ public class ChatDto {
     private ChatRole chatRole;
     private String sessionId;
 
+    public ChatDto(String nickname, String message, String sendDate, ChatRole chatRole, String sessionId) {
+        this.nickname = nickname;
+        this.message = message;
+        this.sendDate = sendDate;
+        this.chatRole = chatRole;
+        this.sessionId = sessionId;
+    }
+
     public ChatDto(String nickname, String message, String sendDate, ChatRole chatRole) {
         this.nickname = nickname;
         this.message = message;
