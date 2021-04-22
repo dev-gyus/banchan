@@ -1,28 +1,26 @@
 package com.devgyu.banchan.modules.counselor;
 
+import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.CurrentUser;
-import com.devgyu.banchan.account.chatroom.ChatRoom;
-import com.devgyu.banchan.account.chatroom.ChatRoomRepository;
-import com.devgyu.banchan.account.chatroom.ChatRoomService;
-import com.devgyu.banchan.account.chatroom.ChatRoomStatus;
+import com.devgyu.banchan.chatroom.ChatRoom;
+import com.devgyu.banchan.chatroom.ChatRoomRepository;
+import com.devgyu.banchan.chatroom.ChatRoomService;
+import com.devgyu.banchan.chatroom.ChatRoomStatus;
 import com.devgyu.banchan.chat.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,20 +34,21 @@ public class CounselorController {
     private final ChatRepository chatRepository;
     private final ChatRoomService chatRoomService;
     private final ChatRoomRepository chatRoomRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @GetMapping("/list")
     public String counselor_list(@CurrentUser Counselor counselor, @PageableDefault Pageable pageable, Model model) {
-        Slice<ChatRoom> waitingChatRoomList = chatRoomRepository.findAllByWaiting(pageable);
+        Slice<ChatRoom> waitingChatRoomList = chatRoomRepository.findAllByCounselorIsNull(pageable);
         List<ChatRoom> counsellingChatRoomList = chatRoomRepository.findAllByCounsellingAndCounselorId(counselor.getId());
 
         if (waitingChatRoomList.isEmpty() && counsellingChatRoomList.isEmpty()) {
             return "counselor/list";
         } else if (!waitingChatRoomList.isEmpty() && counsellingChatRoomList.isEmpty()) {
-            List<CounselorDto> waitingChatRoomDtoList = waitingChatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname())).collect(Collectors.toList());
+            List<CounselorDto> waitingChatRoomDtoList = waitingChatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
             model.addAttribute("waitingChatRoomList", waitingChatRoomDtoList);
             return "counselor/list";
         } else if (waitingChatRoomList.isEmpty() && !counsellingChatRoomList.isEmpty()) {
-            List<CounselorDto> counsellingChatRoomDtoList = counsellingChatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname())).collect(Collectors.toList());
+            List<CounselorDto> counsellingChatRoomDtoList = counsellingChatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
             model.addAttribute("counsellingChatRoomList", counsellingChatRoomDtoList);
             return "counselor/list";
         }
@@ -57,9 +56,9 @@ public class CounselorController {
         boolean hasNext = waitingChatRoomList.hasNext();
 
         List<CounselorDto> waitingChatRoomDtoList = waitingChatRoomList.stream()
-                .map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname())).collect(Collectors.toList());
+                .map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
         List<CounselorDto> counsellingChatRoomDtoList = counsellingChatRoomList.stream()
-                .map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname())).collect(Collectors.toList());
+                .map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
 
         model.addAttribute("hasNext", hasNext);
         model.addAttribute("waitingChatRoomList", waitingChatRoomDtoList);
@@ -69,9 +68,9 @@ public class CounselorController {
     @GetMapping("/api/waiting-list")
     @ResponseBody
     public CounselorApiDto api_waitingList(@PageableDefault Pageable pageable){
-        Slice<ChatRoom> findChatRoom = chatRoomRepository.findAllByWaiting(pageable);
+        Slice<ChatRoom> findChatRoom = chatRoomRepository.findAllByCounselorIsNull(pageable);
         List<ChatRoom> chatRoomList = findChatRoom.getContent();
-        List<CounselorDto> collect = chatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname())).collect(Collectors.toList());
+        List<CounselorDto> collect = chatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
         return new CounselorApiDto(collect, findChatRoom.hasNext());
     }
 
@@ -81,7 +80,7 @@ public class CounselorController {
         Slice<Chat> tempChatList = chatRepository.findChatRoomAccountCounselorFetchBySessionId(sessionId, pageable);
         ChatRoom chatRoom = tempChatList.getContent().get(0).getChatRoom();
         String accountNickname = chatRoom.getAccount().getNickname();
-        String counselorNickname = chatRoom.getCounselor().getNickname();
+        String counselorNickname = counselor.getNickname();
 
         model.addAttribute("hasNext", tempChatList.hasNext());
         model.addAttribute("accountNickname", accountNickname);
@@ -91,6 +90,16 @@ public class CounselorController {
         model.addAttribute("sessionId", sessionId);
         return "counselor/join";
     }
+    @GetMapping("/api/{sessionId}/read-chat")
+    @ResponseBody
+    public ResponseEntity api_readChat(@PathVariable String sessionId, @RequestParam(defaultValue = "Init", required = false) String role){
+        if(role.equals("Init")){
+            chatRoomService.initRead("COUNSELOR", sessionId);
+        }else {
+            chatRoomService.changeRead(role, sessionId);
+        }
+        return ResponseEntity.ok().build();
+    }
 
     @MessageMapping("/counselor/{sessionId}/join")
     @SendTo("/queue/chat/{sessionId}")
@@ -98,9 +107,14 @@ public class CounselorController {
         String email = accessor.getUser().getName();
         String nickname = (String) accessor.getSessionAttributes().get(email);
         String message = "친절한 상담사 " + nickname + "입니다. 무엇을 도와드릴까요?";
+        String sessionId = chatDto.getSessionId();
+        List<ChatRoom> findChatRoom = chatRoomRepository.findAccountFetchBySessionId(sessionId);
+        Long accountId = findChatRoom.get(0).getAccount().getId();
+        String customerSocketURL = "/topic/customers/" + accountId + "/new-message";
 
-        Chat newChat = chatService.addNewMessage(chatDto.getSessionId(), message, ChatRole.COUNSELOR);
-        chatDto = new ChatDto(nickname, newChat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(newChat.getSendDate()), newChat.getChatRole());
+        Chat newChat = chatService.addNewMessage(sessionId, message, ChatRole.COUNSELOR);
+        chatDto = new ChatDto(nickname, newChat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(newChat.getSendDate()), newChat.getChatRole(), sessionId);
+        messagingTemplate.convertAndSend(customerSocketURL, chatDto);
         return chatDto;
     }
 
@@ -110,9 +124,13 @@ public class CounselorController {
         String sessionId = chatDto.getSessionId();
         String email = accessor.getUser().getName();
         String nickname = (String) accessor.getSessionAttributes().get(email);
+        List<ChatRoom> findChatRoom = chatRoomRepository.findAccountFetchBySessionId(sessionId);
+        Long accountId = findChatRoom.get(0).getAccount().getId();
+        String customerSocketURL = "/topic/customers/" + accountId + "/new-message";
 
         Chat newChat = chatService.addNewMessage(sessionId, chatDto.getMessage(), ChatRole.COUNSELOR);
-        chatDto = new ChatDto(nickname, newChat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(newChat.getSendDate()), newChat.getChatRole());
+        chatDto = new ChatDto(nickname, newChat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(newChat.getSendDate()), newChat.getChatRole(), sessionId);
+        messagingTemplate.convertAndSend(customerSocketURL, chatDto);
         return chatDto;
     }
 

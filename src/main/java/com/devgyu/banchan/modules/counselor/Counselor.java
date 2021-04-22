@@ -3,7 +3,7 @@ package com.devgyu.banchan.modules.counselor;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.Roles;
-import com.devgyu.banchan.account.chatroom.ChatRoom;
+import com.devgyu.banchan.chatroom.ChatRoom;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;

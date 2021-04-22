@@ -1,23 +1,17 @@
 package com.devgyu.banchan.chat;
 
-import com.devgyu.banchan.account.QAccount;
-import com.devgyu.banchan.account.chatroom.QChatRoom;
-import com.devgyu.banchan.modules.counselor.QCounselor;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.apache.logging.log4j.util.PropertySource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
 import javax.persistence.EntityManager;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import static com.devgyu.banchan.account.QAccount.account;
-import static com.devgyu.banchan.account.chatroom.QChatRoom.chatRoom;
+import static com.devgyu.banchan.chatroom.QChatRoom.chatRoom;
 import static com.devgyu.banchan.chat.QChat.chat;
 import static com.devgyu.banchan.modules.counselor.QCounselor.counselor;
 

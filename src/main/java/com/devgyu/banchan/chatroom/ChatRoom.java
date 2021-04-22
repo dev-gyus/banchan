@@ -1,4 +1,4 @@
-package com.devgyu.banchan.account.chatroom;
+package com.devgyu.banchan.chatroom;
 
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.chat.Chat;
@@ -22,6 +22,8 @@ public class ChatRoom {
     private String sessionId;
     @Enumerated(EnumType.STRING)
     private ChatRoomStatus chatRoomStatus = ChatRoomStatus.WAITING;
+    @Enumerated(EnumType.STRING)
+    private ChatRoomReadStatus chatRoomReadStatus = ChatRoomReadStatus.DEFAULT;
     private LocalDateTime regDate = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)

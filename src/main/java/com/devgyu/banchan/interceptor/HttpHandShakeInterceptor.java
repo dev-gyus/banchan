@@ -3,27 +3,16 @@ package com.devgyu.banchan.interceptor;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.AccountRepository;
 import com.devgyu.banchan.account.UserAccount;
-import com.devgyu.banchan.account.chatroom.ChatRoom;
-import com.devgyu.banchan.account.chatroom.ChatRoomService;
-import com.devgyu.banchan.account.chatroom.ChatRoomStatus;
+import com.devgyu.banchan.chatroom.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.http.server.ServletServerHttpRequest;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
-import javax.servlet.http.HttpSession;
-import java.util.List;
 import java.util.Map;
-
-import static com.devgyu.banchan.account.Roles.ROLE_ADMIN;
-import static com.devgyu.banchan.account.Roles.ROLE_COUNSELOR;
 
 @Configuration
 @RequiredArgsConstructor

@@ -24,11 +24,13 @@ public class QChat extends EntityPathBase<Chat> {
 
     public final EnumPath<ChatRole> chatRole = createEnum("chatRole", ChatRole.class);
 
-    public final com.devgyu.banchan.account.chatroom.QChatRoom chatRoom;
+    public final com.devgyu.banchan.chatroom.QChatRoom chatRoom;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final StringPath message = createString("message");
+
+    public final BooleanPath read = createBoolean("read");
 
     public final DateTimePath<java.time.LocalDateTime> sendDate = createDateTime("sendDate", java.time.LocalDateTime.class);
 
@@ -50,7 +52,7 @@ public class QChat extends EntityPathBase<Chat> {
 
     public QChat(Class<? extends Chat> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.chatRoom = inits.isInitialized("chatRoom") ? new com.devgyu.banchan.account.chatroom.QChatRoom(forProperty("chatRoom"), inits.get("chatRoom")) : null;
+        this.chatRoom = inits.isInitialized("chatRoom") ? new com.devgyu.banchan.chatroom.QChatRoom(forProperty("chatRoom"), inits.get("chatRoom")) : null;
     }
 
 }

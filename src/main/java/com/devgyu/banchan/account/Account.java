@@ -2,7 +2,7 @@ package com.devgyu.banchan.account;
 
 import com.devgyu.banchan.alarm.Alarm;
 import com.devgyu.banchan.cart.Cart;
-import com.devgyu.banchan.account.chatroom.ChatRoom;
+import com.devgyu.banchan.chatroom.ChatRoom;
 import com.devgyu.banchan.orders.Orders;
 import com.devgyu.banchan.review.Review;
 import com.fasterxml.jackson.annotation.JsonIgnore;

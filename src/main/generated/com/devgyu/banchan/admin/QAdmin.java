@@ -2,7 +2,7 @@ package com.devgyu.banchan.admin;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.devgyu.banchan.account.chatroom.ChatRoom;
+import com.devgyu.banchan.chatroom.ChatRoom;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;

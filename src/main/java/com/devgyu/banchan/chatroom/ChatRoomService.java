@@ -1,4 +1,4 @@
-package com.devgyu.banchan.account.chatroom;
+package com.devgyu.banchan.chatroom;
 
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.AccountRepository;
@@ -52,7 +52,10 @@ public class ChatRoomService {
             Counselor findCounselor = counselorRepository.findById(counselor.getId()).get();
             previousStatus = findChatRoom.getChatRoomStatus();
             findChatRoom.changeCounselling(findCounselor);
-        }else{
+        } else if(findChatRoom.getChatRoomStatus() == ChatRoomStatus.COMPLETED){
+            throw new IllegalArgumentException("잘못된 요청입니다");
+        } else{
+            findChatRoom.setChatRoomReadStatus(ChatRoomReadStatus.COUNSELOR_READ);
             previousStatus = findChatRoom.getChatRoomStatus();
         }
 
@@ -61,5 +64,25 @@ public class ChatRoomService {
 
     public List<ChatRoom> findChatFetchBySessionId(String sessionId) {
         return chatRoomRepository.findChatFetchBySessionId(sessionId);
+    }
+
+    public void initRead(String role, String sessionId){
+        List<ChatRoom> findChatRoom = chatRoomRepository.findBySessionId(sessionId);
+        ChatRoom chatRoom = findChatRoom.get(0);
+        if(role.equals("COUNSELOR")) {
+            chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.COUNSELOR_READ);
+        }else{
+            chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.CUSTOMER_READ);
+        }
+    }
+
+    public void changeRead(String role, String sessionId) {
+        List<ChatRoom> findChatRoom = chatRoomRepository.findBySessionId(sessionId);
+        ChatRoom chatRoom = findChatRoom.get(0);
+        if(role.equals("COUNSELOR")) {
+            chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.COUNSELOR_READ);
+        }else{
+            chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.CUSTOMER_READ);
+        }
     }
 }

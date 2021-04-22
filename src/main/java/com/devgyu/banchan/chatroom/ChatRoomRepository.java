@@ -1,6 +1,6 @@
-package com.devgyu.banchan.account.chatroom;
+package com.devgyu.banchan.chatroom;
 
-import com.devgyu.banchan.account.chatroom.query.ChatRoomQueryRepository;
+import com.devgyu.banchan.chatroom.query.ChatRoomQueryRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 

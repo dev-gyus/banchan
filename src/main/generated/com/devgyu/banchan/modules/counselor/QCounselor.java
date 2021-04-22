@@ -46,9 +46,9 @@ public class QCounselor extends EntityPathBase<Counselor> {
     public final com.devgyu.banchan.cart.QCart cart;
 
     //inherited
-    public final ListPath<com.devgyu.banchan.account.chatroom.ChatRoom, com.devgyu.banchan.account.chatroom.QChatRoom> chatRoomList;
+    public final ListPath<com.devgyu.banchan.chatroom.ChatRoom, com.devgyu.banchan.chatroom.QChatRoom> chatRoomList;
 
-    public final ListPath<com.devgyu.banchan.account.chatroom.ChatRoom, com.devgyu.banchan.account.chatroom.QChatRoom> counselList = this.<com.devgyu.banchan.account.chatroom.ChatRoom, com.devgyu.banchan.account.chatroom.QChatRoom>createList("counselList", com.devgyu.banchan.account.chatroom.ChatRoom.class, com.devgyu.banchan.account.chatroom.QChatRoom.class, PathInits.DIRECT2);
+    public final ListPath<com.devgyu.banchan.chatroom.ChatRoom, com.devgyu.banchan.chatroom.QChatRoom> counselList = this.<com.devgyu.banchan.chatroom.ChatRoom, com.devgyu.banchan.chatroom.QChatRoom>createList("counselList", com.devgyu.banchan.chatroom.ChatRoom.class, com.devgyu.banchan.chatroom.QChatRoom.class, PathInits.DIRECT2);
 
     //inherited
     public final StringPath email;

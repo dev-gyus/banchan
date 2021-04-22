@@ -1,10 +1,7 @@
-package com.devgyu.banchan.account.chatroom.query;
+package com.devgyu.banchan.chatroom.query;
 
-import com.devgyu.banchan.account.chatroom.ChatRoom;
-import com.devgyu.banchan.account.chatroom.ChatRoomStatus;
-import com.devgyu.banchan.account.chatroom.QChatRoom;
-import com.devgyu.banchan.chat.QChat;
-import com.querydsl.core.QueryResults;
+import com.devgyu.banchan.chatroom.ChatRoom;
+import com.devgyu.banchan.chatroom.ChatRoomStatus;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.*;
 
@@ -12,7 +9,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import static com.devgyu.banchan.account.QAccount.account;
-import static com.devgyu.banchan.account.chatroom.QChatRoom.chatRoom;
+import static com.devgyu.banchan.chatroom.QChatRoom.chatRoom;
 import static com.devgyu.banchan.chat.QChat.chat;
 import static com.devgyu.banchan.modules.counselor.QCounselor.counselor;
 
@@ -31,16 +28,16 @@ public class ChatRoomRepositoryImpl implements ChatRoomQueryRepository{
                 .selectFrom(chatRoom)
                 .leftJoin(chatRoom.counselor, counselor).fetchJoin()
                 .where(chatRoom.sessionId.eq(sessionId)
-                        .and(chatRoom.chatRoomStatus.eq(ChatRoomStatus.WAITING).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELLING))))
+                        .and(chatRoom.chatRoomStatus.eq(ChatRoomStatus.WAITING).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELLING)).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELOR_NEWMESSAGE).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.CUSTOMER_NEWMESSAGE)))))
                 .fetch();
     }
 
     @Override
-    public Slice<ChatRoom> findAllByWaiting(Pageable pageable) {
+    public Slice<ChatRoom> findAllByCounselorIsNull(Pageable pageable) {
         List<ChatRoom> result = queryFactory
                 .selectFrom(chatRoom)
                 .join(chatRoom.account, account).fetchJoin()
-                .where(chatRoom.chatRoomStatus.eq(ChatRoomStatus.WAITING))
+                .where(chatRoom.counselor.isNull())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -60,7 +57,7 @@ public class ChatRoomRepositoryImpl implements ChatRoomQueryRepository{
                 .selectFrom(chatRoom)
                 .join(chatRoom.account, account).fetchJoin()
                 .join(chatRoom.counselor, counselor).fetchJoin()
-                .where(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELLING).and(counselor.id.eq(counselorId)))
+                .where(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELLING).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.CUSTOMER_NEWMESSAGE).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELOR_NEWMESSAGE))).and(counselor.id.eq(counselorId)))
                 .fetch();
     }
 
@@ -74,13 +71,22 @@ public class ChatRoomRepositoryImpl implements ChatRoomQueryRepository{
     }
 
     @Override
-    public List<ChatRoom> findAccountCounselorFetchWaitingOrCounsellingAllByAccountId(Long accountId) {
+    public List<ChatRoom> findAccountCounselorFetchWaitingOrCounsellingOrNewMessageAllByAccountId(Long accountId) {
         return queryFactory
                 .selectFrom(chatRoom)
                 .join(chatRoom.account, account).fetchJoin()
                 .join(chatRoom.counselor, counselor).fetchJoin()
-                .where(account.id.eq(accountId).and(chatRoom.chatRoomStatus.eq(ChatRoomStatus.WAITING).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELLING))))
+                .where(account.id.eq(accountId).and(chatRoom.chatRoomStatus.eq(ChatRoomStatus.WAITING).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELLING).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELOR_NEWMESSAGE).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.CUSTOMER_NEWMESSAGE))))))
                 .orderBy(chatRoom.regDate.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<ChatRoom> findAccountFetchBySessionId(String sessionId) {
+        return queryFactory
+                .selectFrom(chatRoom)
+                .join(chatRoom.account, account).fetchJoin()
+                .where(chatRoom.sessionId.eq(sessionId))
                 .fetch();
     }
 }

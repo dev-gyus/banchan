@@ -68,7 +68,25 @@
             }
             stompClient.subscribe('/queue/chat/' + sessionId, function (chat) {
                 showChat(JSON.parse(chat.body));
+                sendRead(JSON.parse(chat.body));
             });
+        });
+    }
+    function sendRead(chat){
+        let url = '';
+        if(chat != null){
+            url = '/chat/api/' + sessionId + '/read-chat?role=' + chat.chatRole;
+        }else{
+            url = '/chat/api/' + sessionId + '/read-chat'
+        }
+        $.ajax({
+            url: url,
+            type: 'get',
+            success: function () {
+            },
+            error: function () {
+                alert('서버와 통신중 에러가 발생했습니다. 계속 에러가 발생할경우 관리자에게 문의해주세요');
+            }
         });
     }
 
@@ -140,10 +158,11 @@
     }
 
     $(function () {
-        if (previousStatus == 'COUNSELLING') {
+        if (previousStatus != 'WAITING' && previousStatus != 'COMPLETED') {
             $('#createMessage').hide();
             $('#chatMessage').prop('readonly', false);
             $('#chatMessage').prop('placeholder', '메시지를 입력해주세요');
+            sendRead(null);
         }
         $("#chatSend").click(function () {
             sendChat();

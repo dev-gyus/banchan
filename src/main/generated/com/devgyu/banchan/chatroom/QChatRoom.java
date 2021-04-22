@@ -1,4 +1,4 @@
-package com.devgyu.banchan.account.chatroom;
+package com.devgyu.banchan.chatroom;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -16,7 +16,7 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.EntitySerializer")
 public class QChatRoom extends EntityPathBase<ChatRoom> {
 
-    private static final long serialVersionUID = -228976659L;
+    private static final long serialVersionUID = -750854802L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
@@ -25,6 +25,8 @@ public class QChatRoom extends EntityPathBase<ChatRoom> {
     public final com.devgyu.banchan.account.QAccount account;
 
     public final ListPath<com.devgyu.banchan.chat.Chat, com.devgyu.banchan.chat.QChat> chatList = this.<com.devgyu.banchan.chat.Chat, com.devgyu.banchan.chat.QChat>createList("chatList", com.devgyu.banchan.chat.Chat.class, com.devgyu.banchan.chat.QChat.class, PathInits.DIRECT2);
+
+    public final EnumPath<ChatRoomReadStatus> chatRoomReadStatus = createEnum("chatRoomReadStatus", ChatRoomReadStatus.class);
 
     public final EnumPath<ChatRoomStatus> chatRoomStatus = createEnum("chatRoomStatus", ChatRoomStatus.class);
 
