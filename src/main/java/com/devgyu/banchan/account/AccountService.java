@@ -74,9 +74,6 @@ public class AccountService{
             return;
         }
         String url = appProperties.getHost() + "/forgot/password/" + findAccount.getEmail() + "?token=" + findAccount.getEmailToken();
-//        SimpleMailMessage mailMessage = new SimpleMailMessage();
-//        mailMessage.setTo(findAccount.getEmail());
-//        mailMessage.setText(url);
 
         Context context = new Context();
         context.setVariable("nickname", findAccount.getNickname());

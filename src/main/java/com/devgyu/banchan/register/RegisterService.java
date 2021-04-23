@@ -1,9 +1,11 @@
 package com.devgyu.banchan.register;
 
+import com.devgyu.banchan.AppProperties;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.Address;
 import com.devgyu.banchan.account.customer.Customer;
 import com.devgyu.banchan.cart.Cart;
+import com.devgyu.banchan.modules.email.MailDto;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
 import com.devgyu.banchan.modules.email.MailService;
 import com.devgyu.banchan.register.dto.OwnerRegisterDto;
@@ -16,6 +18,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.util.UUID;
 
@@ -27,6 +31,8 @@ public class RegisterService {
     private final ModelMapper modelMapper;
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
+    private final AppProperties appProperties;
+    private final TemplateEngine templateEngine;
 
     public Account register(RegisterDto registerDto){
         Address address = new Address(registerDto.getZipcode(), registerDto.getRoad(),
@@ -40,8 +46,6 @@ public class RegisterService {
         mailSend(customer);
         return save;
     }
-
-
 
     public StoreOwner ownerRegister(OwnerRegisterDto ownerRegisterDto) {
         Address address = new Address(ownerRegisterDto.getZipcode(), ownerRegisterDto.getRoad(), ownerRegisterDto.getJibun(),
@@ -70,8 +74,15 @@ public class RegisterService {
     }
 
     private void mailSend(Account account) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setText(account.getNickname() + "님의 회원가입을 진심으로 축하합니다.");
-        mailService.send(mailMessage);
+        String url = appProperties.getHost() + "/email-auth/" + account.getEmailToken();
+        Context context = new Context();
+        context.setVariable("nickname", account.getNickname());
+        context.setVariable("url", url);
+        String message = templateEngine.process("mailTemplate/register", context);
+        String subject = "반찬의 민족 회원가입 완료 메일입니다.";
+
+        MailDto mailDto = new MailDto(account.getEmail(), subject, message);
+
+        mailService.doSend(mailDto);
     }
 }
