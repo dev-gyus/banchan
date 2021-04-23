@@ -4,14 +4,18 @@ import com.devgyu.banchan.AppProperties;
 import com.devgyu.banchan.account.dto.ForgotDto;
 import com.devgyu.banchan.account.dto.ModifyPasswordDto;
 import com.devgyu.banchan.account.dto.MypageDto;
+import com.devgyu.banchan.modules.email.MailDto;
 import com.devgyu.banchan.modules.email.MailService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class AccountService{
     private final AppProperties appProperties;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final TemplateEngine templateEngine;
 
     public void modifyCustomer(Account account, MypageDto mypageDto) {
         Account findAccount = accountRepository.findById(account.getId()).get();
@@ -69,10 +74,18 @@ public class AccountService{
             return;
         }
         String url = appProperties.getHost() + "/forgot/password/" + findAccount.getEmail() + "?token=" + findAccount.getEmailToken();
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(findAccount.getEmail());
-        mailMessage.setText(url);
-        mailService.send(mailMessage);
+//        SimpleMailMessage mailMessage = new SimpleMailMessage();
+//        mailMessage.setTo(findAccount.getEmail());
+//        mailMessage.setText(url);
+
+        Context context = new Context();
+        context.setVariable("nickname", findAccount.getNickname());
+        context.setVariable("url", url);
+        String message = templateEngine.process("mailTemplate/forgot", context);
+        String subject = "반찬의 민족 비밀번호 찾기 메일입니다.";
+        MailDto mailDto = new MailDto(findAccount.getEmail(), subject, message);
+
+        mailService.doSend(mailDto);
 
         findAccount.setFailCount(0); // 로그인 실패 카운트 0으로 변경
     }

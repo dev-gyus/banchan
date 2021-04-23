@@ -61,7 +61,7 @@ public class QChatRoom extends EntityPathBase<ChatRoom> {
     public QChatRoom(Class<? extends ChatRoom> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.account = inits.isInitialized("account") ? new com.devgyu.banchan.account.QAccount(forProperty("account"), inits.get("account")) : null;
-        this.counselor = inits.isInitialized("counselor") ? new com.devgyu.banchan.modules.counselor.QCounselor(forProperty("counselor")) : null;
+        this.counselor = inits.isInitialized("counselor") ? new com.devgyu.banchan.modules.counselor.QCounselor(forProperty("counselor"), inits.get("counselor")) : null;
     }
 
 }

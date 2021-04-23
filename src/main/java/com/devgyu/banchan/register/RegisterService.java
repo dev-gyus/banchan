@@ -37,11 +37,11 @@ public class RegisterService {
         Account save = registerRepository.save(customer);
 
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setText(customer.getNickname() + "님의 회원가입을 진심으로 축하합니다.");
-        mailService.send(mailMessage);
+        mailSend(customer);
         return save;
     }
+
+
 
     public StoreOwner ownerRegister(OwnerRegisterDto ownerRegisterDto) {
         Address address = new Address(ownerRegisterDto.getZipcode(), ownerRegisterDto.getRoad(), ownerRegisterDto.getJibun(),
@@ -51,9 +51,7 @@ public class RegisterService {
         Cart cart = new Cart(storeOwner);
         registerRepository.save(storeOwner);
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setText(storeOwner.getNickname() + "님의 회원가입을 진심으로 축하합니다.");
-        mailService.send(mailMessage);
+        mailSend(storeOwner);
         return storeOwner;
     }
 
@@ -67,9 +65,13 @@ public class RegisterService {
 
         Cart cart = new Cart(rider);
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setText(rider.getNickname() + "님의 회원가입을 진심으로 축하합니다.");
-        mailService.send(mailMessage);
+        mailSend(rider);
         return registerRepository.save(rider);
+    }
+
+    private void mailSend(Account account) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setText(account.getNickname() + "님의 회원가입을 진심으로 축하합니다.");
+        mailService.send(mailMessage);
     }
 }

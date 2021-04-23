@@ -2,7 +2,6 @@ package com.devgyu.banchan.modules.rider;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.devgyu.banchan.chatroom.ChatRoom;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -47,7 +46,7 @@ public class QRider extends EntityPathBase<Rider> {
     public final com.devgyu.banchan.cart.QCart cart;
 
     //inherited
-    public final ListPath<ChatRoom, com.devgyu.banchan.chat.QChatRoom> chatRoomList;
+    public final ListPath<com.devgyu.banchan.chatroom.ChatRoom, com.devgyu.banchan.chatroom.QChatRoom> chatRoomList;
 
     public final StringPath driverLicense = createString("driverLicense");
 
