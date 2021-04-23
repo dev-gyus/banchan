@@ -130,8 +130,8 @@
                 </div>
 
                 <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}"
-                     class="me-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="문의하기">
-                    <span class="position-relative">
+                     class="me-2 position-relative" data-bs-toggle="tooltip" data-bs-placement="bottom" title="문의하기">
+                    <span class="me-2">
                         <a th:href="@{/customer-service-list}" class="stretched-link"></a>
                         <i class="fas fa-comment-dots fa-2x"></i>
                         <span class="fa-layers-counter fa-3x" style="background:Tomato" th:if="${hasNewMessage}" th:text="'NEW'">NEW</span>
