@@ -89,4 +89,22 @@ public class ChatRoomRepositoryImpl implements ChatRoomQueryRepository{
                 .where(chatRoom.sessionId.eq(sessionId))
                 .fetch();
     }
+
+    @Override
+    public List<ChatRoom> findAllByCounselorId(Long counselorId) {
+        return queryFactory
+                .selectFrom(chatRoom)
+                .join(chatRoom.counselor, counselor)
+                .where(counselor.id.eq(counselorId).and(chatRoom.chatRoomStatus.ne(ChatRoomStatus.COMPLETED)))
+                .fetch();
+    }
+
+    @Override
+    public List<ChatRoom> findAllByAccountId(Long accountId) {
+        return queryFactory
+                .selectFrom(chatRoom)
+                .join(chatRoom.account, account)
+                .where(account.id.eq(accountId).and(chatRoom.chatRoomStatus.ne(ChatRoomStatus.COMPLETED)).and(chatRoom.chatRoomStatus.ne(ChatRoomStatus.WAITING)))
+                .fetch();
+    }
 }

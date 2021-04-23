@@ -18,4 +18,8 @@ public interface ChatRoomQueryRepository {
     List<ChatRoom> findAccountCounselorFetchWaitingOrCounsellingOrNewMessageAllByAccountId(Long accountId);
 
     List<ChatRoom> findAccountFetchBySessionId(String sessionId);
+
+    List<ChatRoom> findAllByCounselorId(Long counselorId);
+
+    List<ChatRoom> findAllByAccountId(Long accountId);
 }

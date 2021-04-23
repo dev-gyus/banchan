@@ -12,6 +12,7 @@ public class ChatRoomDto {
     private ChatRoomStatus chatRoomStatus;
     private ChatRoomReadStatus chatRoomReadStatus;
 
+
     public ChatRoomDto(String counselorNickname, String sessionId, String regDate, ChatRoomStatus chatRoomStatus, ChatRoomReadStatus chatRoomReadStatus) {
         this.counselorNickname = counselorNickname;
         this.sessionId = sessionId;

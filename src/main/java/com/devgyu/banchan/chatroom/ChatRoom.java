@@ -38,6 +38,9 @@ public class ChatRoom {
     @JsonIgnore
     private List<Chat> chatList = new ArrayList<>();
 
+    private boolean counselorEnter;
+    private boolean customerEnter;
+
     public ChatRoom(Account account, String sessionId) {
         this.account = account;
         this.account.getChatRoomList().add(this);

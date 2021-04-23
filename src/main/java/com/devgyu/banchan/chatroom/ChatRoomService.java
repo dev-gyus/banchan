@@ -66,23 +66,40 @@ public class ChatRoomService {
         return chatRoomRepository.findChatFetchBySessionId(sessionId);
     }
 
-    public void initRead(String role, String sessionId){
+    public void enterSet(String role, String sessionId){
         List<ChatRoom> findChatRoom = chatRoomRepository.findBySessionId(sessionId);
         ChatRoom chatRoom = findChatRoom.get(0);
         if(role.equals("COUNSELOR")) {
-            chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.COUNSELOR_READ);
+            chatRoom.setCounselorEnter(true);
+            if(chatRoom.getChatRoomStatus() == ChatRoomStatus.CUSTOMER_NEWMESSAGE){
+                chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.COUNSELOR_READ);
+            }
         }else{
-            chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.CUSTOMER_READ);
+            chatRoom.setCustomerEnter(true);
+            if(chatRoom.getChatRoomStatus() == ChatRoomStatus.COUNSELOR_NEWMESSAGE){
+                chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.CUSTOMER_READ);
+            }
         }
     }
 
     public void changeRead(String role, String sessionId) {
         List<ChatRoom> findChatRoom = chatRoomRepository.findBySessionId(sessionId);
         ChatRoom chatRoom = findChatRoom.get(0);
-        if(role.equals("COUNSELOR")) {
-            chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.COUNSELOR_READ);
-        }else{
+        if(role.equals("COUNSELOR") && chatRoom.isCustomerEnter()) {
             chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.CUSTOMER_READ);
+        }else if(!role.equals("COUNSELOR") && chatRoom.isCounselorEnter()){
+            chatRoom.setChatRoomReadStatus(ChatRoomReadStatus.COUNSELOR_READ);
+        }
+    }
+
+    public void accountExit(Account account, String sessionId) {
+        List<ChatRoom> findChatRoom = chatRoomRepository.findBySessionId(sessionId);
+        ChatRoom chatRoom = findChatRoom.get(0);
+
+        if(account instanceof Counselor){
+            chatRoom.setCounselorEnter(false);
+        }else{
+            chatRoom.setCustomerEnter(false);
         }
     }
 }

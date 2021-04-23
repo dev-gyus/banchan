@@ -8,6 +8,10 @@ import com.devgyu.banchan.admin.Admin;
 import com.devgyu.banchan.admin.AdminRepository;
 import com.devgyu.banchan.alarm.AlarmRepository;
 import com.devgyu.banchan.alarm.AlarmService;
+import com.devgyu.banchan.chatroom.ChatRoom;
+import com.devgyu.banchan.chatroom.ChatRoomReadStatus;
+import com.devgyu.banchan.chatroom.ChatRoomRepository;
+import com.devgyu.banchan.chatroom.ChatRoomStatus;
 import com.devgyu.banchan.modules.counselor.Counselor;
 import com.devgyu.banchan.modules.counselor.CounselorRepository;
 import com.devgyu.banchan.modules.storeowner.StoreOwner;
@@ -27,6 +31,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -37,6 +42,7 @@ public class CommonNavInterceptor implements HandlerInterceptor {
     private final AdminRepository adminRepository;
     private final AlarmRepository alarmRepository;
     private final CounselorRepository counselorRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -88,6 +94,27 @@ public class CommonNavInterceptor implements HandlerInterceptor {
             if(userAccount.getAdmin() == null) {
                 Long alarmCount = alarmRepository.countNewAlarmsByAccountId(accountId);
                 request.setAttribute("alarmCount", alarmCount);
+
+                // 해당 계정의 고객문의기능에서 읽지않은 메시지 체크 메소드
+                boolean hasNewMassage = false;
+                if(userAccount.getCounselor() != null){
+                    List<ChatRoom> chatRoomList = chatRoomRepository.findAllByCounselorId(userAccount.getCounselor().getId());
+                    for (ChatRoom chatRoom : chatRoomList) {
+                        if(chatRoom.getChatRoomStatus() == ChatRoomStatus.CUSTOMER_NEWMESSAGE && chatRoom.getChatRoomReadStatus() != ChatRoomReadStatus.COUNSELOR_READ){
+                            hasNewMassage = true;
+                            break;
+                        }
+                    }
+                }else{
+                    List<ChatRoom> chatRoomList = chatRoomRepository.findAllByAccountId(userAccount.getAccount().getId());
+                    for (ChatRoom chatRoom : chatRoomList) {
+                        if(chatRoom.getChatRoomStatus() == ChatRoomStatus.COUNSELOR_NEWMESSAGE && chatRoom.getChatRoomReadStatus() != ChatRoomReadStatus.CUSTOMER_READ){
+                            hasNewMassage = true;
+                            break;
+                        }
+                    }
+                }
+                request.setAttribute("hasNewMessage", hasNewMassage);
             }
         }
         return true;

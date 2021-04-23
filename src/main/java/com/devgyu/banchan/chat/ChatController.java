@@ -104,13 +104,14 @@ public class ChatController {
         }
         model.addAttribute("infoSent", infoSent);
         model.addAttribute("sessionId", sessionId);
+        model.addAttribute("hasNewMessage", false);
         return "chat/main";
     }
     @GetMapping("/chat/api/{sessionId}/read-chat")
     @ResponseBody
     public ResponseEntity api_readChat(@PathVariable String sessionId, @RequestParam(defaultValue = "Init", required = false) String role){
         if(role.equals("Init")){
-            chatRoomService.initRead("CUSTOMER", sessionId);
+            chatRoomService.enterSet("CUSTOMER", sessionId);
         }else {
             chatRoomService.changeRead(role, sessionId);
         }

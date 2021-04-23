@@ -1,6 +1,5 @@
 package com.devgyu.banchan.modules.counselor;
 
-import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.CurrentUser;
 import com.devgyu.banchan.chatroom.ChatRoom;
 import com.devgyu.banchan.chatroom.ChatRoomRepository;
@@ -88,13 +87,15 @@ public class CounselorController {
         model.addAttribute("chatList", tempChatList.getContent());
         model.addAttribute("previousStatus", previousStatus);
         model.addAttribute("sessionId", sessionId);
+        model.addAttribute("hasNewMessage", false);
+
         return "counselor/join";
     }
     @GetMapping("/api/{sessionId}/read-chat")
     @ResponseBody
     public ResponseEntity api_readChat(@PathVariable String sessionId, @RequestParam(defaultValue = "Init", required = false) String role){
         if(role.equals("Init")){
-            chatRoomService.initRead("COUNSELOR", sessionId);
+            chatRoomService.enterSet("COUNSELOR", sessionId);
         }else {
             chatRoomService.changeRead(role, sessionId);
         }

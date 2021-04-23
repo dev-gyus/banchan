@@ -32,6 +32,10 @@ public class QChatRoom extends EntityPathBase<ChatRoom> {
 
     public final com.devgyu.banchan.modules.counselor.QCounselor counselor;
 
+    public final BooleanPath counselorEnter = createBoolean("counselorEnter");
+
+    public final BooleanPath customerEnter = createBoolean("customerEnter");
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final DateTimePath<java.time.LocalDateTime> regDate = createDateTime("regDate", java.time.LocalDateTime.class);

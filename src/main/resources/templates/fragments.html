@@ -24,6 +24,7 @@
     <script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
     <link rel="stylesheet" href="/node_modules/summernote/dist/summernote-lite.min.css">
     <script src="/node_modules/summernote/dist/summernote-lite.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             jdenticon();
@@ -98,7 +99,10 @@
 
                 <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="상담목록"
                      th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}">
-                    <a th:href="@{/counselor/list}" class="btn btn-outline-primary me-1">상담목록</a>
+                    <h4>
+                        <a th:href="@{/counselor/list}" class="btn btn-outline-primary me-1">상담목록</a>
+                        <span class="badge bg-danger" th:if="${hasNewMessage}" th:text="'NEW'">NEW</span>
+                    </h4>
                 </div>
 
                 <div class="position-relative me-2" th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}"
@@ -128,8 +132,9 @@
                 <div th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_ADMIN && navAccount.role != T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}"
                      class="me-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="문의하기">
                     <span class="position-relative">
-                        <i class="fas fa-comment-dots fa-2x"></i>
                         <a th:href="@{/customer-service-list}" class="stretched-link"></a>
+                        <i class="fas fa-comment-dots fa-2x"></i>
+                        <span class="fa-layers-counter fa-3x" style="background:Tomato" th:if="${hasNewMessage}" th:text="'NEW'">NEW</span>
                     </span>
                 </div>
 
