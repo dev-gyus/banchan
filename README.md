@@ -1,5 +1,6 @@
 # 반찬의민족 [![Build Status](https://travis-ci.org/dev-gyus/banchan.svg?branch=main)](https://travis-ci.org/dev-gyus/banchan)
 시중에 서비스중인 주문 배달 플랫폼을 제작해보고자 만든 개인 포트폴리오입니다.
+---
 
 ## Skill Stack
 #### Back-end
