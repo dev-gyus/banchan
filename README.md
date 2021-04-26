@@ -3,23 +3,23 @@
 
 ## Skill Stack
 #### Back-end
-> 1.Spring Boot 2.4.5
-> 2.Spring Data Jpa + Query DSL
-> 3.Spring Security
-> 4.Spring Websocket + Stomp Js + Sock Js ( 실시간 고객문의/상담 기능)
+>1.Spring Boot 2.4.5
+>2.Spring Data Jpa + Query DSL
+>3.Spring Security
+>4.Spring Websocket + Stomp Js + Sock Js ( 실시간 고객문의/상담 기능)
 
 #### DEVOPS
-> 1.AWS EC2 (AMI 2)
-> 2.AWS RDS (Maria DB)
-> 3.AWS S3
-> 4.Travis CI
-> 5.AWS CodeDeploy
+>1.AWS EC2 (AMI 2)
+>2.AWS RDS (Maria DB)
+>3.AWS S3
+>4.Travis CI
+>5.AWS CodeDeploy
 
 #### Front-end
-> 1.Thymeleaf
-> 2.Bootstrap 5.x + FontAwesome 5.x
-> 3.Jdenticon
-> 4.CropperJs
-> 5.SummerNote (WISIWYG Editor)
-> 6.Tagify
+>1.Thymeleaf
+>2.Bootstrap 5.x + FontAwesome 5.x
+>3.Jdenticon
+>4.CropperJs
+>5.SummerNote (WISIWYG Editor)
+>6.Tagify
 
