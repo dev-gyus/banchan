@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - openjdk11
+  - openjdk8
 
 branches:
   only:
@@ -19,3 +19,37 @@ notifications:
   email:
     recipients:
       - cjsworbehd13@gmail.com
+
+#Deploy정보
+before_deploy:
+  - zip -r banchan-service *
+  - mkdir -p deploy
+  - mv banchan-service.zip deploy/banchan-service.zip
+
+deploy:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY # Travis repo settings에 설정된 값
+    secret_access_key: $AWS_SECRET_KEY # Travis repo settings에 설정된 값
+    bucket: banchan-deploy # 6-3-3에서 생성한 S3 버킷
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl: private
+    wait-until-deployed: true
+    local_dir: deploy # before_deploy에서 생성한 디렉토리
+    on:
+      repo: dev-gyus/banchan #Github 주소
+      branch: main
+
+  - provider: codedeploy
+    access_key_id: $AWS_ACCESS_KEY # Travis repo settings에 설정된 값
+    secret_access_key: $AWS_SECRET_KEY # Travis repo settings에 설정된 값
+    bucket: banchan-deploy # S3 버킷
+    key: banchan-service.zip # 빌드 파일을 압축해서 전달
+    bundle_type: zip
+    application: banchan# 웹 콘솔에서 등록한 CodeDeploy 어플리케이션
+    deployment_group: banchan-CodeDeploy-group # 웹 콘솔에서 등록한 CodeDeploy 배포 그룹
+    region: ap-northeast-2
+    wait-until-deployed: true
+    on:
+      repo: dev-gyus/banchan
+      branch: main
