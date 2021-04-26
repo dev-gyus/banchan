@@ -42,3 +42,4 @@ src/main/resources/static/node_modules
 ### yml ###
 src/main/resources/application.yml
 src/main/resources/application-dev.yml
+src/main/resources/application-real.yml
