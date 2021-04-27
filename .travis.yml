@@ -32,9 +32,9 @@ deploy:
     secret_access_key: $AWS_SECRET_KEY # Travis repo settings에 설정된 값
     bucket: banchan-deploy # 6-3-3에서 생성한 S3 버킷
     region: ap-northeast-2
-    skip_cleanup: true
+    cleanup: false
     acl: private
-    wait-until-deployed: true
+    wait_until_deployed: true
     local_dir: deploy # before_deploy에서 생성한 디렉토리
     on:
       repo: dev-gyus/banchan #Github 주소
@@ -46,10 +46,10 @@ deploy:
     bucket: banchan-deploy # S3 버킷
     key: banchan-service.zip # 빌드 파일을 압축해서 전달
     bundle_type: zip
-    application: banchan# 웹 콘솔에서 등록한 CodeDeploy 어플리케이션
+    application: banchan # 웹 콘솔에서 등록한 CodeDeploy 어플리케이션
     deployment_group: banchan-CodeDeploy-group # 웹 콘솔에서 등록한 CodeDeploy 배포 그룹
     region: ap-northeast-2
-    wait-until-deployed: true
+    wait_until_deployed: true
     on:
       repo: dev-gyus/banchan
       branch: main
