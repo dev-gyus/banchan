@@ -3,7 +3,7 @@ package com.devgyu.banchan.todo;
 
 public class TodoClass {
     //TODO 테스트코드 작성 - 1순위 구현
-    //TODO 무중단배포 구현 - Travis CI Auto push 안되는거 수정하기
+    //TODO NGINX 이용 무중단배포 구현
 
     //TODO 현재 상담 채팅보낼시 채팅보낸쪽의 반대쪽에서 WebSocket이벤트로인한 채팅방 조회쿼리 나가는거 해결방법 모색하기
     //TODO Entity직접 노출하는 부분 너무 복잡하지 않으면 DTO로 필요한 값만 바인딩해서 보낼것
@@ -40,6 +40,8 @@ public class TodoClass {
      * 상담사, 고객 모두 상담목록페이지에서 특정한 방의 대화내용이 새롭게 추가될경우 WebSocket이용 Push방식으로 해당 상담방 상대방 닉네임옆에 알림(NEW)생성하도록 구현 - 완료
      * 상담사, 고객 모두 다른페이지에서 상담목록페이지 접근시 특정 방의 대화내용이 추가된 방은 상대방 닉네임옆에 알림(NEW)표시 기능 구현 - 완료
      * 상담사가 아닌계정으로 고객문의에 새로운 채팅이 올라올경우 알림줄것 (nonPush, Interceptor방식구현) - 완료(상담사도 알림볼수있도록 구현)
+     * Travis CI + AWS S3 + AWS CodeDeploy 연동해서 CI/CD 자동화
+     * Travis CI Auto push 안되는거 수정하기
      */
 
 }
