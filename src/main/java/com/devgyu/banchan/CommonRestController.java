@@ -23,4 +23,10 @@ public class CommonRestController {
 
         return new CategoryWrapper(allCategories);
     }
+
+    @GetMapping("/profile")
+    public String now_profile(){
+        String property = System.getProperty("spring.profiles.active");
+        return property;
+    }
 }

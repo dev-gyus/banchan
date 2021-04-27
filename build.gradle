@@ -39,6 +39,7 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
 
+    compile("org.springframework.boot:spring-boot-starter-actuator")
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     implementation("org.mariadb.jdbc:mariadb-java-client:2.6.0")
     runtimeOnly 'com.h2database:h2'

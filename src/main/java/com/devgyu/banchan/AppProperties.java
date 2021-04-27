@@ -10,4 +10,5 @@ import org.springframework.stereotype.Component;
 public class AppProperties {
     private String host;
     private String uploadFolderPrefix;
+    private String nowProfile;
 }

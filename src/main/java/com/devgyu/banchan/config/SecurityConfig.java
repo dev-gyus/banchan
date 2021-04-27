@@ -45,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .mvcMatchers("/", "/login/**", "/login", "/register/**", "/forgot/**").permitAll()
+                .mvcMatchers("/", "/login/**", "/login", "/register/**", "/forgot/**", "/app-status/**").permitAll()
                 .mvcMatchers("/mypage/**").hasRole("USER")
                 .mvcMatchers("/mystore/**", "/items/**", "/items").hasRole("OWNER")
                 .mvcMatchers("/rider/**").hasRole("RIDER")
