@@ -23,7 +23,6 @@ public class Chat {
     private LocalDateTime sendDate = LocalDateTime.now();
     @Enumerated(EnumType.STRING)
     private ChatRole chatRole;
-    private boolean read = false;
 
     public Chat(ChatRoom chatRoom, String message, ChatRole chatRole) {
         this.chatRoom = chatRoom;

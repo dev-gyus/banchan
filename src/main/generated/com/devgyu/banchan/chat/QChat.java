@@ -30,8 +30,6 @@ public class QChat extends EntityPathBase<Chat> {
 
     public final StringPath message = createString("message");
 
-    public final BooleanPath read = createBoolean("read");
-
     public final DateTimePath<java.time.LocalDateTime> sendDate = createDateTime("sendDate", java.time.LocalDateTime.class);
 
     public QChat(String variable) {
