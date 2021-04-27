@@ -19,9 +19,9 @@ notifications:
 
 #Deploy정보
 before_deploy:
-  - zip -r banchan-service *
-  - mkdir -p deploy
-  - mv banchan-service.zip deploy/banchan-service.zip
+  - zip -r banchan-service * # 배포 전 banchan-service.zip으로 프로젝트파일 압축
+  - mkdir -p deploy # deploy라는 폴더 만듦
+  - mv banchan-service.zip deploy/banchan-service.zip # 위에서 압축한 파일 deploy/banchan-service.zip파일로 이동
 
 deploy:
   - provider: s3
@@ -30,7 +30,7 @@ deploy:
     bucket: banchan-deploy # 6-3-3에서 생성한 S3 버킷
     region: ap-northeast-2
     skip_cleanup: true
-    acl: private
+    acl: private # s3에 업로드할때 travis가 부여받는 권한 (s3 퍼블릭접근 차단하면 private로 줘야 s3에 업로드가능함)
     wait-until-deployed: true
     local_dir: deploy # before_deploy에서 생성한 디렉토리
     on:
