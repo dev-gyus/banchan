@@ -3,7 +3,7 @@ package com.devgyu.banchan.todo;
 
 public class TodoClass {
     //TODO 테스트코드 작성 - 1순위 구현
-    //TODO 무중단배포 구현
+    //TODO 무중단배포 구현 - Travis CI Auto push 안되는거 수정하기
 
     //TODO 현재 상담 채팅보낼시 채팅보낸쪽의 반대쪽에서 WebSocket이벤트로인한 채팅방 조회쿼리 나가는거 해결방법 모색하기
     //TODO Entity직접 노출하는 부분 너무 복잡하지 않으면 DTO로 필요한 값만 바인딩해서 보낼것
