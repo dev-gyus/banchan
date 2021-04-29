@@ -110,12 +110,12 @@
             profileImage.src = store.thumbnail;
         }
         let imgDiv = document.createElement('div');
-        imgDiv.setAttribute('class', 'col-sm-6');
+        imgDiv.setAttribute('class', 'col-sm-3');
         imgDiv.appendChild(profileImage);
         rowDiv.appendChild(imgDiv);
 
         let storeName = document.createElement('div');
-        storeName.setAttribute('class', 'col-sm-6 align-self-center');
+        storeName.setAttribute('class', 'col-sm-9 align-self-center');
         storeName.innerText = store.name;
         rowDiv.appendChild(storeName);
 
