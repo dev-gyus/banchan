@@ -146,7 +146,7 @@
         } else {
             makeCreateMessage(chat);
         }
-        if(messageDiv.hasChildNodes()) {
+        if(messageDiv.lastElementChild != null) {
             messageDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
         }
     }
@@ -175,7 +175,9 @@
             }
         });
         connect();
-        messageDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
+        if(messageDiv.lastElementChild != null) {
+            messageDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
+        }
     });
 </script>
 
