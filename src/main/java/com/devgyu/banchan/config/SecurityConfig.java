@@ -86,6 +86,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .rememberMeCookieName("rememberLogin")
                 .tokenRepository(jdbcTokenRepository());
 
+        // websocket cors에 의한 x-option deny 설정 sameOrigin으로 변경
+        http
+                .headers().frameOptions().sameOrigin();
+
     }
 
     @Override
