@@ -4,6 +4,7 @@
 <head>
     <script src="/webjars/sockjs-client/sockjs.min.js"></script>
     <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}">
 </head>
 
 <body>
@@ -54,10 +55,10 @@
     let nowPage = 1;
     let isLast = false;
     let host = '[[${host}]]';
-    alert(host);
+    let token = $("meta[name='_csrf']").attr('content');
 
     function connect() {
-        var socket = new SockJS(host + '/websocket');
+        var socket = new SockJS(host + '/websocket?_csrf=' + token);
         stompClient = Stomp.over(socket);
         // SockJS와 stomp client를 통해 연결을 시도.
         stompClient.connect({}, function (frame) {
