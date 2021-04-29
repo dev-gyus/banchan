@@ -19,7 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/websocket").addInterceptors(httpHandShakeInterceptor).withSockJS();
+        registry.addEndpoint("/websocket").setAllowedOriginPatterns("/banchan-people.com/**", "/localhost:8443/**").addInterceptors(httpHandShakeInterceptor).withSockJS();
     }
 
     @Override

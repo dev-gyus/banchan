@@ -1,5 +1,6 @@
 package com.devgyu.banchan.chat;
 
+import com.devgyu.banchan.AppProperties;
 import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.CurrentUser;
 import com.devgyu.banchan.chatroom.*;
@@ -34,6 +35,7 @@ public class ChatController {
     private final ChatRepository chatRepository;
     private final ChatService chatService;
     private final ChatRoomService chatRoomService;
+    private final AppProperties appProperties;
 
     @GetMapping("/customer-service-list")
     public String customer_service_list(@CurrentUser Account account, Model model, HttpSession session) {
@@ -72,6 +74,7 @@ public class ChatController {
         }
         model.addAttribute("infoSent", infoSent);
         model.addAttribute("sessionId", session.getId());
+        model.addAttribute("host", appProperties.getHost());
         return "chat/main";
     }
 
@@ -105,6 +108,7 @@ public class ChatController {
                 infoSent = true;
             }
         }
+        model.addAttribute("host", appProperties.getHost());
         model.addAttribute("infoSent", infoSent);
         model.addAttribute("sessionId", sessionId);
         model.addAttribute("hasNewMessage", false);
