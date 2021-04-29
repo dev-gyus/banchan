@@ -75,7 +75,7 @@ public class ChatRoomRepositoryImpl implements ChatRoomQueryRepository{
         return queryFactory
                 .selectFrom(chatRoom)
                 .join(chatRoom.account, account).fetchJoin()
-                .join(chatRoom.counselor, counselor).fetchJoin()
+                .leftJoin(chatRoom.counselor, counselor).fetchJoin()
                 .where(account.id.eq(accountId).and(chatRoom.chatRoomStatus.eq(ChatRoomStatus.WAITING).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELLING).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.COUNSELOR_NEWMESSAGE).or(chatRoom.chatRoomStatus.eq(ChatRoomStatus.CUSTOMER_NEWMESSAGE))))))
                 .orderBy(chatRoom.regDate.desc())
                 .fetch();

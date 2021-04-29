@@ -68,6 +68,7 @@ public class ChatController {
         boolean infoSent = false;
         if(!isExist) {
             chatRoomService.createChatRoom(account.getId(), session.getId());
+            model.addAttribute("previousStatus", ChatRoomStatus.WAITING);
         }else{
             infoSent = true;
             return "redirect:/customer-service/" + session.getId();
@@ -84,6 +85,7 @@ public class ChatController {
         List<ChatRoom> findChatRoomList = chatRoomService.findChatFetchBySessionId(sessionId);
         if (findChatRoomList.isEmpty()) {
             chatRoomService.createChatRoom(account.getId(), sessionId);
+            model.addAttribute("previousStatus", ChatRoomStatus.WAITING);
         } else {
             Slice<Chat> tempChatRoom = chatRepository.findChatRoomAccountCounselorFetchBySessionId(sessionId, pageable);
             if (!tempChatRoom.isEmpty()) {
