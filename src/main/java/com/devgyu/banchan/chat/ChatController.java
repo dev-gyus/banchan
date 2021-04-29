@@ -92,10 +92,13 @@ public class ChatController {
                 }
 
                 String accountNickname = chatRoom.getAccount().getNickname();
-                String counselorNickname = chatRoom.getCounselor().getNickname();
+
+                if(chatRoom.getCounselor() != null) {
+                    String counselorNickname = chatRoom.getCounselor().getNickname();
+                    model.addAttribute("counselorNickname", counselorNickname);
+                }
 
                 model.addAttribute("accountNickname", accountNickname);
-                model.addAttribute("counselorNickname", counselorNickname);
                 model.addAttribute("hasNext", tempChatRoom.hasNext());
                 model.addAttribute("chatList", chatList);
                 model.addAttribute("previousStatus", chatRoom.getChatRoomStatus());

@@ -146,7 +146,9 @@
         } else {
             makeCreateMessage(chat);
         }
-        messageDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
+        if(messageDiv.hasChildNodes()) {
+            messageDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
+        }
     }
 
     function makeCreateMessage(chat) {
