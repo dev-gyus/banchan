@@ -55,7 +55,8 @@ public class RiderService {
         if(findOrders.getRiderOrders() != null){
             throw new IllegalArgumentException("이미 배송이 시작된 주문입니다");
         }
-        RiderOrders riderOrders = new RiderOrders(rider, findOrders);
+        Rider findRider = riderRepository.findById(rider.getId()).get();
+        RiderOrders riderOrders = new RiderOrders(findRider, findOrders);
         findOrders.setOrderStatus(OrderStatus.DELIVERY_READY);
 
         StoreOwner storeOwner = findOrders.getOrdersItemList().get(0).getItem().getStoreOwner();
