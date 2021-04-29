@@ -99,9 +99,9 @@
 
                 <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="상담목록"
                      th:if="${navAccount != null && #authorization.expr('isAuthenticated()') && navAccount.role == T(com.devgyu.banchan.account.Roles).ROLE_COUNSELOR}">
-                    <h4>
-                        <a th:href="@{/counselor/list}" class="btn btn-outline-primary me-1">상담목록</a>
+                    <h4 class="mt-2">
                         <span class="badge bg-danger" th:if="${hasNewMessage}" th:text="'NEW'">NEW</span>
+                        <a th:href="@{/counselor/list}" class="btn btn-outline-primary me-1">상담목록</a>
                     </h4>
                 </div>
 

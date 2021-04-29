@@ -48,9 +48,10 @@
   let sessionId = '[[${sessionId}]]';
   let chatMessage = document.createElement('chatMessage');
   let previousStatus = '[[${previousStatus}]]';
+  let host = '[[${host}]]';
 
   function connect() {
-    var socket = new SockJS('/websocket');
+    var socket = new SockJS(host + '/websocket');
     stompClient = Stomp.over(socket);
     // SockJS와 stomp client를 통해 연결을 시도.
     stompClient.connect({}, function (frame) {

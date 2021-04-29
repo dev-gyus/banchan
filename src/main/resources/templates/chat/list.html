@@ -55,9 +55,10 @@
     $(document).ready(function () {
         newMessageConnect();
     });
+    let host = '[[${host}]]';
 
     function newMessageConnect(){
-        var socket = new SockJS('/websocket');
+        var socket = new SockJS(host + '/websocket');
         stompClient = Stomp.over(socket);
         // SockJS와 stomp client를 통해 연결을 시도.
         stompClient.connect({}, function (frame) {

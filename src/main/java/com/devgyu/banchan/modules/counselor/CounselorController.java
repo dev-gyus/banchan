@@ -1,5 +1,6 @@
 package com.devgyu.banchan.modules.counselor;
 
+import com.devgyu.banchan.AppProperties;
 import com.devgyu.banchan.account.CurrentUser;
 import com.devgyu.banchan.chatroom.ChatRoom;
 import com.devgyu.banchan.chatroom.ChatRoomRepository;
@@ -34,6 +35,7 @@ public class CounselorController {
     private final ChatRoomService chatRoomService;
     private final ChatRoomRepository chatRoomRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final AppProperties appProperties;
 
     @GetMapping("/list")
     public String counselor_list(@CurrentUser Counselor counselor, @PageableDefault Pageable pageable, Model model) {
@@ -59,6 +61,7 @@ public class CounselorController {
         List<CounselorDto> counsellingChatRoomDtoList = counsellingChatRoomList.stream()
                 .map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
 
+        model.addAttribute("host", appProperties.getHost());
         model.addAttribute("hasNext", hasNext);
         model.addAttribute("waitingChatRoomList", waitingChatRoomDtoList);
         model.addAttribute("counsellingChatRoomList", counsellingChatRoomDtoList);
@@ -81,6 +84,7 @@ public class CounselorController {
         String accountNickname = chatRoom.getAccount().getNickname();
         String counselorNickname = counselor.getNickname();
 
+        model.addAttribute("host", appProperties.getHost());
         model.addAttribute("hasNext", tempChatList.hasNext());
         model.addAttribute("accountNickname", accountNickname);
         model.addAttribute("counselorNickname", counselorNickname);
