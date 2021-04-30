@@ -25,6 +25,7 @@
                 <span th:id="${chatRoom.sessionId + 'newTagSpan'}" th:if="${chatRoom.chatRoomStatus == T(com.devgyu.banchan.chatroom.ChatRoomStatus).CUSTOMER_NEWMESSAGE &&
                 chatRoom.chatRoomReadStatus != T(com.devgyu.banchan.chatroom.ChatRoomReadStatus).COUNSELOR_READ}" class="badge bg-danger">NEW</span>
             </h4>
+            <h4 th:text="'문의 신청일: ' + ${chatRoom.regDate}"></h4>
             <a class="stretched-link" th:href="@{'/counselor/' + ${chatRoom.sessionId} + '/join'}"></a>
             <hr>
         </div>
@@ -37,9 +38,8 @@
             <hr>
         </div>
         <div class="col-sm-10 position-relative" th:if="${waitingChatRoomList != null}" th:each="chatRoom : ${waitingChatRoomList}">
-            <h4>
-                <span th:text="'고객 닉네임: ' + ${chatRoom.nickname}"></span>
-            </h4>
+            <h4 th:text="'고객 닉네임: ' + ${chatRoom.nickname}"></h4>
+            <h4 th:text="'문의 신청일: ' + ${chatRoom.regDate}"></h4>
             <a class="stretched-link" th:href="@{'/counselor/' + ${chatRoom.sessionId} + '/join'}"></a>
             <hr>
         </div>
@@ -81,7 +81,7 @@
                         ajaxReady = true;
                     },
                     error: function () {
-                        alert('주문 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
+                        alert('상담 목록을 불러오던 중 에러가 발생했습니다. 에러가 지속적으로 발생시 관리자에게 문의해주세요');
                     }
                 });
             }
@@ -132,11 +132,14 @@
         customerServiceContainerDiv.className = 'col-sm-10 position-relative';
         let customerNicknameH4 = document.createElement('h4');
         customerNicknameH4.innerText = '고객 닉네임: ' + data.nickname;
+        let regDateH4 = document.createElement('h4');
+        regDateH4.innerText = '문의 신청일: ' + data.regDate;
         let newTagSpan = document.createElement('span');
         newTagSpan.className = 'badge bg-danger';
         newTagSpan.innerText = 'NEW';
         customerNicknameH4.appendChild(newTagSpan);
         customerServiceContainerDiv.appendChild(customerNicknameH4);
+        customerServiceContainerDiv.appendChild(regDateH4);
 
         let chatRoomLink = document.createElement('a');
         chatRoomLink.className = 'stretched-link';

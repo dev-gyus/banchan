@@ -45,11 +45,13 @@ public class CounselorController {
         if (waitingChatRoomList.isEmpty() && counsellingChatRoomList.isEmpty()) {
             return "counselor/list";
         } else if (!waitingChatRoomList.isEmpty() && counsellingChatRoomList.isEmpty()) {
-            List<CounselorDto> waitingChatRoomDtoList = waitingChatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
+            List<CounselorDto> waitingChatRoomDtoList = waitingChatRoomList.stream().map(c ->
+                    new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()))).collect(Collectors.toList());
             model.addAttribute("waitingChatRoomList", waitingChatRoomDtoList);
             return "counselor/list";
         } else if (waitingChatRoomList.isEmpty() && !counsellingChatRoomList.isEmpty()) {
-            List<CounselorDto> counsellingChatRoomDtoList = counsellingChatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
+            List<CounselorDto> counsellingChatRoomDtoList = counsellingChatRoomList.stream().map(c ->
+                    new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()))).collect(Collectors.toList());
             model.addAttribute("counsellingChatRoomList", counsellingChatRoomDtoList);
             return "counselor/list";
         }
@@ -57,9 +59,9 @@ public class CounselorController {
         boolean hasNext = waitingChatRoomList.hasNext();
 
         List<CounselorDto> waitingChatRoomDtoList = waitingChatRoomList.stream()
-                .map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
+                .map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()))).collect(Collectors.toList());
         List<CounselorDto> counsellingChatRoomDtoList = counsellingChatRoomList.stream()
-                .map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
+                .map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()))).collect(Collectors.toList());
 
         model.addAttribute("host", appProperties.getHost());
         model.addAttribute("hasNext", hasNext);
@@ -72,16 +74,25 @@ public class CounselorController {
     public CounselorApiDto api_waitingList(@PageableDefault Pageable pageable){
         Slice<ChatRoom> findChatRoom = chatRoomRepository.findAllByCounselorIsNull(pageable);
         List<ChatRoom> chatRoomList = findChatRoom.getContent();
-        List<CounselorDto> collect = chatRoomList.stream().map(c -> new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus())).collect(Collectors.toList());
+        List<CounselorDto> collect = chatRoomList.stream().map(c ->
+                new CounselorDto(c.getSessionId(), c.getId(), c.getAccount().getNickname(), c.getChatRoomStatus(), c.getChatRoomReadStatus(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()))).collect(Collectors.toList());
         return new CounselorApiDto(collect, findChatRoom.hasNext());
     }
 
     @GetMapping("/{sessionId}/join")
     public String counselor_join(@CurrentUser Counselor counselor, @PathVariable String sessionId, Model model, @PageableDefault Pageable pageable) {
-        ChatRoomStatus previousStatus = chatRoomService.changeStatus(sessionId, counselor);
+        StatusNicknameDto statusNicknameDto = chatRoomService.changeStatus(sessionId, counselor);
         Slice<Chat> tempChatList = chatRepository.findChatRoomAccountCounselorFetchBySessionId(sessionId, pageable);
-        ChatRoom chatRoom = tempChatList.getContent().get(0).getChatRoom();
-        String accountNickname = chatRoom.getAccount().getNickname();
+        String accountNickname = "";
+        ChatRoomStatus previousStatus;
+        if(tempChatList.hasContent()) {
+            ChatRoom chatRoom = tempChatList.getContent().get(0).getChatRoom();
+            accountNickname = chatRoom.getAccount().getNickname();
+            previousStatus = statusNicknameDto.getPreviousStatus();
+        }else{
+            accountNickname = statusNicknameDto.getAccountNickname();
+            previousStatus = ChatRoomStatus.WAITING;
+        }
         String counselorNickname = counselor.getNickname();
 
         model.addAttribute("host", appProperties.getHost());

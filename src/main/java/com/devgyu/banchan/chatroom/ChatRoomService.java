@@ -4,6 +4,7 @@ import com.devgyu.banchan.account.Account;
 import com.devgyu.banchan.account.AccountRepository;
 import com.devgyu.banchan.modules.counselor.Counselor;
 import com.devgyu.banchan.modules.counselor.CounselorRepository;
+import com.devgyu.banchan.modules.counselor.StatusNicknameDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,7 @@ public class ChatRoomService {
         return chatRoomRepository.existsBySessionId(sessionId);
     }
 
-    public ChatRoomStatus changeStatus(String sessionId, Counselor counselor) {
+    public StatusNicknameDto changeStatus(String sessionId, Counselor counselor) {
         List<ChatRoom> tempChatRoom = chatRoomRepository.findCounselorFetchBySessionId(sessionId);
         ChatRoom findChatRoom = tempChatRoom.get(0);
         if(findChatRoom.getCounselor() != null && !findChatRoom.getCounselor().getId().equals(counselor.getId())){
@@ -59,7 +60,7 @@ public class ChatRoomService {
             previousStatus = findChatRoom.getChatRoomStatus();
         }
 
-        return previousStatus;
+        return new StatusNicknameDto(previousStatus, findChatRoom.getAccount().getNickname());
     }
 
     public List<ChatRoom> findChatFetchBySessionId(String sessionId) {

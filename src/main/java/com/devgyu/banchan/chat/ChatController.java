@@ -46,9 +46,13 @@ public class ChatController {
         if (!chatRoomList.isEmpty()) {
             chatRoomList.forEach(c -> {
                 if (c.getChatRoomStatus() == ChatRoomStatus.WAITING) {
-                    waitingList.add(new ChatRoomDto(c.getCounselor().getNickname(), c.getSessionId(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()), c.getChatRoomStatus(), c.getChatRoomReadStatus()));
+                    waitingList.add(new ChatRoomDto(null, c.getSessionId(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()), c.getChatRoomStatus(), c.getChatRoomReadStatus()));
                 } else {
-                    counsellingList.add(new ChatRoomDto(c.getCounselor().getNickname(), c.getSessionId(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()), c.getChatRoomStatus(), c.getChatRoomReadStatus()));
+                    if(c.getCounselor() != null) {
+                        counsellingList.add(new ChatRoomDto(c.getCounselor().getNickname(), c.getSessionId(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()), c.getChatRoomStatus(), c.getChatRoomReadStatus()));
+                    }else {
+                        waitingList.add(new ChatRoomDto(null, c.getSessionId(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(c.getRegDate()), c.getChatRoomStatus(), c.getChatRoomReadStatus()));
+                    }
                 }
             });
         }else{
@@ -136,9 +140,10 @@ public class ChatController {
         String sessionId = chatDto.getSessionId();
         String message = nickname + "님 어서오세요. 곧 담당 상담사가 도착예정입니다.";
 
-        Chat newChat = chatService.addInfoMessage(sessionId, message);
+        ChatRegDateDto chatRegDateDto = chatService.addInfoMessage(sessionId, message);
+        Chat newChat = chatRegDateDto.getChat();
 
-        return new ChatDto(nickname, newChat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(newChat.getSendDate()), newChat.getChatRole(), sessionId);
+        return new ChatDto(nickname, newChat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").format(newChat.getSendDate()), newChat.getChatRole(), sessionId, chatRegDateDto.getChatRoomRegDate());
     }
 
     @MessageMapping("/chat/{sessionId}")

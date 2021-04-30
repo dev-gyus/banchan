@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -36,12 +37,13 @@ public class ChatService {
         return new Chat(chatRoom, message, chatRole);
     }
 
-    public Chat addInfoMessage(String sessionId, String message) {
+    public ChatRegDateDto addInfoMessage(String sessionId, String message) {
         List<ChatRoom> tempChatRoom = chatRoomRepository.findBySessionId(sessionId);
         ChatRoom chatRoom = tempChatRoom.get(0);
         if(chatRoom.getChatRoomStatus() != ChatRoomStatus.WAITING){
             throw new IllegalArgumentException("잘못된 요청입니다");
         }
-        return new Chat(chatRoom, message, ChatRole.INFO);
+        Chat newChat = new Chat(chatRoom, message, ChatRole.INFO);
+        return new ChatRegDateDto(newChat, DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:dd").format(chatRoom.getRegDate()));
     }
 }
