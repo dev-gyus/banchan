@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,6 +107,26 @@ public class CounselorController {
 
         return "counselor/join";
     }
+
+    @GetMapping("/api/{sessionId}/scrolling")
+    @ResponseBody
+    public ChatApiDto api_scrolling(@PathVariable String sessionId, @PageableDefault Pageable pageable){
+        Slice<Chat> findChatList = chatRepository.findChatRoomAccountCounselorFetchBySessionIdAndNoSort(sessionId, pageable);
+        List<Chat> content = findChatList.getContent();
+        List<ChatDto> convertedList = new ArrayList<>();
+        if(!content.isEmpty()) {
+            ChatRoom chatRoom = content.get(0).getChatRoom(); // Chat -> ChatRoom n:1 = 어떤 Chat에서 ChatRoom가져와도 같은 ChatRoom임
+            for (Chat chat : content) {
+                if (chat.getChatRole() == ChatRole.NORMAL) {
+                    convertedList.add(new ChatDto(chat.getId(), chatRoom.getAccount().getNickname(), chat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh-mm-ss").format(chat.getSendDate()), chat.getChatRole()));
+                }else if(chat.getChatRole() == ChatRole.COUNSELOR){
+                    convertedList.add(new ChatDto(chat.getId(), chatRoom.getCounselor().getNickname(), chat.getMessage(), DateTimeFormatter.ofPattern("yyyy-MM-dd hh-mm-ss").format(chat.getSendDate()), chat.getChatRole()));
+                }// ChatRole.Info는 리스트 추가 안함
+            }
+        }
+        return new ChatApiDto(convertedList, findChatList.isLast());
+    }
+
     @GetMapping("/api/{sessionId}/read-chat")
     @ResponseBody
     public ResponseEntity api_readChat(@PathVariable String sessionId, @RequestParam(defaultValue = "Init", required = false) String role){

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class ChatDto {
+    private Long id;
     private String nickname;
     private String message;
     private String sendDate;
@@ -30,5 +31,14 @@ public class ChatDto {
         this.chatRole = chatRole;
         this.sessionId = sessionId;
         this.regDate = regDate;
+    }
+
+    // ChatAPIDto용 생성자 (ChatController -> api_scrolling(...) method
+    public ChatDto(Long id, String nickname, String message, String sendDate, ChatRole chatRole) {
+        this.id = id;
+        this.nickname = nickname;
+        this.message = message;
+        this.sendDate = sendDate;
+        this.chatRole = chatRole;
     }
 }

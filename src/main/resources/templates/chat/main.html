@@ -19,11 +19,11 @@
             <div th:if="${chatList != null}" th:each="chat : ${chatList}">
                 <div id="createMessage" class="alert alert-info text-center fs-3" th:if="${chat.chatRole == T(com.devgyu.banchan.chat.ChatRole).INFO}"
                      th:text="${chat.message}"></div>
-                <div class="text-end" th:if="${chat.chatRole == T(com.devgyu.banchan.chat.ChatRole).NORMAL}">
+                <div th:id="${chat.id}" class="text-end" th:if="${chat.chatRole == T(com.devgyu.banchan.chat.ChatRole).NORMAL}">
                     <span th:text="${accountNickname}"></span><br>
                     <span style="background-color: #FFD700" th:text="${chat.message}"></span>
                 </div>
-                <div class="text-start" th:if="${chat.chatRole == T(com.devgyu.banchan.chat.ChatRole).COUNSELOR}">
+                <div th:id="${chat.id}" class="text-start" th:if="${chat.chatRole == T(com.devgyu.banchan.chat.ChatRole).COUNSELOR}">
                     <span th:text="${counselorNickname}"></span><br>
                     <span style="background-color: #F5F5F5" th:text="${chat.message}"></span>
                 </div>
@@ -54,6 +54,91 @@
     let nowPage = 1;
     let isLast = false;
     let host = '[[${host}]]';
+    let ajaxReady = true;
+    let firstId;
+    let isDuplicated = false;
+
+    function addMessages(){
+        let currentScroll = messageDiv.scrollTop;
+        if(currentScroll < 1 && ajaxReady && !isLast) {
+            ajaxReady = false;
+            $.ajax({
+                url: '/chat/api/' + sessionId + '/scrolling?page=' + nowPage,
+                type: 'get',
+                dataType: 'json',
+                success: function (result) {
+                    let chatDtoList = result.chatDtoList;
+                    isLast = result.last;
+
+                    for (let chatDto of chatDtoList) {
+                        let chatRole = chatDto.chatRole;
+                        let message = chatDto.message;
+                        let nickname = chatDto.nickname;
+                        let id = chatDto.id;
+
+                        if(chatDto == chatDtoList[0]){
+                            firstId = id;
+                        }
+
+                        if(document.getElementById(id) != null){
+                            firstId = id;
+                            isDuplicated = true;
+                            continue;
+                        }
+
+
+                        let chatContainer = document.createElement('div');
+                        chatContainer.id = id;
+
+                        if(chatRole == 'NORMAL'){
+                            chatContainer.className = 'text-end';
+                            let nickNameSpan = document.createElement('span');
+                            nickNameSpan.innerHTML = nickname + '<br>';
+                            chatContainer.appendChild(nickNameSpan);
+
+                            let messageSpan = document.createElement('span');
+                            messageSpan.style.backgroundColor = '#FFD700';
+                            messageSpan.innerText = message;
+                            chatContainer.appendChild(messageSpan);
+
+                            messageDiv.prepend(chatContainer);
+                        }else{
+                            chatContainer.className = 'text-start';
+                            let nickNameSpan = document.createElement('span');
+                            nickNameSpan.innerHTML = nickname + '<br>';
+                            chatContainer.appendChild(nickNameSpan);
+
+                            let messageSpan = document.createElement('span');
+                            messageSpan.style.backgroundColor = '#F5F5F5';
+                            messageSpan.innerText = message;
+                            chatContainer.appendChild(messageSpan);
+
+                            messageDiv.prepend(chatContainer);
+                        }
+                    }
+
+                    if(isDuplicated && !isLast){
+                        // 스크롤 도중에 채팅이 늘어나면 마지막 1개가 뒤로 밀려 서로 겹치게됨.
+                        // 따라서 1개만큼 더 스크롤바 위치가 이동해야함
+                        firstId = $('#' + firstId).prev().attr('id');
+                        isDuplicated = false;
+                    }
+                    if(!isLast) {
+                        let offset = $('#' + firstId).prev().offset();
+                        $('#messageDiv').animate({scrollTop: offset.top}, 0);
+                    }else {
+                        $('#messageDiv').animate(0, 0);
+                    }
+
+                    ajaxReady = true;
+                    if(!isLast) nowPage++;
+                }, error: function () {
+                    alert('채팅목록을 가져오는 중 에러가 발생하였습니다. 계속 발생할경우 관리자에게 문의해주세요.');
+                    ajaxReady = true;
+                }
+            });
+        }
+    }
 
     function connect() {
         var socket = new SockJS(host + '/websocket');
@@ -148,7 +233,7 @@
             makeCreateMessage(chat);
         }
         if(messageDiv.lastElementChild != null) {
-            messageDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
+            messageDiv.lastElementChild.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});;
         }
     }
 
@@ -177,8 +262,12 @@
         });
         connect();
         if(messageDiv.lastElementChild != null) {
-            messageDiv.lastElementChild.scrollIntoView({behavior: "smooth"});
+            messageDiv.lastElementChild.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});;
         }
+
+        $('#messageDiv').on('scroll', function (e){
+            addMessages();
+        });
     });
 </script>
 

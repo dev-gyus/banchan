@@ -7,6 +7,7 @@ import org.springframework.data.domain.SliceImpl;
 
 import javax.persistence.EntityManager;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -55,6 +56,34 @@ public class ChatRepositoryImpl implements ChatQueryRepository{
             chatList = new SliceImpl<>(result, pageable, false);
         }
 
+        return chatList;
+    }
+
+    @Override
+    public Slice<Chat> findChatRoomAccountCounselorFetchBySessionIdAndNoSort(String sessionId, Pageable pageable) {
+        List<Chat> result = queryFactory
+                .selectFrom(chat)
+                .join(chat.chatRoom, chatRoom).fetchJoin()
+                .join(chatRoom.account, account).fetchJoin()
+                .leftJoin(chatRoom.counselor, counselor).fetchJoin()
+                .where(chatRoom.sessionId.eq(sessionId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .orderBy(chat.sendDate.desc())
+                .fetch();
+
+        SliceImpl<Chat> chatList;
+        if(result.size() > pageable.getPageSize()){
+            result.remove(0);
+            chatList = new SliceImpl<>(result, pageable, true);
+        }else{
+            if(!result.isEmpty()) {
+                result.remove(0);
+                chatList = new SliceImpl<>(result, pageable, false);
+            }else{
+                chatList = new SliceImpl<>(Collections.EMPTY_LIST, pageable, false);
+            }
+        }
         return chatList;
     }
 }
